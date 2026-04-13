@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="/css/stemlytics.css">
 <style>
-  /* Player specific styles - same as your original player */
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   
   .shell {
@@ -279,11 +278,16 @@
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script type="module">
-  import { sb, auth, checkAccess } from './js/supabase.js';
+  import { sb, checkAccess } from './js/supabase.js';
 
   let player, lectures = [], curIdx = 0;
   const urlParams = new URLSearchParams(window.location.search);
   const courseId = urlParams.get('id');
+
+  if (!courseId) {
+    window.location.href = '/';
+    throw new Error('No course specified');
+  }
 
   // Check access first
   const hasAccess = await checkAccess(courseId);
@@ -294,7 +298,7 @@
           <i class="fas fa-lock text-6xl text-gold/50 mb-6"></i>
           <h2 class="text-2xl font-bold mb-4">Access Restricted</h2>
           <p class="text-gray-400 mb-6">You don't have access to this course</p>
-          <a href="/" class="bg-gold text-navy px-6 py-3 rounded-lg font-bold">Back to Catalog</a>
+          <a href="/" class="bg-gold text-navy px-6 py-3 rounded-lg font-bold hover:bg-gold/90">Back to Catalog</a>
         </div>
       </div>
     `;
@@ -313,7 +317,21 @@
     .order('order_index', { ascending: true });
 
   lectures = lecturesData || [];
-  document.getElementById('lectureCount').textContent = `${lectures.length} lectures`;
+  document.getElementById('lectureCount').textContent = `${lectures.length} lecture${lectures.length !== 1 ? 's' : ''}`;
+
+  if (lectures.length === 0) {
+    document.body.innerHTML = `
+      <div class="shell" style="justify-content:center;align-items:center">
+        <div class="text-center">
+          <i class="fas fa-video-slash text-6xl text-gold/50 mb-6"></i>
+          <h2 class="text-2xl font-bold mb-4">No Lectures Yet</h2>
+          <p class="text-gray-400 mb-6">This course doesn't have any lectures yet.</p>
+          <a href="/" class="bg-gold text-navy px-6 py-3 rounded-lg font-bold">Back to Catalog</a>
+        </div>
+      </div>
+    `;
+    throw new Error('No lectures');
+  }
 
   // Build sidebar
   const trackList = document.getElementById('trackList');
@@ -340,7 +358,8 @@
         rel: 0,
         modestbranding: 1,
         fs: 0,
-        disablekb: 1
+        disablekb: 1,
+        playsinline: 1
       },
       events: {
         onReady: () => {
@@ -357,6 +376,11 @@
             document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i>';
           } else {
             document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i>';
+          }
+          
+          if (e.data === YT.PlayerState.ENDED && curIdx < lectures.length - 1) {
+            loadLecture(curIdx + 1);
+            player.playVideo();
           }
         }
       }
@@ -376,6 +400,22 @@
     const m = Math.floor(s / 60);
     const sec = Math.floor(s % 60);
     return `${m}:${sec.toString().padStart(2,'0')}`;
+  }
+
+  function loadLecture(idx) {
+    curIdx = idx;
+    const lec = lectures[idx];
+    
+    document.querySelectorAll('.track-item').forEach((el, i) => {
+      el.classList.toggle('active', i === idx);
+    });
+    
+    document.getElementById('lecTitle').textContent = lec.title;
+    document.getElementById('lecMeta').textContent = lec.description || '';
+    document.getElementById('thumbBg').src = `https://img.youtube.com/vi/${lec.youtube_embed_id}/maxresdefault.jpg`;
+    document.getElementById('thumbCover').classList.remove('gone');
+    
+    player?.loadVideoById(lec.youtube_embed_id);
   }
 
   // Event Listeners
@@ -410,36 +450,43 @@
     if (item) {
       const idx = parseInt(item.dataset.index);
       loadLecture(idx);
+      player?.playVideo();
     }
   });
 
-  function loadLecture(idx) {
-    curIdx = idx;
-    const lec = lectures[idx];
-    
-    document.querySelectorAll('.track-item').forEach((el, i) => {
-      el.classList.toggle('active', i === idx);
-    });
-    
-    document.getElementById('lecTitle').textContent = lec.title;
-    document.getElementById('lecMeta').textContent = lec.description || '';
-    document.getElementById('thumbBg').src = `https://img.youtube.com/vi/${lec.youtube_embed_id}/maxresdefault.jpg`;
-    document.getElementById('thumbCover').classList.remove('gone');
-    
-    player?.loadVideoById(lec.youtube_embed_id);
-  }
-
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      document.getElementById('playBtn').click();
-    } else if (e.code === 'ArrowLeft') {
-      e.preventDefault();
-      document.getElementById('rewBtn').click();
-    } else if (e.code === 'ArrowRight') {
-      e.preventDefault();
-      document.getElementById('fwdBtn').click();
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    
+    switch (e.code) {
+      case 'Space':
+        e.preventDefault();
+        document.getElementById('playBtn').click();
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        document.getElementById('rewBtn').click();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        document.getElementById('fwdBtn').click();
+        break;
+      case 'KeyF':
+        e.preventDefault();
+        document.getElementById('fsBtn').click();
+        break;
+      case 'KeyN':
+        if (curIdx < lectures.length - 1) {
+          loadLecture(curIdx + 1);
+          player?.playVideo();
+        }
+        break;
+      case 'KeyP':
+        if (curIdx > 0) {
+          loadLecture(curIdx - 1);
+          player?.playVideo();
+        }
+        break;
     }
   });
 </script>
