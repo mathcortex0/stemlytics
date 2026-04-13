@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stemlytics · Master STEM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/stemlytics.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-navy text-white">
+
+<!-- Navigation -->
+<nav class="border-b border-gray-800 bg-charcoal/50 backdrop-blur sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-3">
+        <div class="w-2.5 h-2.5 bg-gold rounded-full animate-pulse"></div>
+        <span class="text-xl font-bold font-syne text-white">Stemlytics</span>
+      </div>
+      <div id="authSection" class="flex items-center gap-3">
+        <!-- Auth UI renders here -->
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <!-- Catalog View (Default) -->
+  <div id="catalogView">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold font-syne mb-2">Available Courses</h2>
+      <p class="text-gray-400">Master STEM subjects with our premium video lectures</p>
+    </div>
+    <div id="courseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Courses render here -->
+    </div>
+  </div>
+
+  <!-- Admin Dashboard View (Hidden by default) -->
+  <div id="adminView" class="hidden">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold font-syne mb-2">Admin Dashboard</h2>
+      <p class="text-gray-400">Manage courses, users, and access</p>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-gray-800">
+      <button class="admin-tab active px-4 py-2 text-gold border-b-2 border-gold" data-tab="courses">Courses</button>
+      <button class="admin-tab px-4 py-2 text-gray-400 hover:text-white" data-tab="users">Users</button>
+      <button class="admin-tab px-4 py-2 text-gray-400 hover:text-white" data-tab="enrollments">Enrollments</button>
+      <button class="admin-tab px-4 py-2 text-gray-400 hover:text-white" data-tab="invites">Invite Codes</button>
+    </div>
+
+    <!-- Courses Tab -->
+    <div id="coursesTab" class="admin-panel">
+      <div class="flex justify-end mb-4">
+        <button onclick="showCreateCourseModal()" class="bg-gold text-navy px-4 py-2 rounded-lg font-bold hover:bg-gold/90">
+          <i class="fas fa-plus mr-2"></i>Add Course
+        </button>
+      </div>
+      <div id="adminCoursesList" class="space-y-3">
+        <!-- Course management list -->
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="usersTab" class="admin-panel hidden">
+      <div class="flex justify-end mb-4">
+        <button onclick="showCreateUserModal()" class="bg-gold text-navy px-4 py-2 rounded-lg font-bold hover:bg-gold/90">
+          <i class="fas fa-user-plus mr-2"></i>Create User
+        </button>
+      </div>
+      <div id="adminUsersList" class="space-y-3">
+        <!-- Users list -->
+      </div>
+    </div>
+
+    <!-- Enrollments Tab -->
+    <div id="enrollmentsTab" class="admin-panel hidden">
+      <div id="pendingEnrollmentsList" class="space-y-3">
+        <!-- Pending enrollments -->
+      </div>
+    </div>
+
+    <!-- Invite Codes Tab -->
+    <div id="invitesTab" class="admin-panel hidden">
+      <div class="flex justify-end mb-4">
+        <button onclick="showGenerateInviteModal()" class="bg-gold text-navy px-4 py-2 rounded-lg font-bold hover:bg-gold/90">
+          <i class="fas fa-key mr-2"></i>Generate Invite Code
+        </button>
+      </div>
+      <div id="inviteCodesList" class="space-y-3">
+        <!-- Active invite codes -->
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Modals -->
+<div id="modalOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <!-- Dynamic modal content -->
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+<!-- Scripts -->
+<script type="module">
+  import { sb, auth, checkAccess, isAdmin, getCurrentUser } from './js/supabase.js';
+  import { renderCatalog, renderAdminPanel, showToast, modal } from './js/app.js';
+
+  // Initialize App
+  window.sb = sb;
+  window.auth = auth;
+  window.showToast = showToast;
+  window.modal = modal;
+
+  // Auth State Observer
+  auth.onAuthChange(async (event, session) => {
+    const authSection = document.getElementById('authSection');
+    const adminView = document.getElementById('adminView');
+    const catalogView = document.getElementById('catalogView');
+    
+    if (session?.user) {
+      const user = session.user;
+      const admin = await isAdmin();
+      
+      // Update Auth UI
+      authSection.innerHTML = `
+        <span class="text-sm text-gray-400 hidden sm:inline">${user.email}</span>
+        ${admin ? '<span class="text-xs bg-gold/20 text-gold px-2 py-1 rounded-full border border-gold/30">Admin</span>' : ''}
+        <button onclick="auth.signOut()" class="text-gray-400 hover:text-white transition">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      `;
+
+      // Show admin panel if admin
+      if (admin) {
+        adminView.classList.remove('hidden');
+        catalogView.classList.add('hidden');
+        await renderAdminPanel();
+      } else {
+        adminView.classList.add('hidden');
+        catalogView.classList.remove('hidden');
+        await renderCatalog();
+      }
+    } else {
+      // Not logged in
+      authSection.innerHTML = `
+        <input type="email" id="loginEmail" placeholder="Your email" 
+               class="bg-charcoal border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:border-gold outline-none">
+        <button onclick="handleLogin()" class="bg-gold text-navy px-4 py-1.5 rounded-lg font-bold text-sm hover:bg-gold/90">
+          Login
+        </button>
+      `;
+      adminView.classList.add('hidden');
+      catalogView.classList.remove('hidden');
+      await renderCatalog();
+    }
+  });
+
+  // Global Login Handler
+  window.handleLogin = async () => {
+    const email = document.getElementById('loginEmail')?.value;
+    if (!email) {
+      showToast('Please enter your email', 'error');
+      return;
+    }
+    
+    const { error } = await auth.signIn(email);
+    if (error) {
+      showToast(error.message, 'error');
+    } else {
+      showToast('Magic link sent! Check your email', 'success');
+      document.getElementById('loginEmail').value = '';
+    }
+  };
+
+  // Initial render
+  renderCatalog();
+
+  // Tab switching for admin panel
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.dataset.tab;
+      
+      // Update active tab styling
+      document.querySelectorAll('.admin-tab').forEach(t => {
+        t.classList.remove('active', 'text-gold', 'border-b-2', 'border-gold');
+        t.classList.add('text-gray-400');
+      });
+      tab.classList.add('active', 'text-gold', 'border-b-2', 'border-gold');
+      
+      // Show selected panel
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+    });
+  });
+</script>
+
+</body>
+</html>
