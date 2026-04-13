@@ -130,6 +130,10 @@ body {
   box-shadow: 0 0 0 3px var(--gold-dim);
 }
 
+.input-field::placeholder {
+  color: var(--gray);
+}
+
 /* Button Styles */
 .btn-primary {
   background: var(--gold);
@@ -161,4 +165,23 @@ body {
 .btn-secondary:hover {
   border-color: var(--gold);
   background: var(--gold-dim);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--navy);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--charcoal);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border);
 }
