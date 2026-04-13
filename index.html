@@ -13,7 +13,7 @@
 <body class="bg-navy text-white">
 
 <!-- Navigation -->
-<nav class="border-b border-gray-800 bg-charcoal/50 backdrop-blur sticky top-0 z-50">
+<nav class="border-b border-gray-800 bg-charcoal/50 backdrop-blur sticky top-0 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <div class="flex items-center gap-3">
@@ -38,6 +38,10 @@
     </div>
     <div id="courseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Courses render here -->
+      <div class="col-span-full text-center py-12 text-gray-400">
+        <i class="fas fa-spinner fa-spin text-2xl mb-3"></i>
+        <p>Loading courses...</p>
+      </div>
     </div>
   </div>
 
@@ -64,7 +68,7 @@
         </button>
       </div>
       <div id="adminCoursesList" class="space-y-3">
-        <!-- Course management list -->
+        <p class="text-gray-400 text-center py-8">Loading courses...</p>
       </div>
     </div>
 
@@ -76,14 +80,14 @@
         </button>
       </div>
       <div id="adminUsersList" class="space-y-3">
-        <!-- Users list -->
+        <p class="text-gray-400 text-center py-8">Loading users...</p>
       </div>
     </div>
 
     <!-- Enrollments Tab -->
     <div id="enrollmentsTab" class="admin-panel hidden">
       <div id="pendingEnrollmentsList" class="space-y-3">
-        <!-- Pending enrollments -->
+        <p class="text-gray-400 text-center py-8">Loading enrollments...</p>
       </div>
     </div>
 
@@ -95,114 +99,64 @@
         </button>
       </div>
       <div id="inviteCodesList" class="space-y-3">
-        <!-- Active invite codes -->
+        <p class="text-gray-400 text-center py-8">Loading invite codes...</p>
       </div>
     </div>
   </div>
 
 </main>
 
-<!-- Modals -->
+<!-- General Modal Overlay -->
 <div id="modalOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
   <!-- Dynamic modal content -->
+</div>
+
+<!-- Lecture Management Modal -->
+<div id="lectureModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-charcoal border border-gray-800 rounded-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl font-bold font-syne" id="lectureModalTitle">Manage Lectures</h3>
+      <button onclick="closeLectureModal()" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- Add Lecture Form -->
+    <div class="bg-navy-light border border-gray-800 rounded-xl p-4 mb-6">
+      <h4 class="font-bold mb-3"><i class="fas fa-plus-circle text-gold mr-2"></i>Add New Lecture</h4>
+      <form id="addLectureForm" class="space-y-3">
+        <input type="hidden" id="currentCourseId">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input type="text" id="lectureTitle" placeholder="Lecture Title" class="input-field" required>
+          <input type="text" id="youtubeId" placeholder="YouTube Video ID (e.g., jNQXAC9IVRw)" class="input-field" required>
+        </div>
+        <input type="text" id="lectureDesc" placeholder="Description (optional)" class="input-field">
+        <div class="grid grid-cols-2 gap-3">
+          <input type="number" id="lectureOrder" placeholder="Order (1,2,3...)" class="input-field" value="1" min="1">
+          <input type="number" id="lectureDuration" placeholder="Duration in minutes (optional)" class="input-field">
+        </div>
+        <button type="submit" class="bg-gold text-navy px-6 py-2 rounded-lg font-bold hover:bg-gold/90">
+          <i class="fas fa-plus mr-2"></i>Add Lecture
+        </button>
+      </form>
+    </div>
+    
+    <!-- Lectures List -->
+    <div class="space-y-2">
+      <h4 class="font-bold mb-3"><i class="fas fa-list mr-2"></i>Current Lectures</h4>
+      <div id="lecturesList" class="space-y-2">
+        <p class="text-gray-400 text-center py-4">Loading lectures...</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Toast Container -->
 <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 
 <!-- Scripts -->
-<script type="module">
-  import { sb, auth, checkAccess, isAdmin, getCurrentUser } from './js/supabase.js';
-  import { renderCatalog, renderAdminPanel, showToast, modal } from './js/app.js';
-
-  // Initialize App
-  window.sb = sb;
-  window.auth = auth;
-  window.showToast = showToast;
-  window.modal = modal;
-
-  // Auth State Observer
-  auth.onAuthChange(async (event, session) => {
-    const authSection = document.getElementById('authSection');
-    const adminView = document.getElementById('adminView');
-    const catalogView = document.getElementById('catalogView');
-    
-    if (session?.user) {
-      const user = session.user;
-      const admin = await isAdmin();
-      
-      // Update Auth UI
-      authSection.innerHTML = `
-        <span class="text-sm text-gray-400 hidden sm:inline">${user.email}</span>
-        ${admin ? '<span class="text-xs bg-gold/20 text-gold px-2 py-1 rounded-full border border-gold/30">Admin</span>' : ''}
-        <button onclick="auth.signOut()" class="text-gray-400 hover:text-white transition">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      `;
-
-      // Show admin panel if admin
-      if (admin) {
-        adminView.classList.remove('hidden');
-        catalogView.classList.add('hidden');
-        await renderAdminPanel();
-      } else {
-        adminView.classList.add('hidden');
-        catalogView.classList.remove('hidden');
-        await renderCatalog();
-      }
-    } else {
-      // Not logged in
-      authSection.innerHTML = `
-        <input type="email" id="loginEmail" placeholder="Your email" 
-               class="bg-charcoal border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:border-gold outline-none">
-        <button onclick="handleLogin()" class="bg-gold text-navy px-4 py-1.5 rounded-lg font-bold text-sm hover:bg-gold/90">
-          Login
-        </button>
-      `;
-      adminView.classList.add('hidden');
-      catalogView.classList.remove('hidden');
-      await renderCatalog();
-    }
-  });
-
-  // Global Login Handler
-  window.handleLogin = async () => {
-    const email = document.getElementById('loginEmail')?.value;
-    if (!email) {
-      showToast('Please enter your email', 'error');
-      return;
-    }
-    
-    const { error } = await auth.signIn(email);
-    if (error) {
-      showToast(error.message, 'error');
-    } else {
-      showToast('Magic link sent! Check your email', 'success');
-      document.getElementById('loginEmail').value = '';
-    }
-  };
-
-  // Initial render
-  renderCatalog();
-
-  // Tab switching for admin panel
-  document.querySelectorAll('.admin-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabName = tab.dataset.tab;
-      
-      // Update active tab styling
-      document.querySelectorAll('.admin-tab').forEach(t => {
-        t.classList.remove('active', 'text-gold', 'border-b-2', 'border-gold');
-        t.classList.add('text-gray-400');
-      });
-      tab.classList.add('active', 'text-gold', 'border-b-2', 'border-gold');
-      
-      // Show selected panel
-      document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
-      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
-    });
-  });
-</script>
+<script type="module" src="/js/supabase.js"></script>
+<script type="module" src="/js/app.js"></script>
 
 </body>
 </html>
