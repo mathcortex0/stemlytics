@@ -88,13 +88,20 @@ export async function validateInviteCode(code, courseId) {
   const { data, error } = await sb
     .from('invite_codes')
     .select('*')
-    .eq('code', code)
+    .eq('code', code.toUpperCase())
     .eq('course_id', courseId)
     .eq('is_active', true)
     .gt('expires_at', new Date().toISOString())
     .single();
   
-  return data || null;
+  if (error) return null;
+  
+  // Check max uses
+  if (data.max_uses && data.usage_count >= data.max_uses) {
+    return null;
+  }
+  
+  return data;
 }
 
 // Use invite code
@@ -113,7 +120,7 @@ export async function useInviteCode(code, courseId) {
       user_id: user.id,
       course_id: courseId,
       status: 'approved',
-      invite_code_used: code
+      invite_code_used: code.toUpperCase()
     });
   
   if (enrollError) throw enrollError;
