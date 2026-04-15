@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Varsity Admission</title>
+    <style>
+        body { padding: 20px; font-family: sans-serif; background: #0B1F3A; color: white; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { width: 100%; padding: 15px; background: #C9A84C; border: none; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Add New Varsity Update</h2>
+    <input type="password" id="key" placeholder="Admin Password">
+    <input type="text" id="uni" placeholder="University Name">
+    <input type="text" id="unit" placeholder="Unit">
+    <input type="text" id="date" placeholder="Exam Date">
+    <input type="text" id="dl" placeholder="Deadline">
+    <input type="text" id="link" placeholder="Apply Link">
+    <textarea id="note" placeholder="Short Note"></textarea>
+    <button onclick="save()">SAVE TO DATABASE</button>
+
+    <script>
+        async function save() {
+            const key = document.getElementById('key').value;
+            const data = {
+                uni_name: document.getElementById('uni').value,
+                unit_name: document.getElementById('unit').value,
+                exam_date: document.getElementById('date').value,
+                apply_deadline: document.getElementById('dl').value,
+                apply_link: document.getElementById('link').value,
+                important_note: document.getElementById('note').value
+            };
+            const res = await fetch(`/api/manage?key=${key}`, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+            if(res.ok) alert("Saved!"); else alert("Failed!");
+        }
+    </script>
+</body>
+</html>
