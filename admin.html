@@ -1,42 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Varsity Admission</title>
-    <style>
-        body { padding: 20px; font-family: sans-serif; background: #0B1F3A; color: white; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
-        button { width: 100%; padding: 15px; background: #C9A84C; border: none; font-weight: bold; cursor: pointer; }
-    </style>
+    <title>Nexora Academy - Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <h2>Add New Varsity Update</h2>
-    <input type="password" id="key" placeholder="Admin Password">
-    <input type="text" id="uni" placeholder="University Name">
-    <input type="text" id="unit" placeholder="Unit">
-    <input type="text" id="date" placeholder="Exam Date">
-    <input type="text" id="dl" placeholder="Deadline">
-    <input type="text" id="link" placeholder="Apply Link">
-    <textarea id="note" placeholder="Short Note"></textarea>
-    <button onclick="save()">SAVE TO DATABASE</button>
 
-    <script>
-        async function save() {
-            const key = document.getElementById('key').value;
-            const data = {
-                uni_name: document.getElementById('uni').value,
-                unit_name: document.getElementById('unit').value,
-                exam_date: document.getElementById('date').value,
-                apply_deadline: document.getElementById('dl').value,
-                apply_link: document.getElementById('link').value,
-                important_note: document.getElementById('note').value
-            };
-            const res = await fetch(`/api/manage?key=${key}`, {
-                method: 'POST',
-                body: JSON.stringify(data)
-            });
-            if(res.ok) alert("Saved!"); else alert("Failed!");
-        }
-    </script>
+<nav class="navbar">
+    <div class="logo">📚 Nexora Academy Admin</div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="player.html">Player</a>
+    </div>
+    <button id="adminLogoutBtn" class="btn-outline">Logout</button>
+</nav>
+
+<div class="container">
+    <h1>⚙️ Admin Dashboard</h1>
+    
+    <!-- Course Selector -->
+    <div class="dashboard-card">
+        <h3>Select Course to Manage</h3>
+        <select id="adminCourseSelect">
+            <option value="">-- Select Course --</option>
+        </select>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="requests">📋 Enrollment Requests</button>
+        <button class="tab-btn" data-tab="users">👥 Approved Users</button>
+        <button class="tab-btn" data-tab="codes">🔑 Access Codes</button>
+        <button class="tab-btn" data-tab="content">📚 Content Management</button>
+    </div>
+
+    <!-- Tab: Enrollment Requests -->
+    <div id="requestsTab" class="tab-content active">
+        <div class="dashboard-card">
+            <div class="stats">
+                <div class="stat">Total Requests: <span id="totalRequests">0</span></div>
+                <div class="stat">Pending: <span id="pendingRequests">0</span></div>
+                <div class="stat">Approved: <span id="approvedRequests">0</span></div>
+            </div>
+            <h3>Pending Requests</h3>
+            <div id="pendingRequestsList" class="request-list">Select a course</div>
+        </div>
+    </div>
+
+    <!-- Tab: Approved Users -->
+    <div id="usersTab" class="tab-content">
+        <div class="dashboard-card">
+            <h3>Users with Access</h3>
+            <div id="approvedUsersList" class="user-list">Select a course</div>
+        </div>
+    </div>
+
+    <!-- Tab: Access Codes Management -->
+    <div id="codesTab" class="tab-content">
+        <div class="dashboard-card">
+            <h3>🔑 Generate Access Codes</h3>
+            <p>Create unique access codes to give to students after payment confirmation</p>
+            <div class="form-group">
+                <label>Number of codes to generate:</label>
+                <input type="number" id="numCodes" placeholder="e.g., 5" min="1" max="100" value="5">
+                <button id="generateCodesBtn" class="btn-primary">Generate Codes</button>
+            </div>
+            
+            <hr>
+            
+            <h3>📋 Available Access Codes (Unused)</h3>
+            <div id="accessCodesList" class="codes-list">
+                <div class="loading">Select a course to view codes</div>
+            </div>
+            
+            <h3 style="margin-top: 20px;">✅ Used Access Codes</h3>
+            <div id="usedCodesList" class="codes-list">
+                <div class="loading">Select a course to view used codes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Content Management -->
+    <div id="contentTab" class="tab-content">
+        <div class="dashboard-card">
+            <h3>📚 Course Structure Builder</h3>
+            
+            <!-- Add Subject -->
+            <div class="form-group">
+                <h4>➕ Add New Subject</h4>
+                <input type="text" id="newSubjectName" placeholder="Subject Name (e.g., Physics)">
+                <button id="addSubjectBtn" class="btn-primary">Add Subject</button>
+            </div>
+            <hr>
+
+            <!-- Add Paper (Optional) -->
+            <div class="form-group">
+                <h4>📄 Add Paper (Optional - skip if not needed)</h4>
+                <select id="paperSubjectSelect">
+                    <option value="">Select Subject first</option>
+                </select>
+                <input type="text" id="newPaperName" placeholder="Paper Name (e.g., 1st Paper)">
+                <button id="addPaperBtn" class="btn-primary">Add Paper</button>
+            </div>
+            <hr>
+
+            <!-- Add Chapter -->
+            <div class="form-group">
+                <h4>📖 Add Chapter</h4>
+                <select id="chapterParentSelect">
+                    <option value="">Select Subject or Paper</option>
+                </select>
+                <input type="text" id="newChapterName" placeholder="Chapter Title">
+                <button id="addChapterBtn" class="btn-primary">Add Chapter</button>
+            </div>
+            <hr>
+
+            <!-- Add Lecture -->
+            <div class="form-group">
+                <h4>🎥 Add Lecture (Video)</h4>
+                <select id="lectureChapterSelect">
+                    <option value="">Select Chapter first</option>
+                </select>
+                <input type="text" id="newLectureTitle" placeholder="Lecture Title">
+                <input type="url" id="newLectureUrl" placeholder="Video URL (MP4 direct link or YouTube embed)">
+                <button id="addLectureBtn" class="btn-primary">Add Lecture</button>
+            </div>
+            
+            <hr>
+            
+            <!-- View Current Structure -->
+            <h4>📖 Current Course Structure</h4>
+            <div id="courseStructureView" class="structure-view">
+                <div class="loading">Select a course to view structure</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
