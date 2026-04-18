@@ -43,7 +43,7 @@ async function checkAuth() {
         loginBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
         logoutBtns.forEach(btn => { if (btn) btn.style.display = 'inline-block'; });
         
-        // Check if admin (you can set admin email)
+        // Check if admin (you can change this email)
         const isAdmin = user.email === 'admin@nexora.com';
         if (adminLink && isAdmin) adminLink.style.display = 'inline';
     } else {
@@ -122,14 +122,12 @@ async function loadCourses() {
                 return;
             }
             const courseId = btn.dataset.courseId;
-            const courseTitle = btn.dataset.courseTitle;
             selectedCourseForEnrollment = courseId;
             document.getElementById('selectedCourseId').value = courseId;
             document.getElementById('accessCodePanel').style.display = 'block';
             document.getElementById('codeError').textContent = '';
             document.getElementById('accessCodeInput').value = '';
             
-            // Scroll to panel
             document.getElementById('accessCodePanel').scrollIntoView({ behavior: 'smooth' });
         });
     });
@@ -150,7 +148,7 @@ async function verifyAndEnroll() {
         return;
     }
     
-    // Check if code exists and is unused for this course
+    // Check if code exists and is unused
     const { data: codeData, error: codeError } = await supabase
         .from('access_codes')
         .select('*')
@@ -188,7 +186,7 @@ async function verifyAndEnroll() {
         return;
     }
     
-    // Grant access to user
+    // Grant access
     const { error: accessError } = await supabase
         .from('user_access')
         .insert({
@@ -202,17 +200,44 @@ async function verifyAndEnroll() {
         return;
     }
     
-    // Create enrollment record
-    await supabase.from('enroll_requests').insert({
-        user_id: currentUser.id,
-        course_id: courseId,
-        access_code: accessCode,
-        status: 'approved'
-    });
-    
     alert('✅ Access granted! You can now access the course content.');
     document.getElementById('accessCodePanel').style.display = 'none';
     document.getElementById('codeError').textContent = '';
+}
+
+// Convert YouTube URL to embed URL
+function getYouTubeEmbedUrl(url) {
+    if (!url) return null;
+    
+    // Check if it's already an embed URL
+    if (url.includes('youtube.com/embed/')) return url;
+    
+    // Extract video ID
+    let videoId = null;
+    
+    // Format: https://youtu.be/VIDEO_ID
+    if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1]?.split('?')[0];
+    }
+    // Format: https://www.youtube.com/watch?v=VIDEO_ID
+    else if (url.includes('youtube.com/watch')) {
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        videoId = urlParams.get('v');
+    }
+    // Format: https://www.youtube.com/embed/VIDEO_ID
+    else if (url.includes('youtube.com/embed/')) {
+        videoId = url.split('embed/')[1]?.split('?')[0];
+    }
+    // Just the video ID itself
+    else if (url.length === 11 && !url.includes('http')) {
+        videoId = url;
+    }
+    
+    if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    }
+    
+    return url; // Return as is if not a YouTube URL
 }
 
 async function loadUserContentTree() {
@@ -221,7 +246,6 @@ async function loadUserContentTree() {
         return;
     }
     
-    // Get user's courses
     const { data: userCourses, error: accessError } = await supabase
         .from('user_access')
         .select('course_id, courses(*)')
@@ -238,7 +262,6 @@ async function loadUserContentTree() {
         const course = uc.courses;
         html += `<div class="tree-node"><strong>📘 ${escapeHtml(course.title)}</strong>`;
         
-        // Get subjects for this course
         const { data: subjects } = await supabase
             .from('subjects')
             .select('*')
@@ -248,14 +271,12 @@ async function loadUserContentTree() {
             for (const subject of subjects) {
                 html += `<div class="subject-node">📖 ${escapeHtml(subject.name)}`;
                 
-                // Check if subject has papers
                 const { data: papers } = await supabase
                     .from('papers')
                     .select('*')
                     .eq('subject_id', subject.id);
                 
                 if (papers && papers.length > 0) {
-                    // Has papers
                     for (const paper of papers) {
                         html += `<div class="paper-node">📄 ${escapeHtml(paper.name)}`;
                         
@@ -284,7 +305,6 @@ async function loadUserContentTree() {
                         html += `</div>`;
                     }
                 } else {
-                    // No papers, chapters directly under subject
                     const { data: chapters } = await supabase
                         .from('chapters')
                         .select('*')
@@ -317,18 +337,34 @@ async function loadUserContentTree() {
     
     document.getElementById('contentTree').innerHTML = html;
     
-    // Add click handlers for lectures
+    // Add click handlers for lectures with YouTube support
     document.querySelectorAll('.lecture-item').forEach(el => {
         el.addEventListener('click', () => {
             const videoUrl = el.dataset.video;
             const title = el.dataset.title;
-            document.getElementById('videoContainer').innerHTML = `
-                <h3>${escapeHtml(title)}</h3>
-                <video controls autoplay width="100%">
-                    <source src="${videoUrl}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            `;
+            const embedUrl = getYouTubeEmbedUrl(videoUrl);
+            
+            let videoHtml = '';
+            if (embedUrl && embedUrl.includes('youtube.com/embed/')) {
+                videoHtml = `
+                    <h3>${escapeHtml(title)}</h3>
+                    <div class="video-wrapper">
+                        <iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                `;
+            } else if (videoUrl) {
+                videoHtml = `
+                    <h3>${escapeHtml(title)}</h3>
+                    <video controls width="100%">
+                        <source src="${videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            } else {
+                videoHtml = `<div class="lecture-placeholder"><h3>${escapeHtml(title)}</h3><p>No video URL provided.</p></div>`;
+            }
+            
+            document.getElementById('videoContainer').innerHTML = videoHtml;
         });
     });
 }
@@ -341,7 +377,6 @@ async function checkAdminAccess() {
         return;
     }
     
-    // Check if user is admin (you can modify this condition)
     const isAdmin = currentUser.email === 'admin@nexora.com';
     if (!isAdmin) {
         alert('Admin access only. Redirecting to home.');
@@ -350,7 +385,6 @@ async function checkAdminAccess() {
 }
 
 async function loadAdminData() {
-    // Load courses dropdown
     const { data: courses } = await supabase.from('courses').select('*');
     const select = document.getElementById('adminCourseSelect');
     if (select && courses) {
@@ -400,8 +434,7 @@ function setupAdminEventListeners() {
             
             const codes = [];
             for (let i = 0; i < numCodes; i++) {
-                const code = generateAccessCode();
-                codes.push({ course_id: courseId, code: code, is_used: false });
+                codes.push({ course_id: courseId, code: generateAccessCode(), is_used: false });
             }
             
             const { error } = await supabase.from('access_codes').insert(codes);
@@ -481,22 +514,28 @@ function setupAdminEventListeners() {
         });
     }
     
-    // Add Lecture
+    // Add Lecture with YouTube support
     const addLectureBtn = document.getElementById('addLectureBtn');
     if (addLectureBtn) {
         addLectureBtn.addEventListener('click', async () => {
             const chapterId = document.getElementById('lectureChapterSelect').value;
             const title = document.getElementById('newLectureTitle').value.trim();
-            const videoUrl = document.getElementById('newLectureUrl').value.trim();
+            let videoUrl = document.getElementById('newLectureUrl').value.trim();
             
             if (!chapterId) { alert('Select a chapter'); return; }
             if (!title) { alert('Enter lecture title'); return; }
-            if (!videoUrl) { alert('Enter video URL'); return; }
+            if (!videoUrl) { alert('Enter YouTube URL or Video ID'); return; }
             
-            const { error } = await supabase.from('lectures').insert({ chapter_id: chapterId, title, video_url: videoUrl });
+            // Store the raw YouTube URL or ID
+            const { error } = await supabase.from('lectures').insert({ 
+                chapter_id: chapterId, 
+                title: title, 
+                video_url: videoUrl 
+            });
+            
             if (error) alert('Error: ' + error.message);
             else {
-                alert('Lecture added!');
+                alert('Lecture added successfully!');
                 document.getElementById('newLectureTitle').value = '';
                 document.getElementById('newLectureUrl').value = '';
                 loadCourseStructure(document.getElementById('adminCourseSelect').value);
@@ -506,7 +545,7 @@ function setupAdminEventListeners() {
 }
 
 async function loadRequests(courseId) {
-    const { data: requests, error } = await supabase
+    const { data: requests } = await supabase
         .from('enroll_requests')
         .select('*, users:user_id(email)')
         .eq('course_id', courseId)
@@ -543,7 +582,7 @@ async function loadRequests(courseId) {
 }
 
 async function loadApprovedUsers(courseId) {
-    const { data: users, error } = await supabase
+    const { data: users } = await supabase
         .from('user_access')
         .select('*, users:user_id(email)')
         .eq('course_id', courseId);
@@ -563,14 +602,12 @@ async function loadApprovedUsers(courseId) {
 }
 
 async function loadAccessCodes(courseId) {
-    // Unused codes
     const { data: unusedCodes } = await supabase
         .from('access_codes')
         .select('*')
         .eq('course_id', courseId)
         .eq('is_used', false);
     
-    // Used codes
     const { data: usedCodes } = await supabase
         .from('access_codes')
         .select('*')
@@ -625,7 +662,7 @@ async function loadCourseStructure(courseId) {
                     html += `<div style="margin-left: 20px;">📑 ${escapeHtml(chapter.title)}`;
                     const { data: lectures } = await supabase.from('lectures').select('*').eq('chapter_id', chapter.id);
                     for (const lecture of lectures || []) {
-                        html += `<div style="margin-left: 20px;">🎬 ${escapeHtml(lecture.title)}</div>`;
+                        html += `<div style="margin-left: 20px;">🎬 ${escapeHtml(lecture.title)} <span style="color:#666; font-size:12px;">(${escapeHtml(lecture.video_url?.substring(0, 50))}...)</span></div>`;
                     }
                     html += `</div>`;
                 }
@@ -651,14 +688,12 @@ async function loadCourseStructure(courseId) {
 async function loadSubjectsForSelects(courseId) {
     const { data: subjects } = await supabase.from('subjects').select('*').eq('course_id', courseId);
     
-    // For paper subject select
     const paperSelect = document.getElementById('paperSubjectSelect');
     if (paperSelect && subjects) {
         paperSelect.innerHTML = '<option value="">Select Subject</option>' + 
             subjects.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
     }
     
-    // For chapter parent select (subjects and papers)
     const chapterSelect = document.getElementById('chapterParentSelect');
     if (chapterSelect && subjects) {
         let options = '<option value="">Select Subject or Paper</option>';
@@ -672,7 +707,6 @@ async function loadSubjectsForSelects(courseId) {
         chapterSelect.innerHTML = options;
     }
     
-    // For lecture chapter select
     const lectureSelect = document.getElementById('lectureChapterSelect');
     if (lectureSelect) {
         const { data: chapters } = await supabase.from('chapters').select('*, subjects(name), papers(name)');
@@ -687,7 +721,6 @@ async function loadSubjectsForSelects(courseId) {
 window.approveRequest = async (requestId, courseId, userId) => {
     await supabase.from('enroll_requests').update({ status: 'approved' }).eq('id', requestId);
     
-    // Check if user already has access
     const { data: existing } = await supabase.from('user_access').select('*').eq('user_id', userId).eq('course_id', courseId);
     if (!existing?.length) {
         await supabase.from('user_access').insert({ user_id: userId, course_id: courseId });
