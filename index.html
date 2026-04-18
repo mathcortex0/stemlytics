@@ -1,35 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Varsity Admission</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f9; margin: 0; color: #0B1F3A; }
-        header { background: #0B1F3A; color: #C9A84C; padding: 20px; text-align: center; }
-        .container { max-width: 600px; margin: auto; padding: 15px; }
-        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #C9A84C; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .apply-btn { display: inline-block; background: #0B1F3A; color: #C9A84C; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
-    </style>
+    <title>Nexora Academy - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <header><h1>Varsity Admission</h1></header>
-    <div class="container" id="list">Loading...</div>
 
-    <script>
-        async function fetchNotices() {
-            const res = await fetch('/api/notices');
-            const data = await res.json();
-            const list = document.getElementById('list');
-            list.innerHTML = data.map(n => `
-                <div class="card">
-                    <h3>${n.uni_name} (${n.unit_name})</h3>
-                    <p>Exam: ${n.exam_date} <br> Deadline: ${n.apply_deadline}</p>
-                    <small>${n.important_note}</small> <br>
-                    <a href="${n.apply_link}" class="apply-btn" target="_blank">Apply Now</a>
-                </div>
-            `).join('') || "No updates found.";
-        }
-        fetchNotices();
-    </script>
+<nav class="navbar">
+    <div class="logo">📚 Nexora Academy</div>
+    <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="player.html" id="myCoursesLink">My Courses</a>
+        <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+    </div>
+    <div class="auth-buttons">
+        <span id="userEmail" style="display:none"></span>
+        <button id="loginBtn" class="btn-primary">Login</button>
+        <button id="logoutBtn" style="display:none" class="btn-outline">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="hero">
+        <h1>Welcome to Nexora Academy</h1>
+        <p>University-style flexible learning with manual enrollment</p>
+    </div>
+
+    <!-- Access Code Entry Panel (shown when user clicks Enroll) -->
+    <div id="accessCodePanel" class="access-panel" style="display:none">
+        <h3>🔑 Enter Your Access Code</h3>
+        <p>After payment, the admin will provide you an access code</p>
+        <input type="text" id="accessCodeInput" placeholder="Enter access code">
+        <input type="hidden" id="selectedCourseId">
+        <button id="submitAccessBtn" class="btn-primary">Verify & Enroll</button>
+        <button id="cancelAccessBtn" class="btn-outline">Cancel</button>
+        <div id="codeError" style="color:red; margin-top:10px;"></div>
+    </div>
+
+    <h2>📖 Available Courses</h2>
+    <div id="coursesContainer" class="course-grid">
+        <div class="loading">Loading courses...</div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
