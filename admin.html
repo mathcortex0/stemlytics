@@ -118,14 +118,15 @@
             </div>
             <hr>
 
-            <!-- Add Lecture -->
+            <!-- Add Lecture with YouTube Link -->
             <div class="form-group">
-                <h4>🎥 Add Lecture (Video)</h4>
+                <h4>🎥 Add Lecture (YouTube Video)</h4>
                 <select id="lectureChapterSelect">
                     <option value="">Select Chapter first</option>
                 </select>
                 <input type="text" id="newLectureTitle" placeholder="Lecture Title">
-                <input type="url" id="newLectureUrl" placeholder="Video URL (MP4 direct link or YouTube embed)">
+                <input type="text" id="newLectureUrl" placeholder="YouTube URL or Video ID (e.g., https://youtu.be/abc123 or abc123)">
+                <small style="display: block; margin-top: 5px; color: #666;">Supports: youtube.com/watch?v=... or youtu.be/... or just the video ID</small>
                 <button id="addLectureBtn" class="btn-primary">Add Lecture</button>
             </div>
             
