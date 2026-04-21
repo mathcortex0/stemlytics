@@ -3,9 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Hub | Enrollment</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Course Hub | Premium Learning Resources</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        nav {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav .container { max-width: 1200px; margin: 0 auto; }
+        nav h1 { font-size: 1.5rem; font-weight: 800; }
+        nav span { color: #3b82f6; }
+        .hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .hero h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-content { padding: 1.5rem; }
+        .card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .price { font-size: 1.5rem; font-weight: 800; color: #3b82f6; margin: 0.75rem 0; }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: #2563eb; }
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+        @media (max-width: 768px) {
+            .hero h2 { font-size: 1.75rem; }
+            .container { padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -21,10 +87,61 @@
 
     <main class="container">
         <div id="course-grid" class="course-grid">
-            <p style="text-align: center; grid-column: span 3;">Loading courses...</p>
+            <div class="loading">Loading courses...</div>
         </div>
     </main>
 
-    <script src="script.js"></script>
+    <script>
+        const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
+        const SUPABASE_KEY = 'your-supabase-anon-key-here';
+
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadCourses() {
+            const grid = document.getElementById('course-grid');
+            const { data: courses, error } = await supabase
+                .from('courses')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                grid.innerHTML = `<div class="loading">Error loading courses: ${error.message}</div>`;
+                return;
+            }
+
+            if (!courses || courses.length === 0) {
+                grid.innerHTML = `<div class="loading">No courses available yet.</div>`;
+                return;
+            }
+
+            grid.innerHTML = courses.map(course => `
+                <div class="card">
+                    <img src="${course.image_url || 'https://via.placeholder.com/300x200'}" alt="${course.title}">
+                    <div class="card-content">
+                        <h3>${escapeHtml(course.title)}</h3>
+                        <p>${escapeHtml(course.description || 'Premium course with Telegram access')}</p>
+                        <div class="price">৳ ${course.price}</div>
+                        <button class="btn-primary" onclick="enroll('${course.id}')">Enroll Now</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function enroll(courseId) {
+            window.location.href = `payment.html?course_id=${courseId}`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        loadCourses();
+    </script>
 </body>
 </html>
