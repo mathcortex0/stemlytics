@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Payment</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container small-container">
+        <div class="payment-box">
+            <h2 id="selected-course-title">Loading...</h2>
+            <p class="price-tag">Payable Amount: <span id="course-price">0</span> BDT</p>
+
+            <div class="instructions">
+                <p><strong>Step 1:</strong> Send Money (Personal) to:</p>
+                <div class="copy-box">
+                    <span id="bkash-num">017XXXXXXXX</span>
+                    <button onclick="copyNumber()">Copy Number</button>
+                </div>
+            </div>
+
+            <form id="payment-form">
+                <div class="form-group"><label>Full Name</label><input type="text" id="userName" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="userEmail" required></div>
+                <div class="form-group"><label>Phone Number</label><input type="text" id="userPhone" required></div>
+                <div class="form-group"><label>Telegram Username (@)</label><input type="text" id="userTelegram" placeholder="@example" required></div>
+                <div class="form-group"><label>Transaction ID (TrxID)</label><input type="text" id="trxId" required></div>
+                
+                <button type="submit" class="btn-primary" id="submitBtn">Submit Payment</button>
+            </form>
+
+            <div id="success-area" class="hidden">
+                <div class="success-msg">
+                    <h3>✅ Order Submitted!</h3>
+                    <p>Admin is verifying your TrxID. This usually takes 10-30 minutes.</p>
+                    <div id="tg-area" class="hidden">
+                        <p style="color: #10b981; font-weight: bold;">Verified! Click below to join:</p>
+                        <a href="#" id="tg-link" class="btn-telegram">Join Telegram Group</a>
+                    </div>
+                    <button id="check-status-btn" class="btn-primary" style="margin-top:20px; background:#6b7280;">Refresh Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
