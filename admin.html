@@ -2,43 +2,218 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Course Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { margin-bottom: 2rem; color: #1e293b; }
+        .admin-login {
+            max-width: 400px;
+            margin: 4rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+        .section {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section h3 { margin-bottom: 1rem; color: #1e293b; }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th { background: #f1f5f9; font-weight: 600; }
+        .status-pending { color: #eab308; font-weight: 600; }
+        .status-approved { color: #10b981; font-weight: 600; }
+        .btn-approve {
+            background: #10b981;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        .hidden { display: none; }
+        .error { color: #ef4444; margin-bottom: 1rem; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Admin Control Panel</h1>
-        
-        <section class="payment-box">
-            <h3>Add New Course</h3>
-            <form id="course-form" style="display: grid; gap: 10px;">
-                <input type="text" id="cTitle" placeholder="Course Name" required>
-                <input type="number" id="cPrice" placeholder="Price" required>
-                <input type="text" id="cTG" placeholder="Telegram Link" required>
-                <textarea id="cDesc" placeholder="Description"></textarea>
-                <input type="file" id="cFile" accept="image/*" required>
-                <button type="submit" id="addBtn" class="btn-primary">Upload & Publish</button>
-            </form>
-        </section>
-
-        <h3>Recent Orders</h3>
-        <table style="width: 100%; border-collapse: collapse; background: white;">
-            <thead>
-                <tr style="background: #eee;">
-                    <th>User</th><th>Course</th><th>TrxID</th><th>Status</th><th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="order-list"></tbody>
-        </table>
+    <div id="login-area" class="admin-login">
+        <h2>Admin Login</h2>
+        <input type="password" id="admin-password" placeholder="Enter admin password">
+        <button onclick="login()">Login</button>
+        <div id="login-error" class="error"></div>
     </div>
-    <script src="script.js"></script>
+
+    <div id="admin-area" class="container hidden">
+        <h1>📚 Course Hub Admin</h1>
+
+        <div class="section">
+            <h3>➕ Add New Course</h3>
+            <form id="course-form">
+                <input type="text" id="course-title" placeholder="Course Title" required>
+                <input type="number" id="course-price" placeholder="Price (BDT)" required>
+                <input type="url" id="telegram-link" placeholder="Telegram Group Link" required>
+                <textarea id="course-desc" placeholder="Course Description" rows="3"></textarea>
+                <input type="file" id="course-image" accept="image/*" required>
+                <button type="submit">Upload & Publish Course</button>
+            </form>
+            <div id="upload-status"></div>
+        </div>
+
+        <div class="section">
+            <h3>📋 Recent Orders</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr><th>Name</th><th>Course</th><th>TrxID</th><th>Telegram</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="orders-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Admin specific start
-        if(document.getElementById('order-list')) {
-            window.onload = fetchOrders;
+        const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
+        const SUPABASE_KEY = 'your-supabase-anon-key-here';
+        const IMGBB_KEY = '4a780b9806217405482ea7632dac862b';
+        const ADMIN_PASSWORD = 'admin123';
+
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function login() {
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('login-area').classList.add('hidden');
+                document.getElementById('admin-area').classList.remove('hidden');
+                loadOrders();
+            } else {
+                document.getElementById('login-error').textContent = 'Incorrect password';
+            }
+        }
+
+        document.getElementById('course-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = document.getElementById('course-image').files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.innerHTML = 'Uploading image...';
+
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+            const imgData = await imgRes.json();
+
+            if (!imgData.success) {
+                statusDiv.innerHTML = 'Image upload failed!';
+                return;
+            }
+
+            const course = {
+                title: document.getElementById('course-title').value,
+                price: parseInt(document.getElementById('course-price').value),
+                telegram_link: document.getElementById('telegram-link').value,
+                description: document.getElementById('course-desc').value,
+                image_url: imgData.data.url
+            };
+
+            const { error } = await supabase.from('courses').insert([course]);
+            
+            if (error) {
+                statusDiv.innerHTML = 'Error: ' + error.message;
+            } else {
+                statusDiv.innerHTML = '✓ Course published successfully!';
+                document.getElementById('course-form').reset();
+                setTimeout(() => location.reload(), 1500);
+            }
+        });
+
+        async function loadOrders() {
+            const { data: orders, error } = await supabase
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) return;
+
+            const tbody = document.getElementById('orders-list');
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${escapeHtml(order.name)}</td>
+                    <td>${escapeHtml(order.course_name)}</td>
+                    <td><code>${escapeHtml(order.trx_id)}</code></td>
+                    <td>${escapeHtml(order.telegram_username)}</td>
+                    <td class="status-${order.status}">${order.status.toUpperCase()}</td>
+                    <td>
+                        ${order.status === 'pending' ? 
+                            `<button class="btn-approve" onclick="approveOrder('${order.id}')">Approve</button>` : 
+                            '✓ Approved'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function approveOrder(orderId) {
+            const { error } = await supabase
+                .from('orders')
+                .update({ status: 'approved' })
+                .eq('id', orderId);
+
+            if (!error) {
+                loadOrders();
+                alert('Order approved! User can now join Telegram.');
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
     </script>
 </body>
 </html>
-
