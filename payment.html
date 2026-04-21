@@ -77,7 +77,6 @@
         input:focus {
             outline: none;
             border-color: #3b82f6;
-            ring: 2px solid #3b82f6;
         }
         .btn-primary {
             background: #3b82f6;
@@ -91,6 +90,7 @@
             margin-top: 1rem;
         }
         .btn-primary:hover { background: #2563eb; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         .hidden { display: none; }
         .success-msg {
             text-align: center;
@@ -172,8 +172,9 @@
     </div>
 
     <script>
+        // YOUR ACTUAL KEYS
         const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
-        const SUPABASE_KEY = 'your-supabase-anon-key-here';
+        const SUPABASE_KEY = 'sb_publishable_7W2x2wCtJtcxQmmlV42SKw_VOkPwPfP';
 
         const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentCourse = null;
