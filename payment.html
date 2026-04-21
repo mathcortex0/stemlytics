@@ -3,47 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Payment</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Complete Payment | Course Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .payment-box {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+        h2 { margin-bottom: 0.5rem; color: #1e293b; }
+        .price-tag {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .instructions {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .copy-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        .copy-box button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-family: inherit;
+        }
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            ring: 2px solid #3b82f6;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .btn-primary:hover { background: #2563eb; }
+        .hidden { display: none; }
+        .success-msg {
+            text-align: center;
+            padding: 1rem;
+        }
+        .success-msg h3 { color: #10b981; margin-bottom: 1rem; }
+        .btn-telegram {
+            display: inline-block;
+            background: #0088cc;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: #64748b;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container small-container">
+    <div class="container">
         <div class="payment-box">
-            <h2 id="selected-course-title">Loading...</h2>
-            <p class="price-tag">Payable Amount: <span id="course-price">0</span> BDT</p>
+            <h2 id="course-title">Loading...</h2>
+            <div class="price-tag">Payable Amount: ৳ <span id="course-price">0</span></div>
 
             <div class="instructions">
-                <p><strong>Step 1:</strong> Send Money (Personal) to:</p>
+                <strong>📱 Step 1: Send Money to:</strong>
                 <div class="copy-box">
-                    <span id="bkash-num">017XXXXXXXX</span>
+                    <span id="bkash-number">017XXXXXXXX</span>
                     <button onclick="copyNumber()">Copy Number</button>
                 </div>
+                <small style="display: block; margin-top: 0.5rem;">Send via bKash (Personal)</small>
             </div>
 
             <form id="payment-form">
-                <div class="form-group"><label>Full Name</label><input type="text" id="userName" required></div>
-                <div class="form-group"><label>Email</label><input type="email" id="userEmail" required></div>
-                <div class="form-group"><label>Phone Number</label><input type="text" id="userPhone" required></div>
-                <div class="form-group"><label>Telegram Username (@)</label><input type="text" id="userTelegram" placeholder="@example" required></div>
-                <div class="form-group"><label>Transaction ID (TrxID)</label><input type="text" id="trxId" required></div>
-                
-                <button type="submit" class="btn-primary" id="submitBtn">Submit Payment</button>
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="userPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Telegram Username *</label>
+                    <input type="text" id="userTelegram" placeholder="@username" required>
+                </div>
+                <div class="form-group">
+                    <label>Transaction ID (TrxID) *</label>
+                    <input type="text" id="trxId" required>
+                </div>
+                <button type="submit" class="btn-primary">Submit Payment</button>
             </form>
 
             <div id="success-area" class="hidden">
                 <div class="success-msg">
-                    <h3>✅ Order Submitted!</h3>
-                    <p>Admin is verifying your TrxID. This usually takes 10-30 minutes.</p>
-                    <div id="tg-area" class="hidden">
-                        <p style="color: #10b981; font-weight: bold;">Verified! Click below to join:</p>
-                        <a href="#" id="tg-link" class="btn-telegram">Join Telegram Group</a>
+                    <h3>✅ Payment Submitted!</h3>
+                    <p>Your enrollment request has been received.</p>
+                    <p>Admin will verify your payment within 10-30 minutes.</p>
+                    <div id="telegram-area" class="hidden">
+                        <p style="color: #10b981; font-weight: bold;">✓ Payment Verified!</p>
+                        <a href="#" id="telegram-link" class="btn-telegram">Join Telegram Group</a>
                     </div>
-                    <button id="check-status-btn" class="btn-primary" style="margin-top:20px; background:#6b7280;">Refresh Status</button>
+                    <button id="check-status" class="btn-primary" style="margin-top: 1rem; background: #64748b;">Check Status</button>
                 </div>
             </div>
+
+            <a href="index.html" class="back-link">← Back to Courses</a>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
+        const SUPABASE_KEY = 'your-supabase-anon-key-here';
+
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentCourse = null;
+        let currentOrderId = null;
+
+        async function initPayment() {
+            const params = new URLSearchParams(window.location.search);
+            const courseId = params.get('course_id');
+
+            if (!courseId) {
+                alert('No course selected');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: course, error } = await supabase
+                .from('courses')
+                .select('*')
+                .eq('id', courseId)
+                .single();
+
+            if (error || !course) {
+                alert('Course not found');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentCourse = course;
+            document.getElementById('course-title').textContent = course.title;
+            document.getElementById('course-price').textContent = course.price;
+        }
+
+        document.getElementById('payment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const orderData = {
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value,
+                phone: document.getElementById('userPhone').value,
+                telegram_username: document.getElementById('userTelegram').value,
+                trx_id: document.getElementById('trxId').value,
+                course_id: currentCourse.id,
+                course_name: currentCourse.title,
+                status: 'pending'
+            };
+
+            const { data, error } = await supabase
+                .from('orders')
+                .insert([orderData])
+                .select();
+
+            if (error) {
+                alert('Error: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment';
+                return;
+            }
+
+            currentOrderId = data[0].id;
+            localStorage.setItem('lastOrderId', currentOrderId);
+            
+            document.getElementById('payment-form').classList.add('hidden');
+            document.getElementById('success-area').classList.remove('hidden');
+        });
+
+        document.getElementById('check-status').addEventListener('click', async () => {
+            const orderId = currentOrderId || localStorage.getItem('lastOrderId');
+            if (!orderId) {
+                alert('No order found');
+                return;
+            }
+
+            const { data: order, error } = await supabase
+                .from('orders')
+                .select('*, courses(telegram_link)')
+                .eq('id', orderId)
+                .single();
+
+            if (error) {
+                alert('Error checking status');
+                return;
+            }
+
+            if (order.status === 'approved') {
+                document.getElementById('telegram-area').classList.remove('hidden');
+                document.getElementById('telegram-link').href = order.courses.telegram_link;
+                document.getElementById('check-status').style.display = 'none';
+            } else {
+                alert(`Status: ${order.status.toUpperCase()}\nPlease wait for admin verification.`);
+            }
+        });
+
+        function copyNumber() {
+            const number = document.getElementById('bkash-number').textContent;
+            navigator.clipboard.writeText(number);
+            alert('Number copied!');
+        }
+
+        initPayment();
+    </script>
 </body>
 </html>
