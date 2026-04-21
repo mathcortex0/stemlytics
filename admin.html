@@ -24,6 +24,7 @@
             border-radius: 1rem;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
         }
+        .admin-login h2 { margin-bottom: 1.5rem; color: #1e293b; }
         .section {
             background: white;
             border-radius: 1rem;
@@ -49,6 +50,7 @@
             font-weight: 600;
             cursor: pointer;
         }
+        button:hover { background: #2563eb; }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -66,20 +68,28 @@
             padding: 0.25rem 0.75rem;
             font-size: 0.875rem;
         }
+        .btn-approve:hover { background: #059669; }
         .hidden { display: none; }
-        .error { color: #ef4444; margin-bottom: 1rem; }
+        .error { 
+            color: #ef4444; 
+            margin-top: 1rem; 
+            padding: 0.5rem;
+            background: #fef2f2;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div id="login-area" class="admin-login">
-        <h2>Admin Login</h2>
-        <input type="password" id="admin-password" placeholder="Enter admin password">
-        <button onclick="login()">Login</button>
-        <div id="login-error" class="error"></div>
+        <h2>🔐 Admin Login</h2>
+        <input type="password" id="admin-password" placeholder="Enter admin password" onkeypress="if(event.key==='Enter') login()">
+        <button onclick="login()">Login to Dashboard</button>
+        <div id="login-error" class="error hidden"></div>
     </div>
 
     <div id="admin-area" class="container hidden">
-        <h1>📚 Course Hub Admin</h1>
+        <h1>📚 Course Hub Admin Dashboard</h1>
 
         <div class="section">
             <h3>➕ Add New Course</h3>
@@ -91,7 +101,7 @@
                 <input type="file" id="course-image" accept="image/*" required>
                 <button type="submit">Upload & Publish Course</button>
             </form>
-            <div id="upload-status"></div>
+            <div id="upload-status" style="margin-top: 1rem;"></div>
         </div>
 
         <div class="section">
@@ -101,82 +111,57 @@
                     <thead>
                         <tr><th>Name</th><th>Course</th><th>TrxID</th><th>Telegram</th><th>Status</th><th>Action</th></tr>
                     </thead>
-                    <tbody id="orders-list"></tbody>
+                    <tbody id="orders-list">
+                        <tr><td colspan="6" style="text-align: center;">Loading orders...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
+        // YOUR ACTUAL KEYS
         const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
-        const SUPABASE_KEY = 'your-supabase-anon-key-here';
+        const SUPABASE_KEY = 'sb_publishable_7W2x2wCtJtcxQmmlV42SKw_VOkPwPfP';
         const IMGBB_KEY = '4a780b9806217405482ea7632dac862b';
         const ADMIN_PASSWORD = 'admin123';
-
+        
         const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        function login() {
+        
+        window.login = function() {
             const password = document.getElementById('admin-password').value;
+            const errorDiv = document.getElementById('login-error');
+            
             if (password === ADMIN_PASSWORD) {
                 document.getElementById('login-area').classList.add('hidden');
                 document.getElementById('admin-area').classList.remove('hidden');
                 loadOrders();
             } else {
-                document.getElementById('login-error').textContent = 'Incorrect password';
+                errorDiv.textContent = '❌ Incorrect password. Use: admin123';
+                errorDiv.classList.remove('hidden');
+                document.getElementById('admin-password').value = '';
             }
-        }
-
-        document.getElementById('course-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const file = document.getElementById('course-image').files[0];
-            if (!file) return;
-
-            const statusDiv = document.getElementById('upload-status');
-            statusDiv.innerHTML = 'Uploading image...';
-
-            const formData = new FormData();
-            formData.append('image', file);
-            
-            const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-                method: 'POST',
-                body: formData
-            });
-            const imgData = await imgRes.json();
-
-            if (!imgData.success) {
-                statusDiv.innerHTML = 'Image upload failed!';
-                return;
-            }
-
-            const course = {
-                title: document.getElementById('course-title').value,
-                price: parseInt(document.getElementById('course-price').value),
-                telegram_link: document.getElementById('telegram-link').value,
-                description: document.getElementById('course-desc').value,
-                image_url: imgData.data.url
-            };
-
-            const { error } = await supabase.from('courses').insert([course]);
-            
-            if (error) {
-                statusDiv.innerHTML = 'Error: ' + error.message;
-            } else {
-                statusDiv.innerHTML = '✓ Course published successfully!';
-                document.getElementById('course-form').reset();
-                setTimeout(() => location.reload(), 1500);
-            }
-        });
-
+        };
+        
         async function loadOrders() {
+            const tbody = document.getElementById('orders-list');
+            tbody.innerHTML = '<tr><td colspan="6">Loading orders...</td></tr>';
+            
             const { data: orders, error } = await supabase
                 .from('orders')
                 .select('*')
                 .order('created_at', { ascending: false });
-
-            if (error) return;
-
-            const tbody = document.getElementById('orders-list');
+            
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
+                return;
+            }
+            
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>';
+                return;
+            }
+            
             tbody.innerHTML = orders.map(order => `
                 <tr>
                     <td>${escapeHtml(order.name)}</td>
@@ -186,25 +171,74 @@
                     <td class="status-${order.status}">${order.status.toUpperCase()}</td>
                     <td>
                         ${order.status === 'pending' ? 
-                            `<button class="btn-approve" onclick="approveOrder('${order.id}')">Approve</button>` : 
+                            `<button class="btn-approve" onclick="approveOrder('${order.id}')">✅ Approve</button>` : 
                             '✓ Approved'}
                     </td>
                 </tr>
             `).join('');
         }
-
-        async function approveOrder(orderId) {
+        
+        window.approveOrder = async function(orderId) {
+            if (!confirm('Approve this order?')) return;
+            
             const { error } = await supabase
                 .from('orders')
                 .update({ status: 'approved' })
                 .eq('id', orderId);
-
-            if (!error) {
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('✓ Order approved! User can now join Telegram.');
                 loadOrders();
-                alert('Order approved! User can now join Telegram.');
             }
-        }
-
+        };
+        
+        document.getElementById('course-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = document.getElementById('course-image').files[0];
+            if (!file) {
+                alert('Please select an image');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.innerHTML = '📤 Uploading image...';
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const imgData = await imgRes.json();
+                
+                if (!imgData.success) throw new Error('Upload failed');
+                
+                const course = {
+                    title: document.getElementById('course-title').value,
+                    price: parseInt(document.getElementById('course-price').value),
+                    telegram_link: document.getElementById('telegram-link').value,
+                    description: document.getElementById('course-desc').value,
+                    image_url: imgData.data.url
+                };
+                
+                const { error } = await supabase.from('courses').insert([course]);
+                
+                if (error) throw error;
+                
+                statusDiv.innerHTML = '✅ Course published successfully!';
+                document.getElementById('course-form').reset();
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = '❌ Error: ' + error.message;
+            }
+        });
+        
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
