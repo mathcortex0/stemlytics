@@ -3,49 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexora Academy - Home</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Course Hub | Enrollment</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+    <nav>
+        <div class="container">
+            <h1>Course<span>Hub</span></h1>
+        </div>
+    </nav>
 
-<nav class="navbar">
-    <div class="logo">📚 Nexora Academy</div>
-    <div class="nav-links">
-        <a href="index.html" class="active">Home</a>
-        <a href="player.html" id="myCoursesLink">My Courses</a>
-        <a href="admin.html" id="adminLink" style="display:none">Admin</a>
-    </div>
-    <div class="auth-buttons">
-        <span id="userEmail" style="display:none"></span>
-        <button id="loginBtn" class="btn-primary">Login</button>
-        <button id="logoutBtn" style="display:none" class="btn-outline">Logout</button>
-    </div>
-</nav>
+    <header class="hero">
+        <h2>Premium Learning Resources</h2>
+        <p>Enroll today and get instant access to our private Telegram communities.</p>
+    </header>
 
-<div class="container">
-    <div class="hero">
-        <h1>Welcome to Nexora Academy</h1>
-        <p>University-style flexible learning with manual enrollment</p>
-    </div>
+    <main class="container">
+        <div id="course-grid" class="course-grid">
+            <p style="text-align: center; grid-column: span 3;">Loading courses...</p>
+        </div>
+    </main>
 
-    <!-- Access Code Entry Panel -->
-    <div id="accessCodePanel" class="access-panel" style="display:none">
-        <h3>🔑 Enter Your Access Code</h3>
-        <p>After payment, the admin will provide you an access code</p>
-        <input type="text" id="accessCodeInput" placeholder="Enter access code">
-        <input type="hidden" id="selectedCourseId">
-        <button id="submitAccessBtn" class="btn-primary">Verify & Enroll</button>
-        <button id="cancelAccessBtn" class="btn-outline">Cancel</button>
-        <div id="codeError" style="color:red; margin-top:10px;"></div>
-    </div>
-
-    <h2>📖 Available Courses</h2>
-    <div id="coursesContainer" class="course-grid">
-        <div class="loading">Loading courses...</div>
-    </div>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
