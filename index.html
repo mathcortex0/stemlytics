@@ -92,8 +92,9 @@
     </main>
 
     <script>
+        // YOUR ACTUAL KEYS
         const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
-        const SUPABASE_KEY = 'your-supabase-anon-key-here';
+        const SUPABASE_KEY = 'sb_publishable_7W2x2wCtJtcxQmmlV42SKw_VOkPwPfP';
 
         const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -110,7 +111,7 @@
             }
 
             if (!courses || courses.length === 0) {
-                grid.innerHTML = `<div class="loading">No courses available yet.</div>`;
+                grid.innerHTML = `<div class="loading">No courses available yet. Check back soon!</div>`;
                 return;
             }
 
