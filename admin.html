@@ -1,253 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Course Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            color: #0f172a;
-            padding: 2rem;
-        }
-        .container { max-width: 1400px; margin: 0 auto; }
-        h1 { margin-bottom: 2rem; color: #1e293b; }
-        .admin-login {
-            max-width: 400px;
-            margin: 4rem auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-        }
-        .admin-login h2 { margin-bottom: 1.5rem; color: #1e293b; }
-        .section {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .section h3 { margin-bottom: 1rem; color: #1e293b; }
-        input, textarea, select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            font-family: inherit;
-        }
-        button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        button:hover { background: #2563eb; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th { background: #f1f5f9; font-weight: 600; }
-        .status-pending { color: #eab308; font-weight: 600; }
-        .status-approved { color: #10b981; font-weight: 600; }
-        .btn-approve {
-            background: #10b981;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
-        }
-        .btn-approve:hover { background: #059669; }
-        .hidden { display: none; }
-        .error { 
-            color: #ef4444; 
-            margin-top: 1rem; 
-            padding: 0.5rem;
-            background: #fef2f2;
-            border-radius: 0.5rem;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div id="login-area" class="admin-login">
-        <h2>🔐 Admin Login</h2>
-        <input type="password" id="admin-password" placeholder="Enter admin password" onkeypress="if(event.key==='Enter') login()">
-        <button onclick="login()">Login to Dashboard</button>
-        <div id="login-error" class="error hidden"></div>
-    </div>
+<html>
+<body style="background:#111;color:white">
 
-    <div id="admin-area" class="container hidden">
-        <h1>📚 Course Hub Admin Dashboard</h1>
+<h2>Admin Panel</h2>
 
-        <div class="section">
-            <h3>➕ Add New Course</h3>
-            <form id="course-form">
-                <input type="text" id="course-title" placeholder="Course Title" required>
-                <input type="number" id="course-price" placeholder="Price (BDT)" required>
-                <input type="url" id="telegram-link" placeholder="Telegram Group Link" required>
-                <textarea id="course-desc" placeholder="Course Description" rows="3"></textarea>
-                <input type="file" id="course-image" accept="image/*" required>
-                <button type="submit">Upload & Publish Course</button>
-            </form>
-            <div id="upload-status" style="margin-top: 1rem;"></div>
-        </div>
+<input id="title" placeholder="Title"><br>
+<textarea id="content"></textarea><br>
+<input id="link" placeholder="Link"><br>
 
-        <div class="section">
-            <h3>📋 Recent Orders</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr><th>Name</th><th>Course</th><th>TrxID</th><th>Telegram</th><th>Status</th><th>Action</th></tr>
-                    </thead>
-                    <tbody id="orders-list">
-                        <tr><td colspan="6" style="text-align: center;">Loading orders...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<button onclick="createPost()">Create Post</button>
 
-    <script>
-        // YOUR ACTUAL KEYS
-        const SUPABASE_URL = 'https://zyixjqkdebxiiimwgzvf.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_7W2x2wCtJtcxQmmlV42SKw_VOkPwPfP';
-        const IMGBB_KEY = '4a780b9806217405482ea7632dac862b';
-        const ADMIN_PASSWORD = 'admin123';
-        
-        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        window.login = function() {
-            const password = document.getElementById('admin-password').value;
-            const errorDiv = document.getElementById('login-error');
-            
-            if (password === ADMIN_PASSWORD) {
-                document.getElementById('login-area').classList.add('hidden');
-                document.getElementById('admin-area').classList.remove('hidden');
-                loadOrders();
-            } else {
-                errorDiv.textContent = '❌ Incorrect password. Use: admin123';
-                errorDiv.classList.remove('hidden');
-                document.getElementById('admin-password').value = '';
-            }
-        };
-        
-        async function loadOrders() {
-            const tbody = document.getElementById('orders-list');
-            tbody.innerHTML = '<tr><td colspan="6">Loading orders...</td></tr>';
-            
-            const { data: orders, error } = await supabase
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false });
-            
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="6">Error: ${error.message}</td></tr>`;
-                return;
-            }
-            
-            if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = orders.map(order => `
-                <tr>
-                    <td>${escapeHtml(order.name)}</td>
-                    <td>${escapeHtml(order.course_name)}</td>
-                    <td><code>${escapeHtml(order.trx_id)}</code></td>
-                    <td>${escapeHtml(order.telegram_username)}</td>
-                    <td class="status-${order.status}">${order.status.toUpperCase()}</td>
-                    <td>
-                        ${order.status === 'pending' ? 
-                            `<button class="btn-approve" onclick="approveOrder('${order.id}')">✅ Approve</button>` : 
-                            '✓ Approved'}
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        window.approveOrder = async function(orderId) {
-            if (!confirm('Approve this order?')) return;
-            
-            const { error } = await supabase
-                .from('orders')
-                .update({ status: 'approved' })
-                .eq('id', orderId);
-            
-            if (error) {
-                alert('Error: ' + error.message);
-            } else {
-                alert('✓ Order approved! User can now join Telegram.');
-                loadOrders();
-            }
-        };
-        
-        document.getElementById('course-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const file = document.getElementById('course-image').files[0];
-            if (!file) {
-                alert('Please select an image');
-                return;
-            }
-            
-            const statusDiv = document.getElementById('upload-status');
-            statusDiv.innerHTML = '📤 Uploading image...';
-            
-            const formData = new FormData();
-            formData.append('image', file);
-            
-            try {
-                const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const imgData = await imgRes.json();
-                
-                if (!imgData.success) throw new Error('Upload failed');
-                
-                const course = {
-                    title: document.getElementById('course-title').value,
-                    price: parseInt(document.getElementById('course-price').value),
-                    telegram_link: document.getElementById('telegram-link').value,
-                    description: document.getElementById('course-desc').value,
-                    image_url: imgData.data.url
-                };
-                
-                const { error } = await supabase.from('courses').insert([course]);
-                
-                if (error) throw error;
-                
-                statusDiv.innerHTML = '✅ Course published successfully!';
-                document.getElementById('course-form').reset();
-                setTimeout(() => statusDiv.innerHTML = '', 3000);
-                
-            } catch (error) {
-                statusDiv.innerHTML = '❌ Error: ' + error.message;
-            }
-        });
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-    </script>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+import { SUPABASE_CONFIG } from "./config.js";
+
+const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+
+// LOGIN CHECK
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) location.href = "login.html";
+
+// ROLE CHECK
+const { data: role } = await supabase
+  .from("user_roles")
+  .select("role")
+  .eq("user_id", user.id)
+  .single();
+
+if (!role || role.role !== "admin") {
+  document.body.innerHTML = "🚫 Not Admin";
+  throw new Error("No access");
+}
+
+// CREATE POST
+window.createPost = async () => {
+  await supabase.from("posts").insert({
+    title: title.value,
+    content: content.value,
+    link: link.value,
+    access_token: crypto.randomUUID(),
+    created_by: user.id
+  });
+
+  alert("Post created");
+};
+</script>
+
 </body>
 </html>
