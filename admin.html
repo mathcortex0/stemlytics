@@ -1,51 +1,740 @@
 <!DOCTYPE html>
-<html>
-<body style="background:#111;color:white">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Manage Posts</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    .header {
+      background: #1a1a2e;
+      color: white;
+      padding: 16px 0;
+      margin-bottom: 32px;
+    }
+    
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logout-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .auth-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f5f5f0;
+    }
+    
+    .auth-card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .auth-card h2 {
+      margin-bottom: 8px;
+    }
+    
+    .auth-card p {
+      color: #666;
+      margin-bottom: 24px;
+    }
+    
+    .auth-error {
+      background: #fee;
+      color: #c0392b;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+      font-size: 0.875rem;
+    }
+    
+    .field {
+      margin-bottom: 20px;
+    }
+    
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: #666;
+    }
+    
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.875rem;
+    }
+    
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline: none;
+      border-color: #1a1a2e;
+    }
+    
+    .field textarea {
+      resize: vertical;
+      min-height: 150px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #1a1a2e;
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-primary:hover {
+      background: #2c2c4a;
+    }
+    
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #219a52;
+    }
+    
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #ddd;
+    }
+    
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 32px;
+    }
+    
+    .editor-panel {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      position: sticky;
+      top: 24px;
+      height: fit-content;
+    }
+    
+    .list-panel {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .post-item {
+      padding: 16px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .post-item:hover {
+      background: #f9f9f9;
+    }
+    
+    .post-info h4 {
+      margin-bottom: 4px;
+    }
+    
+    .post-meta {
+      font-size: 0.75rem;
+      color: #999;
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    
+    .post-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .post-actions button {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+    }
+    
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #e0e0e0;
+    }
+    
+    .badge.live {
+      background: #27ae60;
+      color: white;
+    }
+    
+    .badge.draft {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .preview-img {
+      width: 60px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    
+    .image-preview {
+      margin-top: 8px;
+      max-width: 100%;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .search-bar {
+      margin-bottom: 20px;
+    }
+    
+    .search-bar input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: #f5f5f0;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+    }
+    
+    .stat-label {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    
+    @media (max-width: 900px) {
+      .admin-layout { grid-template-columns: 1fr; }
+      .editor-panel { position: static; }
+    }
+  </style>
+</head>
+<body>
 
-<h2>Admin Panel</h2>
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <h2>Admin Access</h2>
+    <p>Sign in to manage posts</p>
+    <div class="auth-error" id="authError"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="adminEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
 
-<input id="title" placeholder="Title"><br>
-<textarea id="content"></textarea><br>
-<input id="link" placeholder="Link"><br>
+<!-- MAIN ADMIN UI -->
+<div id="adminUI" style="display: none;">
+  <div class="header">
+    <div class="header-inner">
+      <span class="logo">Admin Dashboard</span>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="admin-layout">
+      <!-- EDITOR PANEL -->
+      <div class="editor-panel">
+        <div class="panel-header">
+          <h3 id="formTitle">Create New Post</h3>
+          <button class="btn btn-outline" onclick="resetForm()" style="padding: 6px 12px;">New Post</button>
+        </div>
+        
+        <input type="hidden" id="postId">
+        
+        <div class="field">
+          <label>Title *</label>
+          <input type="text" id="title" placeholder="Post title..." oninput="autoSlug()">
+        </div>
+        
+        <div class="field">
+          <label>Slug (URL) *</label>
+          <input type="text" id="slug" placeholder="url-friendly-slug">
+          <small style="color:#999;">post.html?id=your-slug</small>
+        </div>
+        
+        <div class="field">
+          <label>Category</label>
+          <select id="category">
+            <option value="">Select category</option>
+            <option value="Technology">Technology</option>
+            <option value="Business">Business</option>
+            <option value="Design">Design</option>
+            <option value="Culture">Culture</option>
+          </select>
+        </div>
+        
+        <div class="field">
+          <label>Cover Image</label>
+          <input type="file" id="imageFile" accept="image/*" onchange="uploadImage()">
+          <input type="url" id="imageUrl" placeholder="Or paste image URL" style="margin-top: 8px;">
+          <img id="imagePreview" class="image-preview">
+          <div id="uploadStatus" style="font-size: 0.75rem; margin-top: 6px;"></div>
+        </div>
+        
+        <div class="field">
+          <label>Excerpt</label>
+          <textarea id="excerpt" rows="3" placeholder="Short summary..."></textarea>
+        </div>
+        
+        <div class="field">
+          <label>Content *</label>
+          <textarea id="content" rows="12" placeholder="Write your post here... (supports HTML)"></textarea>
+        </div>
+        
+        <div class="field">
+          <label>Author</label>
+          <input type="text" id="author" placeholder="Author name">
+        </div>
+        
+        <div class="field">
+          <label>
+            <input type="checkbox" id="isPublished" checked> Publish immediately
+          </label>
+        </div>
+        
+        <button class="btn btn-success" id="saveBtn" onclick="savePost()" style="width:100%; margin-top: 8px;">
+          Publish Post
+        </button>
+      </div>
+      
+      <!-- LIST PANEL -->
+      <div class="list-panel">
+        <div class="panel-header">
+          <h3>All Posts</h3>
+          <span class="badge" id="postCount">0 posts</span>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="statTotal">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statPublished">0</div>
+            <div class="stat-label">Published</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statDraft">0</div>
+            <div class="stat-label">Drafts</div>
+          </div>
+        </div>
+        
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search posts..." oninput="filterPosts()">
+        </div>
+        
+        <div id="postsList"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<button onclick="createPost()">Create Post</button>
+<script>
+const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
+const IMBB_KEY = '5eedf24deee3528bc34e811052972c74';
 
-<script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
-import { SUPABASE_CONFIG } from "./config.js";
+let sb;
+let allPosts = [];
+let editMode = false;
 
-const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
-
-// LOGIN CHECK
-const { data: { user } } = await supabase.auth.getUser();
-
-if (!user) location.href = "login.html";
-
-// ROLE CHECK
-const { data: role } = await supabase
-  .from("user_roles")
-  .select("role")
-  .eq("user_id", user.id)
-  .single();
-
-if (!role || role.role !== "admin") {
-  document.body.innerHTML = "🚫 Not Admin";
-  throw new Error("No access");
+// ========== AUTH (Supabase Auth - no hardcoded password!) ==========
+async function doLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPassword').value;
+  const errDiv = document.getElementById('authError');
+  
+  if (!email || !password) {
+    errDiv.textContent = 'Email and password required';
+    errDiv.style.display = 'block';
+    return;
+  }
+  
+  if (!window.supabase) {
+    errDiv.textContent = 'Loading... please wait';
+    errDiv.style.display = 'block';
+    return;
+  }
+  
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  
+  // First, try to sign in
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+  
+  if (error) {
+    // If user doesn't exist, try to create them (first time setup)
+    if (error.message.includes('Invalid login credentials')) {
+      errDiv.textContent = 'Invalid email or password';
+      errDiv.style.display = 'block';
+    } else {
+      errDiv.textContent = error.message;
+      errDiv.style.display = 'block';
+    }
+    return;
+  }
+  
+  // Success - show admin panel
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('adminUI').style.display = 'block';
+  loadPosts();
 }
 
-// CREATE POST
-window.createPost = async () => {
-  await supabase.from("posts").insert({
-    title: title.value,
-    content: content.value,
-    link: link.value,
-    access_token: crypto.randomUUID(),
-    created_by: user.id
-  });
+async function doLogout() {
+  if (sb) await sb.auth.signOut();
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('adminUI').style.display = 'none';
+  document.getElementById('adminEmail').value = '';
+  document.getElementById('adminPassword').value = '';
+}
 
-  alert("Post created");
-};
+// ========== IMAGE UPLOAD ==========
+async function uploadImage() {
+  const file = document.getElementById('imageFile').files[0];
+  if (!file) return;
+  
+  const preview = document.getElementById('imagePreview');
+  const status = document.getElementById('uploadStatus');
+  
+  const reader = new FileReader();
+  reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; };
+  reader.readAsDataURL(file);
+  
+  status.innerHTML = 'Uploading...';
+  status.style.color = '#666';
+  
+  const fd = new FormData();
+  fd.append('image', file);
+  
+  try {
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMBB_KEY}`, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('imageUrl').value = data.data.url;
+      status.innerHTML = '✓ Uploaded';
+      status.style.color = '#27ae60';
+    } else {
+      throw new Error('Upload failed');
+    }
+  } catch (err) {
+    status.innerHTML = '✗ Upload failed. Paste URL manually.';
+    status.style.color = '#e74c3c';
+  }
+}
+
+// ========== SLUG ==========
+function autoSlug() {
+  if (editMode) return;
+  const title = document.getElementById('title').value;
+  const slug = title.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+  document.getElementById('slug').value = slug;
+}
+
+// ========== SAVE POST ==========
+async function savePost() {
+  const id = document.getElementById('postId').value;
+  const title = document.getElementById('title').value.trim();
+  const slug = document.getElementById('slug').value.trim();
+  const content = document.getElementById('content').value.trim();
+  
+  if (!title) { alert('Title is required'); return; }
+  if (!slug) { alert('Slug is required'); return; }
+  if (!content) { alert('Content is required'); return; }
+  
+  const payload = {
+    title,
+    slug,
+    content,
+    excerpt: document.getElementById('excerpt').value.trim() || null,
+    image_url: document.getElementById('imageUrl').value.trim() || null,
+    category: document.getElementById('category').value || null,
+    author: document.getElementById('author').value.trim() || 'Admin',
+    is_published: document.getElementById('isPublished').checked,
+    updated_at: new Date().toISOString()
+  };
+  
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  
+  let result;
+  if (id) {
+    result = await sb.from('posts').update(payload).eq('id', id);
+  } else {
+    payload.created_at = new Date().toISOString();
+    result = await sb.from('posts').insert([payload]);
+  }
+  
+  btn.disabled = false;
+  btn.textContent = id ? 'Update Post' : 'Publish Post';
+  
+  if (result.error) {
+    alert('Error: ' + result.error.message);
+  } else {
+    alert(id ? 'Post updated!' : 'Post published!');
+    resetForm();
+    loadPosts();
+  }
+}
+
+// ========== EDIT POST ==========
+function editPost(post) {
+  editMode = true;
+  document.getElementById('formTitle').textContent = 'Edit Post';
+  document.getElementById('postId').value = post.id;
+  document.getElementById('title').value = post.title;
+  document.getElementById('slug').value = post.slug;
+  document.getElementById('category').value = post.category || '';
+  document.getElementById('imageUrl').value = post.image_url || '';
+  document.getElementById('excerpt').value = post.excerpt || '';
+  document.getElementById('content').value = post.content;
+  document.getElementById('author').value = post.author || '';
+  document.getElementById('isPublished').checked = post.is_published;
+  
+  const preview = document.getElementById('imagePreview');
+  if (post.image_url) {
+    preview.src = post.image_url;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+  
+  document.getElementById('saveBtn').textContent = 'Update Post';
+  document.querySelector('.editor-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ========== DELETE POST ==========
+async function deletePost(id, title) {
+  if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+  
+  const { error } = await sb.from('posts').delete().eq('id', id);
+  if (error) {
+    alert('Error: ' + error.message);
+  } else {
+    alert('Post deleted');
+    loadPosts();
+    if (document.getElementById('postId').value == id) resetForm();
+  }
+}
+
+// ========== RESET FORM ==========
+function resetForm() {
+  editMode = false;
+  document.getElementById('formTitle').textContent = 'Create New Post';
+  document.getElementById('postId').value = '';
+  document.getElementById('title').value = '';
+  document.getElementById('slug').value = '';
+  document.getElementById('category').value = '';
+  document.getElementById('imageUrl').value = '';
+  document.getElementById('imageFile').value = '';
+  document.getElementById('excerpt').value = '';
+  document.getElementById('content').value = '';
+  document.getElementById('author').value = '';
+  document.getElementById('isPublished').checked = true;
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('saveBtn').textContent = 'Publish Post';
+  document.getElementById('uploadStatus').innerHTML = '';
+}
+
+// ========== LOAD & DISPLAY POSTS ==========
+async function loadPosts() {
+  const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false });
+  if (error) {
+    console.error(error);
+    return;
+  }
+  
+  allPosts = data || [];
+  updateStats();
+  filterPosts();
+}
+
+function updateStats() {
+  const total = allPosts.length;
+  const published = allPosts.filter(p => p.is_published).length;
+  const drafts = total - published;
+  
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPublished').textContent = published;
+  document.getElementById('statDraft').textContent = drafts;
+  document.getElementById('postCount').textContent = `${total} post${total !== 1 ? 's' : ''}`;
+}
+
+function filterPosts() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = allPosts;
+  if (search) {
+    filtered = allPosts.filter(p => 
+      p.title.toLowerCase().includes(search) ||
+      (p.author || '').toLowerCase().includes(search) ||
+      (p.category || '').toLowerCase().includes(search)
+    );
+  }
+  renderPostsList(filtered);
+}
+
+function renderPostsList(posts) {
+  const container = document.getElementById('postsList');
+  if (posts.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">No posts found</div>';
+    return;
+  }
+  
+  container.innerHTML = posts.map(post => `
+    <div class="post-item">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        ${post.image_url ? `<img src="${post.image_url}" class="preview-img" alt="">` : '<div class="preview-img" style="background:#eee;"></div>'}
+        <div class="post-info">
+          <h4>${escapeHtml(post.title)}</h4>
+          <div class="post-meta">
+            <span>${escapeHtml(post.author || 'Admin')}</span>
+            <span>${formatDate(post.created_at)}</span>
+            <span class="badge ${post.is_published ? 'live' : 'draft'}">${post.is_published ? 'Published' : 'Draft'}</span>
+            ${post.category ? `<span class="badge">${escapeHtml(post.category)}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="post-actions">
+        <button class="btn btn-outline" onclick='editPost(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
+        <button class="btn btn-danger" onclick="deletePost('${post.id}', '${escapeHtml(post.title).replace(/'/g, "\\'")}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDate(iso) {
+  if (!iso) return 'Just now';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+}
+
+// Image URL preview
+document.getElementById('imageUrl').addEventListener('input', function() {
+  const preview = document.getElementById('imagePreview');
+  if (this.value) {
+    preview.src = this.value;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+});
 </script>
-
 </body>
 </html>
