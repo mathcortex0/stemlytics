@@ -1,38 +1,241 @@
 <!DOCTYPE html>
-<html>
-<body style="background:black;color:white">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Post</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.95);
+    }
+    
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-decoration: none;
+      color: #1a1a2e;
+    }
+    
+    .back-link {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    
+    .post-header {
+      padding: 48px 0 32px;
+    }
+    
+    .post-category {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #e74c3c;
+      margin-bottom: 16px;
+    }
+    
+    .post-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    
+    .post-meta {
+      display: flex;
+      gap: 16px;
+      color: #666;
+      font-size: 0.875rem;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    
+    .post-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin: 32px 0;
+    }
+    
+    .post-content {
+      font-size: 1.125rem;
+      line-height: 1.8;
+    }
+    
+    .post-content p {
+      margin-bottom: 1.5em;
+    }
+    
+    .post-content h2 {
+      font-size: 1.5rem;
+      margin: 1.5em 0 0.5em;
+    }
+    
+    .post-content h3 {
+      font-size: 1.25rem;
+      margin: 1.5em 0 0.5em;
+    }
+    
+    .post-content blockquote {
+      border-left: 4px solid #e74c3c;
+      padding-left: 20px;
+      margin: 1.5em 0;
+      color: #555;
+      font-style: italic;
+    }
+    
+    .post-content ul, .post-content ol {
+      margin: 1em 0;
+      padding-left: 1.5em;
+    }
+    
+    .post-content li {
+      margin-bottom: 0.5em;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 48px 24px;
+      border-top: 1px solid #e5e5e5;
+      color: #999;
+      font-size: 0.875rem;
+      margin-top: 48px;
+    }
+    
+    .loading, .not-found {
+      text-align: center;
+      padding: 80px 20px;
+      color: #666;
+    }
+    
+    @media (max-width: 768px) {
+      .post-title { font-size: 1.75rem; }
+      .post-content { font-size: 1rem; }
+      .container { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
 
-<h2 id="title"></h2>
-<p id="content"></p>
-<a id="link" target="_blank">Open Link</a>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">Blog</a>
+    <a href="index.html" class="back-link">← Back</a>
+  </div>
+</header>
 
-<script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
-import { SUPABASE_CONFIG } from "./config.js";
+<main class="container" id="postContent">
+  <div class="loading">Loading post...</div>
+</main>
 
-const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+<footer class="footer">
+  <p>© 2024 Blog. All rights reserved.</p>
+</footer>
 
-// LOGIN CHECK
-const { data: { user } } = await supabase.auth.getUser();
+<script>
+const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 
-if (!user) location.href = "login.html";
+const params = new URLSearchParams(window.location.search);
+const postId = params.get('id');
 
-const token = new URLSearchParams(location.search).get("token");
-
-const { data } = await supabase
-  .from("posts")
-  .select("*")
-  .eq("access_token", token)
-  .single();
-
-if (!data) {
-  document.body.innerHTML = "Invalid Post";
-} else {
-  title.innerText = data.title;
-  content.innerText = data.content;
-  link.href = data.link;
+async function loadPost() {
+  if (!postId) {
+    document.getElementById('postContent').innerHTML = '<div class="not-found">Post not found.</div>';
+    return;
+  }
+  
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data, error } = await sb
+    .from('posts')
+    .select('*')
+    .eq('id', postId)
+    .eq('is_published', true)
+    .single();
+  
+  if (error || !data) {
+    document.getElementById('postContent').innerHTML = '<div class="not-found">Post not found.</div>';
+    return;
+  }
+  
+  document.title = `${data.title} — Blog`;
+  
+  document.getElementById('postContent').innerHTML = `
+    <article>
+      <div class="post-header">
+        <div class="post-category">${escapeHtml(data.category || 'General')}</div>
+        <h1 class="post-title">${escapeHtml(data.title)}</h1>
+        <div class="post-meta">
+          <span>By ${escapeHtml(data.author || 'Admin')}</span>
+          <span>${formatDate(data.created_at)}</span>
+          <span>${data.read_time || '5'} min read</span>
+        </div>
+      </div>
+      ${data.image_url ? `<img src="${data.image_url}" class="post-image" alt="${escapeHtml(data.title)}">` : ''}
+      <div class="post-content">${formatContent(data.content)}</div>
+    </article>
+  `;
 }
-</script>
 
+function formatContent(content) {
+  if (!content) return '';
+  // Simple paragraph splitting for plain text
+  if (!/<[a-z]/i.test(content)) {
+    return content.split(/\n\s*\n/).filter(p => p.trim()).map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+  }
+  return content;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+}
+
+loadPost();
+</script>
 </body>
 </html>
