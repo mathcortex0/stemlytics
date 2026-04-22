@@ -14,7 +14,6 @@
       background: #f5f7fb;
     }
     
-    /* Header */
     .header {
       background: #1a1a2e;
       color: white;
@@ -42,7 +41,6 @@
       font-size: 14px;
     }
     
-    /* Auth Screen */
     .auth-screen {
       display: flex;
       align-items: center;
@@ -128,7 +126,6 @@
       border: 1px solid #ddd;
     }
     
-    /* Main Dashboard */
     .dashboard {
       display: none;
       padding: 24px;
@@ -136,7 +133,6 @@
       margin: 0 auto;
     }
     
-    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -164,7 +160,6 @@
       margin-top: 6px;
     }
     
-    /* Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -189,7 +184,6 @@
       margin-bottom: -2px;
     }
     
-    /* Panels */
     .panel {
       display: none;
       background: white;
@@ -202,7 +196,6 @@
       display: block;
     }
     
-    /* Forms */
     .form-group {
       margin-bottom: 20px;
     }
@@ -233,7 +226,6 @@
       gap: 16px;
     }
     
-    /* Tables */
     .data-table {
       width: 100%;
       overflow-x: auto;
@@ -265,7 +257,6 @@
       font-size: 12px;
     }
     
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -289,6 +280,8 @@
       border-radius: 16px;
       max-width: 500px;
       width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     
     .modal-buttons {
@@ -298,7 +291,6 @@
       margin-top: 24px;
     }
     
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -321,6 +313,12 @@
       to { transform: translateX(0); opacity: 1; }
     }
     
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .form-row { grid-template-columns: 1fr; }
@@ -338,7 +336,7 @@
     <div id="authError" class="auth-error"></div>
     <div class="field">
       <label>Email</label>
-      <input type="email" id="adminEmail" placeholder="admin@example.com">
+      <input type="email" id="adminEmail" placeholder="admin@example.com" value="text.me.md.alamin@gmail.com">
     </div>
     <div class="field">
       <label>Password</label>
@@ -355,7 +353,6 @@
     <button class="logout-btn" onclick="doLogout()">Logout</button>
   </div>
   
-  <!-- Stats -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card"><div class="stat-number" id="statUnis">0</div><div class="stat-label">Universities</div></div>
     <div class="stat-card"><div class="stat-number" id="statCirculars">0</div><div class="stat-label">Circulars</div></div>
@@ -363,7 +360,6 @@
     <div class="stat-card"><div class="stat-number" id="statResources">0</div><div class="stat-label">Resources</div></div>
   </div>
   
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="universities">🏛️ Universities</button>
     <button class="tab-btn" data-tab="circulars">📢 Admission Circulars</button>
@@ -371,40 +367,36 @@
     <button class="tab-btn" data-tab="resources">📚 Resources</button>
   </div>
   
-  <!-- Universities Panel -->
   <div id="universitiesPanel" class="panel active">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3>Manage Universities</h3>
       <button class="btn btn-success" onclick="openUniModal()">+ Add University</button>
     </div>
-    <div class="data-table" id="unisTable"></div>
+    <div class="data-table" id="unisTable"><div class="loading">Loading...</div></div>
   </div>
   
-  <!-- Circulars Panel -->
   <div id="circularsPanel" class="panel">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3>Admission Circulars</h3>
       <button class="btn btn-success" onclick="openCircularModal()">+ Add Circular</button>
     </div>
-    <div class="data-table" id="circularsTable"></div>
+    <div class="data-table" id="circularsTable"><div class="loading">Loading...</div></div>
   </div>
   
-  <!-- Notifications Panel -->
   <div id="notificationsPanel" class="panel">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3>Notifications</h3>
       <button class="btn btn-success" onclick="openNotifModal()">+ Add Notification</button>
     </div>
-    <div class="data-table" id="notifsTable"></div>
+    <div class="data-table" id="notifsTable"><div class="loading">Loading...</div></div>
   </div>
   
-  <!-- Resources Panel -->
   <div id="resourcesPanel" class="panel">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h3>Resources & Materials</h3>
       <button class="btn btn-success" onclick="openResourceModal()">+ Add Resource</button>
     </div>
-    <div class="data-table" id="resourcesTable"></div>
+    <div class="data-table" id="resourcesTable"><div class="loading">Loading...</div></div>
   </div>
 </div>
 
@@ -413,34 +405,12 @@
   <div class="modal-content">
     <h3 id="uniModalTitle">Add University</h3>
     <input type="hidden" id="uniId">
-    <div class="form-group">
-      <label>University Name</label>
-      <input type="text" id="uniName" placeholder="e.g., University of Dhaka">
-    </div>
-    <div class="form-group">
-      <label>Category</label>
-      <select id="uniCategory">
-        <option value="Varsity">🎓 Varsity</option>
-        <option value="Engineering">⚙️ Engineering</option>
-        <option value="Medical">🩺 Medical</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Logo URL (optional)</label>
-      <input type="text" id="uniLogo" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="uniDesc" placeholder="University description..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Website</label>
-      <input type="text" id="uniWebsite" placeholder="https://...">
-    </div>
-    <div class="modal-buttons">
-      <button class="btn btn-outline" onclick="closeUniModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveUniversity()">Save</button>
-    </div>
+    <div class="form-group"><label>University Name</label><input type="text" id="uniName" placeholder="e.g., University of Dhaka"></div>
+    <div class="form-group"><label>Category</label><select id="uniCategory"><option value="Varsity">🎓 Varsity</option><option value="Engineering">⚙️ Engineering</option><option value="Medical">🩺 Medical</option></select></div>
+    <div class="form-group"><label>Logo URL (optional)</label><input type="text" id="uniLogo" placeholder="https://..."></div>
+    <div class="form-group"><label>Description</label><textarea id="uniDesc" placeholder="University description..."></textarea></div>
+    <div class="form-group"><label>Website</label><input type="text" id="uniWebsite" placeholder="https://..."></div>
+    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeUniModal()">Cancel</button><button class="btn btn-primary" onclick="saveUniversity()">Save</button></div>
   </div>
 </div>
 
@@ -449,43 +419,14 @@
   <div class="modal-content">
     <h3 id="circularModalTitle">Add Circular</h3>
     <input type="hidden" id="circularId">
-    <div class="form-group">
-      <label>University</label>
-      <select id="circularUniId"></select>
-    </div>
-    <div class="form-group">
-      <label>Title</label>
-      <input type="text" id="circularTitle" placeholder="e.g., Admission 2024-25">
-    </div>
-    <div class="form-group">
-      <label>Circular Link</label>
-      <input type="text" id="circularLink" placeholder="https://...">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Application Deadline</label>
-        <input type="date" id="circularDeadline">
-      </div>
-      <div class="form-group">
-        <label>Exam Date</label>
-        <input type="date" id="circularExamDate">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Exam Date Text (optional)</label>
-      <input type="text" id="circularExamText" placeholder="e.g., To be announced">
-    </div>
-    <div class="form-group">
-      <label>Details</label>
-      <textarea id="circularDetails" placeholder="Additional details..."></textarea>
-    </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="circularFeatured"> Featured on homepage</label>
-    </div>
-    <div class="modal-buttons">
-      <button class="btn btn-outline" onclick="closeCircularModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCircular()">Save</button>
-    </div>
+    <div class="form-group"><label>University</label><select id="circularUniId"></select></div>
+    <div class="form-group"><label>Title</label><input type="text" id="circularTitle" placeholder="e.g., Admission 2024-25"></div>
+    <div class="form-group"><label>Circular Link</label><input type="text" id="circularLink" placeholder="https://..."></div>
+    <div class="form-row"><div class="form-group"><label>Deadline</label><input type="date" id="circularDeadline"></div><div class="form-group"><label>Exam Date</label><input type="date" id="circularExamDate"></div></div>
+    <div class="form-group"><label>Exam Date Text</label><input type="text" id="circularExamText" placeholder="e.g., To be announced"></div>
+    <div class="form-group"><label>Details</label><textarea id="circularDetails" placeholder="Additional details..."></textarea></div>
+    <div class="form-group"><label><input type="checkbox" id="circularFeatured"> Featured on homepage</label></div>
+    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeCircularModal()">Cancel</button><button class="btn btn-primary" onclick="saveCircular()">Save</button></div>
   </div>
 </div>
 
@@ -494,28 +435,12 @@
   <div class="modal-content">
     <h3 id="notifModalTitle">Add Notification</h3>
     <input type="hidden" id="notifId">
-    <div class="form-group">
-      <label>Title</label>
-      <input type="text" id="notifTitle" placeholder="Notification title">
-    </div>
-    <div class="form-group">
-      <label>Message</label>
-      <textarea id="notifMessage" placeholder="Notification message..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Link (optional)</label>
-      <input type="text" id="notifLink" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="notifUrgent"> Urgent (red highlight)</label>
-    </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="notifShowHome" checked> Show on homepage</label>
-    </div>
-    <div class="modal-buttons">
-      <button class="btn btn-outline" onclick="closeNotifModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveNotification()">Save</button>
-    </div>
+    <div class="form-group"><label>Title</label><input type="text" id="notifTitle" placeholder="Notification title"></div>
+    <div class="form-group"><label>Message</label><textarea id="notifMessage" placeholder="Notification message..."></textarea></div>
+    <div class="form-group"><label>Link</label><input type="text" id="notifLink" placeholder="https://..."></div>
+    <div class="form-group"><label><input type="checkbox" id="notifUrgent"> Urgent (red highlight)</label></div>
+    <div class="form-group"><label><input type="checkbox" id="notifShowHome" checked> Show on homepage</label></div>
+    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeNotifModal()">Cancel</button><button class="btn btn-primary" onclick="saveNotification()">Save</button></div>
   </div>
 </div>
 
@@ -524,36 +449,12 @@
   <div class="modal-content">
     <h3 id="resourceModalTitle">Add Resource</h3>
     <input type="hidden" id="resourceId">
-    <div class="form-group">
-      <label>University</label>
-      <select id="resourceUniId"></select>
-    </div>
-    <div class="form-group">
-      <label>Title</label>
-      <input type="text" id="resourceTitle" placeholder="e.g., Admission Guide 2024">
-    </div>
-    <div class="form-group">
-      <label>Resource Type</label>
-      <select id="resourceType">
-        <option value="PDF">📄 PDF</option>
-        <option value="Link">🔗 Link</option>
-        <option value="Notice">📢 Notice</option>
-        <option value="Syllabus">📖 Syllabus</option>
-        <option value="Question Bank">📝 Question Bank</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>File URL</label>
-      <input type="text" id="resourceUrl" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="resourceDesc" placeholder="Description..."></textarea>
-    </div>
-    <div class="modal-buttons">
-      <button class="btn btn-outline" onclick="closeResourceModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveResource()">Save</button>
-    </div>
+    <div class="form-group"><label>University</label><select id="resourceUniId"></select></div>
+    <div class="form-group"><label>Title</label><input type="text" id="resourceTitle" placeholder="e.g., Admission Guide 2024"></div>
+    <div class="form-group"><label>Type</label><select id="resourceType"><option value="PDF">📄 PDF</option><option value="Link">🔗 Link</option><option value="Notice">📢 Notice</option><option value="Syllabus">📖 Syllabus</option><option value="Question Bank">📝 Question Bank</option></select></div>
+    <div class="form-group"><label>File URL</label><input type="text" id="resourceUrl" placeholder="https://..."></div>
+    <div class="form-group"><label>Description</label><textarea id="resourceDesc" placeholder="Description..."></textarea></div>
+    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeResourceModal()">Cancel</button><button class="btn btn-primary" onclick="saveResource()">Save</button></div>
   </div>
 </div>
 
@@ -563,8 +464,14 @@
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 
-let supabase;
+let supabase = null;
 let currentUser = null;
+
+// Global data stores
+let universities = [];
+let circulars = [];
+let notifications = [];
+let resources = [];
 
 // ========== AUTH ==========
 async function doLogin() {
@@ -578,32 +485,40 @@ async function doLogin() {
     return;
   }
   
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  
-  if (error) {
-    errDiv.textContent = error.message;
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      errDiv.textContent = error.message;
+      errDiv.style.display = 'block';
+      return;
+    }
+    
+    currentUser = data.user;
+    
+    // Check if admin (using your email)
+    if (currentUser.email !== 'text.me.md.alamin@gmail.com') {
+      await supabase.auth.signOut();
+      errDiv.textContent = 'You are not authorized as admin';
+      errDiv.style.display = 'block';
+      return;
+    }
+    
+    // Show dashboard and load data
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    await loadAllData();
+    
+  } catch (err) {
+    errDiv.textContent = 'Login failed: ' + err.message;
     errDiv.style.display = 'block';
-    return;
   }
-  
-  currentUser = data.user;
-  
-  // Verify admin email
-  if (currentUser.email !== 'text.me.md.alamin@gmail.com') {
-    await supabase.auth.signOut();
-    errDiv.textContent = 'You are not authorized as admin';
-    errDiv.style.display = 'block';
-    return;
-  }
-  
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  loadAllData();
 }
 
 async function doLogout() {
-  await supabase.auth.signOut();
+  if (supabase) await supabase.auth.signOut();
   location.reload();
 }
 
@@ -619,14 +534,19 @@ async function loadAllData() {
 }
 
 async function loadUniversities() {
-  const { data } = await supabase.from('universities').select('*').order('name');
-  window.unis = data || [];
+  const { data, error } = await supabase.from('universities').select('*').order('name');
+  if (error) {
+    console.error('Error loading universities:', error);
+    document.getElementById('unisTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading universities</p>';
+    return;
+  }
+  universities = data || [];
   renderUniversities();
 }
 
 function renderUniversities() {
   const container = document.getElementById('unisTable');
-  if (!window.unis || window.unis.length === 0) {
+  if (!universities || universities.length === 0) {
     container.innerHTML = '<p style="text-align:center; padding:40px;">No universities yet. Add one!</p>';
     return;
   }
@@ -635,12 +555,12 @@ function renderUniversities() {
     <table>
       <thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead>
       <tbody>
-        ${window.unis.map(uni => `
+        ${universities.map(uni => `
           <tr>
             <td><strong>${escapeHtml(uni.name)}</strong><br><small>${escapeHtml(uni.description?.substring(0, 60)) || ''}</small></td>
             <td>${uni.category}</td>
             <td class="action-btns">
-              <button class="btn btn-outline" onclick="editUni(${uni.id})">Edit</button>
+              <button class="btn btn-outline" onclick='editUni(${JSON.stringify(uni)})'>Edit</button>
               <button class="btn btn-danger" onclick="deleteUni(${uni.id}, '${escapeHtml(uni.name)}')">Delete</button>
             </td>
           </tr>
@@ -651,14 +571,22 @@ function renderUniversities() {
 }
 
 async function loadCirculars() {
-  const { data } = await supabase.from('admission_circulars').select('*, universities(name)').order('created_at', { ascending: false });
-  window.circulars = data || [];
+  const { data, error } = await supabase
+    .from('admission_circulars')
+    .select('*, universities(name)')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('Error loading circulars:', error);
+    document.getElementById('circularsTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading circulars</p>';
+    return;
+  }
+  circulars = data || [];
   renderCirculars();
 }
 
 function renderCirculars() {
   const container = document.getElementById('circularsTable');
-  if (!window.circulars || window.circulars.length === 0) {
+  if (!circulars || circulars.length === 0) {
     container.innerHTML = '<p style="text-align:center; padding:40px;">No circulars yet. Add one!</p>';
     return;
   }
@@ -667,14 +595,14 @@ function renderCirculars() {
     <table>
       <thead><tr><th>University</th><th>Title</th><th>Deadline</th><th>Featured</th><th>Actions</th></tr></thead>
       <tbody>
-        ${window.circulars.map(c => `
+        ${circulars.map(c => `
           <tr>
             <td>${escapeHtml(c.universities?.name || 'Unknown')}</td>
             <td>${escapeHtml(c.title)}</td>
             <td>${c.application_deadline ? new Date(c.application_deadline).toLocaleDateString() : 'TBA'}</td>
             <td>${c.is_featured ? '⭐ Yes' : 'No'}</td>
             <td class="action-btns">
-              <button class="btn btn-outline" onclick="editCircular(${c.id})">Edit</button>
+              <button class="btn btn-outline" onclick='editCircular(${JSON.stringify(c)})'>Edit</button>
               <button class="btn btn-danger" onclick="deleteCircular(${c.id})">Delete</button>
             </td>
           </tr>
@@ -685,14 +613,19 @@ function renderCirculars() {
 }
 
 async function loadNotifications() {
-  const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
-  window.notifications = data || [];
+  const { data, error } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
+  if (error) {
+    console.error('Error loading notifications:', error);
+    document.getElementById('notifsTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading notifications</p>';
+    return;
+  }
+  notifications = data || [];
   renderNotifications();
 }
 
 function renderNotifications() {
   const container = document.getElementById('notifsTable');
-  if (!window.notifications || window.notifications.length === 0) {
+  if (!notifications || notifications.length === 0) {
     container.innerHTML = '<p style="text-align:center; padding:40px;">No notifications yet. Add one!</p>';
     return;
   }
@@ -701,14 +634,14 @@ function renderNotifications() {
     <table>
       <thead><tr><th>Title</th><th>Message</th><th>Urgent</th><th>On Homepage</th><th>Actions</th></tr></thead>
       <tbody>
-        ${window.notifications.map(n => `
+        ${notifications.map(n => `
           <tr>
             <td><strong>${escapeHtml(n.title)}</strong></td>
             <td>${escapeHtml(n.message.substring(0, 60))}${n.message.length > 60 ? '...' : ''}</td>
             <td>${n.is_urgent ? '🔴 Yes' : 'No'}</td>
             <td>${n.show_on_homepage ? '✅ Yes' : 'No'}</td>
             <td class="action-btns">
-              <button class="btn btn-outline" onclick="editNotif(${n.id})">Edit</button>
+              <button class="btn btn-outline" onclick='editNotif(${JSON.stringify(n)})'>Edit</button>
               <button class="btn btn-danger" onclick="deleteNotif(${n.id})">Delete</button>
             </td>
           </tr>
@@ -719,14 +652,22 @@ function renderNotifications() {
 }
 
 async function loadResources() {
-  const { data } = await supabase.from('resources').select('*, universities(name)').order('created_at', { ascending: false });
-  window.resources = data || [];
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*, universities(name)')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('Error loading resources:', error);
+    document.getElementById('resourcesTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading resources</p>';
+    return;
+  }
+  resources = data || [];
   renderResources();
 }
 
 function renderResources() {
   const container = document.getElementById('resourcesTable');
-  if (!window.resources || window.resources.length === 0) {
+  if (!resources || resources.length === 0) {
     container.innerHTML = '<p style="text-align:center; padding:40px;">No resources yet. Add one!</p>';
     return;
   }
@@ -735,13 +676,13 @@ function renderResources() {
     <table>
       <thead><tr><th>University</th><th>Title</th><th>Type</th><th>Actions</th></tr></thead>
       <tbody>
-        ${window.resources.map(r => `
+        ${resources.map(r => `
           <tr>
             <td>${escapeHtml(r.universities?.name || 'Unknown')}</td>
             <td>${escapeHtml(r.title)}</td>
             <td>${r.resource_type}</td>
             <td class="action-btns">
-              <button class="btn btn-outline" onclick="editResource(${r.id})">Edit</button>
+              <button class="btn btn-outline" onclick='editResource(${JSON.stringify(r)})'>Edit</button>
               <button class="btn btn-danger" onclick="deleteResource(${r.id})">Delete</button>
             </td>
           </tr>
@@ -752,13 +693,38 @@ function renderResources() {
 }
 
 function updateStats() {
-  document.getElementById('statUnis').textContent = window.unis?.length || 0;
-  document.getElementById('statCirculars').textContent = window.circulars?.length || 0;
-  document.getElementById('statNotifs').textContent = window.notifications?.length || 0;
-  document.getElementById('statResources').textContent = window.resources?.length || 0;
+  document.getElementById('statUnis').textContent = universities.length;
+  document.getElementById('statCirculars').textContent = circulars.length;
+  document.getElementById('statNotifs').textContent = notifications.length;
+  document.getElementById('statResources').textContent = resources.length;
 }
 
-// ========== CRUD Operations ==========
+// ========== UNIVERSITY CRUD ==========
+function openUniModal(uni = null) {
+  if (uni) {
+    document.getElementById('uniModalTitle').textContent = 'Edit University';
+    document.getElementById('uniId').value = uni.id;
+    document.getElementById('uniName').value = uni.name;
+    document.getElementById('uniCategory').value = uni.category;
+    document.getElementById('uniLogo').value = uni.logo_url || '';
+    document.getElementById('uniDesc').value = uni.description || '';
+    document.getElementById('uniWebsite').value = uni.website || '';
+  } else {
+    document.getElementById('uniModalTitle').textContent = 'Add University';
+    document.getElementById('uniId').value = '';
+    document.getElementById('uniName').value = '';
+    document.getElementById('uniCategory').value = 'Varsity';
+    document.getElementById('uniLogo').value = '';
+    document.getElementById('uniDesc').value = '';
+    document.getElementById('uniWebsite').value = '';
+  }
+  document.getElementById('uniModal').classList.add('active');
+}
+
+function closeUniModal() {
+  document.getElementById('uniModal').classList.remove('active');
+}
+
 async function saveUniversity() {
   const id = document.getElementById('uniId').value;
   const data = {
@@ -766,13 +732,20 @@ async function saveUniversity() {
     category: document.getElementById('uniCategory').value,
     logo_url: document.getElementById('uniLogo').value || null,
     description: document.getElementById('uniDesc').value || null,
-    website: document.getElementById('uniWebsite').value || null
+    website: document.getElementById('uniWebsite').value || null,
+    updated_at: new Date().toISOString()
   };
+  
+  if (!data.name) {
+    showToast('University name is required');
+    return;
+  }
   
   let result;
   if (id) {
     result = await supabase.from('universities').update(data).eq('id', id);
   } else {
+    data.created_at = new Date().toISOString();
     result = await supabase.from('universities').insert([data]);
   }
   
@@ -781,9 +754,13 @@ async function saveUniversity() {
   } else {
     showToast(id ? 'University updated!' : 'University added!');
     closeUniModal();
-    loadUniversities();
+    await loadUniversities();
     updateStats();
   }
+}
+
+function editUni(uni) {
+  openUniModal(uni);
 }
 
 async function deleteUni(id, name) {
@@ -794,15 +771,269 @@ async function deleteUni(id, name) {
     showToast('Error: ' + error.message);
   } else {
     showToast('University deleted');
-    loadUniversities();
-    loadCirculars();
-    loadResources();
+    await loadUniversities();
+    await loadCirculars();
+    await loadResources();
     updateStats();
   }
 }
 
-// Similar functions for circulars, notifications, resources...
+// ========== CIRCULAR CRUD ==========
+function openCircularModal(circular = null) {
+  // Populate university dropdown
+  const select = document.getElementById('circularUniId');
+  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+  
+  if (circular) {
+    document.getElementById('circularModalTitle').textContent = 'Edit Circular';
+    document.getElementById('circularId').value = circular.id;
+    document.getElementById('circularUniId').value = circular.university_id;
+    document.getElementById('circularTitle').value = circular.title;
+    document.getElementById('circularLink').value = circular.circular_link || '';
+    document.getElementById('circularDeadline').value = circular.application_deadline || '';
+    document.getElementById('circularExamDate').value = circular.exam_date || '';
+    document.getElementById('circularExamText').value = circular.exam_date_text || '';
+    document.getElementById('circularDetails').value = circular.details || '';
+    document.getElementById('circularFeatured').checked = circular.is_featured || false;
+  } else {
+    document.getElementById('circularModalTitle').textContent = 'Add Circular';
+    document.getElementById('circularId').value = '';
+    document.getElementById('circularUniId').value = '';
+    document.getElementById('circularTitle').value = '';
+    document.getElementById('circularLink').value = '';
+    document.getElementById('circularDeadline').value = '';
+    document.getElementById('circularExamDate').value = '';
+    document.getElementById('circularExamText').value = '';
+    document.getElementById('circularDetails').value = '';
+    document.getElementById('circularFeatured').checked = false;
+  }
+  document.getElementById('circularModal').classList.add('active');
+}
 
+function closeCircularModal() {
+  document.getElementById('circularModal').classList.remove('active');
+}
+
+async function saveCircular() {
+  const id = document.getElementById('circularId').value;
+  const data = {
+    university_id: parseInt(document.getElementById('circularUniId').value),
+    title: document.getElementById('circularTitle').value,
+    circular_link: document.getElementById('circularLink').value || null,
+    application_deadline: document.getElementById('circularDeadline').value || null,
+    exam_date: document.getElementById('circularExamDate').value || null,
+    exam_date_text: document.getElementById('circularExamText').value || null,
+    details: document.getElementById('circularDetails').value || null,
+    is_featured: document.getElementById('circularFeatured').checked,
+    is_published: true,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (!data.title) {
+    showToast('Title is required');
+    return;
+  }
+  if (!data.university_id) {
+    showToast('Please select a university');
+    return;
+  }
+  
+  let result;
+  if (id) {
+    result = await supabase.from('admission_circulars').update(data).eq('id', id);
+  } else {
+    data.created_at = new Date().toISOString();
+    result = await supabase.from('admission_circulars').insert([data]);
+  }
+  
+  if (result.error) {
+    showToast('Error: ' + result.error.message);
+  } else {
+    showToast(id ? 'Circular updated!' : 'Circular added!');
+    closeCircularModal();
+    await loadCirculars();
+    updateStats();
+  }
+}
+
+function editCircular(circular) {
+  openCircularModal(circular);
+}
+
+async function deleteCircular(id) {
+  if (!confirm('Delete this circular?')) return;
+  const { error } = await supabase.from('admission_circulars').delete().eq('id', id);
+  if (error) {
+    showToast('Error: ' + error.message);
+  } else {
+    showToast('Circular deleted');
+    await loadCirculars();
+    updateStats();
+  }
+}
+
+// ========== NOTIFICATION CRUD ==========
+function openNotifModal(notif = null) {
+  if (notif) {
+    document.getElementById('notifModalTitle').textContent = 'Edit Notification';
+    document.getElementById('notifId').value = notif.id;
+    document.getElementById('notifTitle').value = notif.title;
+    document.getElementById('notifMessage').value = notif.message;
+    document.getElementById('notifLink').value = notif.link || '';
+    document.getElementById('notifUrgent').checked = notif.is_urgent || false;
+    document.getElementById('notifShowHome').checked = notif.show_on_homepage !== false;
+  } else {
+    document.getElementById('notifModalTitle').textContent = 'Add Notification';
+    document.getElementById('notifId').value = '';
+    document.getElementById('notifTitle').value = '';
+    document.getElementById('notifMessage').value = '';
+    document.getElementById('notifLink').value = '';
+    document.getElementById('notifUrgent').checked = false;
+    document.getElementById('notifShowHome').checked = true;
+  }
+  document.getElementById('notifModal').classList.add('active');
+}
+
+function closeNotifModal() {
+  document.getElementById('notifModal').classList.remove('active');
+}
+
+async function saveNotification() {
+  const id = document.getElementById('notifId').value;
+  const data = {
+    title: document.getElementById('notifTitle').value,
+    message: document.getElementById('notifMessage').value,
+    link: document.getElementById('notifLink').value || null,
+    is_urgent: document.getElementById('notifUrgent').checked,
+    show_on_homepage: document.getElementById('notifShowHome').checked,
+    is_published: true,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (!data.title || !data.message) {
+    showToast('Title and message are required');
+    return;
+  }
+  
+  let result;
+  if (id) {
+    result = await supabase.from('notifications').update(data).eq('id', id);
+  } else {
+    data.created_at = new Date().toISOString();
+    result = await supabase.from('notifications').insert([data]);
+  }
+  
+  if (result.error) {
+    showToast('Error: ' + result.error.message);
+  } else {
+    showToast(id ? 'Notification updated!' : 'Notification added!');
+    closeNotifModal();
+    await loadNotifications();
+    updateStats();
+  }
+}
+
+function editNotif(notif) {
+  openNotifModal(notif);
+}
+
+async function deleteNotif(id) {
+  if (!confirm('Delete this notification?')) return;
+  const { error } = await supabase.from('notifications').delete().eq('id', id);
+  if (error) {
+    showToast('Error: ' + error.message);
+  } else {
+    showToast('Notification deleted');
+    await loadNotifications();
+    updateStats();
+  }
+}
+
+// ========== RESOURCE CRUD ==========
+function openResourceModal(resource = null) {
+  const select = document.getElementById('resourceUniId');
+  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+  
+  if (resource) {
+    document.getElementById('resourceModalTitle').textContent = 'Edit Resource';
+    document.getElementById('resourceId').value = resource.id;
+    document.getElementById('resourceUniId').value = resource.university_id;
+    document.getElementById('resourceTitle').value = resource.title;
+    document.getElementById('resourceType').value = resource.resource_type;
+    document.getElementById('resourceUrl').value = resource.file_url || '';
+    document.getElementById('resourceDesc').value = resource.description || '';
+  } else {
+    document.getElementById('resourceModalTitle').textContent = 'Add Resource';
+    document.getElementById('resourceId').value = '';
+    document.getElementById('resourceUniId').value = '';
+    document.getElementById('resourceTitle').value = '';
+    document.getElementById('resourceType').value = 'PDF';
+    document.getElementById('resourceUrl').value = '';
+    document.getElementById('resourceDesc').value = '';
+  }
+  document.getElementById('resourceModal').classList.add('active');
+}
+
+function closeResourceModal() {
+  document.getElementById('resourceModal').classList.remove('active');
+}
+
+async function saveResource() {
+  const id = document.getElementById('resourceId').value;
+  const data = {
+    university_id: parseInt(document.getElementById('resourceUniId').value),
+    title: document.getElementById('resourceTitle').value,
+    resource_type: document.getElementById('resourceType').value,
+    file_url: document.getElementById('resourceUrl').value || null,
+    description: document.getElementById('resourceDesc').value || null,
+    is_published: true,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (!data.title) {
+    showToast('Title is required');
+    return;
+  }
+  if (!data.university_id) {
+    showToast('Please select a university');
+    return;
+  }
+  
+  let result;
+  if (id) {
+    result = await supabase.from('resources').update(data).eq('id', id);
+  } else {
+    data.created_at = new Date().toISOString();
+    result = await supabase.from('resources').insert([data]);
+  }
+  
+  if (result.error) {
+    showToast('Error: ' + result.error.message);
+  } else {
+    showToast(id ? 'Resource updated!' : 'Resource added!');
+    closeResourceModal();
+    await loadResources();
+    updateStats();
+  }
+}
+
+function editResource(resource) {
+  openResourceModal(resource);
+}
+
+async function deleteResource(id) {
+  if (!confirm('Delete this resource?')) return;
+  const { error } = await supabase.from('resources').delete().eq('id', id);
+  if (error) {
+    showToast('Error: ' + error.message);
+  } else {
+    showToast('Resource deleted');
+    await loadResources();
+    updateStats();
+  }
+}
+
+// ========== UTILITIES ==========
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
@@ -825,36 +1056,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Modal functions (simplified)
-function openUniModal() { document.getElementById('uniModal').classList.add('active'); }
-function closeUniModal() { document.getElementById('uniModal').classList.remove('active'); document.getElementById('uniId').value = ''; document.getElementById('uniName').value = ''; }
-function openCircularModal() { 
-  // Populate university dropdown
-  const select = document.getElementById('circularUniId');
-  select.innerHTML = (window.unis || []).map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
-  document.getElementById('circularModal').classList.add('active');
-}
-function closeCircularModal() { document.getElementById('circularModal').classList.remove('active'); }
-function openNotifModal() { document.getElementById('notifModal').classList.add('active'); }
-function closeNotifModal() { document.getElementById('notifModal').classList.remove('active'); }
-function openResourceModal() {
-  const select = document.getElementById('resourceUniId');
-  select.innerHTML = (window.unis || []).map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
-  document.getElementById('resourceModal').classList.add('active');
-}
-function closeResourceModal() { document.getElementById('resourceModal').classList.remove('active'); }
-
-// Edit functions (simplified - add full implementation as needed)
-function editUni(id) { /* Load uni data into modal */ openUniModal(); }
-function editCircular(id) { openCircularModal(); }
-function editNotif(id) { openNotifModal(); }
-function editResource(id) { openResourceModal(); }
-async function deleteCircular(id) { if(confirm('Delete?')){ await supabase.from('admission_circulars').delete().eq('id', id); loadCirculars(); updateStats(); showToast('Deleted'); } }
-async function deleteNotif(id) { if(confirm('Delete?')){ await supabase.from('notifications').delete().eq('id', id); loadNotifications(); updateStats(); showToast('Deleted'); } }
-async function deleteResource(id) { if(confirm('Delete?')){ await supabase.from('resources').delete().eq('id', id); loadResources(); updateStats(); showToast('Deleted'); } }
-async function saveCircular() { /* Implement save */ closeCircularModal(); loadCirculars(); showToast('Saved'); }
-async function saveNotification() { /* Implement save */ closeNotifModal(); loadNotifications(); showToast('Saved'); }
-async function saveResource() { /* Implement save */ closeResourceModal(); loadResources(); showToast('Saved'); }
+// Enter key login
+document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
 </script>
 </body>
 </html>
