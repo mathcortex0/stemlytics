@@ -1,512 +1,519 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin – EnglishPro BD</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  :root {
-    --ink: #0d0d0d;
-    --sidebar: #111318;
-    --paper: #f5f4f1;
-    --white: #ffffff;
-    --gold: #c9932a;
-    --gold-light: #e8b84b;
-    --accent: #1a4d6e;
-    --muted: #7a756a;
-    --rule: #e2ddd4;
-    --rule-dark: #2a2d35;
-    --error: #c0392b;
-    --success: #1a6e3c;
-    --warning: #b8670a;
-    --radius: 6px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --sidebar-width: 240px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); display:flex; min-height:100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | English Learning Lab</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  /* SIDEBAR */
-  .sidebar {
-    width:var(--sidebar-width);
-    background:var(--sidebar);
-    color:rgba(255,255,255,0.85);
-    display:flex;
-    flex-direction:column;
-    position:fixed;
-    top:0; left:0; bottom:0;
-    z-index:50;
-    transition:transform .3s;
-  }
-  .sidebar-logo {
-    padding:20px 20px 0;
-    font-family:'Playfair Display',serif;
-    font-size:1.1rem;
-    font-weight:900;
-    color:white;
-    border-bottom:1px solid var(--rule-dark);
-    padding-bottom:18px;
-    margin-bottom:8px;
-  }
-  .sidebar-logo span { color:var(--gold); }
-  .sidebar-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,0.3); padding:16px 20px 6px; font-weight:600; }
-  .nav-item {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 20px;
-    cursor:pointer;
-    font-size:0.87rem;
-    font-weight:500;
-    transition:all .2s;
-    border-radius:0;
-    color:rgba(255,255,255,0.6);
-    border:none;
-    background:transparent;
-    width:100%;
-    text-align:left;
-  }
-  .nav-item:hover { background:rgba(255,255,255,0.06); color:white; }
-  .nav-item.active { background:rgba(201,147,42,0.15); color:var(--gold-light); border-left:3px solid var(--gold); padding-left:17px; }
-  .nav-item .nav-icon { font-size:1rem; width:18px; text-align:center; }
-  .sidebar-footer {
-    margin-top:auto;
-    padding:16px 20px;
-    border-top:1px solid var(--rule-dark);
-    font-size:0.78rem;
-    color:rgba(255,255,255,0.3);
-  }
-  .logout-btn {
-    display:flex; align-items:center; gap:8px;
-    color:rgba(255,255,255,0.5);
-    font-size:0.83rem;
-    cursor:pointer;
-    background:none; border:none;
-    font-family:'DM Sans',sans-serif;
-    padding:8px 0;
-    transition:color .2s;
-  }
-  .logout-btn:hover { color:white; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f0f0;
+    }
 
-  /* MAIN */
-  .main { margin-left:var(--sidebar-width); flex:1; display:flex; flex-direction:column; min-height:100vh; }
-  .topbar {
-    background:white;
-    border-bottom:1px solid var(--rule);
-    padding:0 32px;
-    height:60px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    position:sticky;
-    top:0;
-    z-index:40;
-  }
-  .topbar-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; }
-  .topbar-right { display:flex; align-items:center; gap:12px; font-size:0.85rem; color:var(--muted); }
-  .admin-badge { background:var(--gold); color:white; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.05em; }
+    /* Login Screen */
+    .login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
 
-  .content { padding:28px 32px; flex:1; }
+    .login-card {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
 
-  /* STATS */
-  .stats-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-    gap:16px;
-    margin-bottom:32px;
-  }
-  .stat-card {
-    background:white;
-    border:1px solid var(--rule);
-    border-radius:var(--radius);
-    padding:20px;
-    position:relative;
-    overflow:hidden;
-  }
-  .stat-card::after {
-    content:'';
-    position:absolute;
-    top:0; left:0; right:0;
-    height:3px;
-    background:var(--gold);
-  }
-  .stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; margin-bottom:8px; }
-  .stat-value { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--ink); }
-  .stat-sub { font-size:0.75rem; color:var(--muted); margin-top:4px; }
+    .login-card h2 {
+      margin-bottom: 8px;
+    }
 
-  /* SECTION HEADER */
-  .section-header {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:20px;
-  }
-  .section-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; }
+    .login-card p {
+      color: #666;
+      margin-bottom: 24px;
+    }
 
-  /* BUTTONS */
-  .btn {
-    font-family:'DM Sans',sans-serif;
-    font-size:0.83rem;
-    font-weight:600;
-    padding:8px 18px;
-    border-radius:var(--radius);
-    border:none;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    transition:all .2s;
-    text-decoration:none;
-  }
-  .btn-primary { background:var(--gold); color:white; }
-  .btn-primary:hover { background:var(--gold-light); }
-  .btn-secondary { background:white; color:var(--ink); border:1px solid var(--rule); }
-  .btn-secondary:hover { border-color:var(--gold); }
-  .btn-danger { background:#fef0f0; color:var(--error); border:1px solid #f5c6c6; }
-  .btn-danger:hover { background:var(--error); color:white; }
-  .btn-success { background:#f0faf4; color:var(--success); border:1px solid #b6dfc9; }
-  .btn-success:hover { background:var(--success); color:white; }
-  .btn-sm { padding:5px 12px; font-size:0.78rem; }
+    .login-error {
+      background: #fee;
+      color: #e74c3c;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+      font-size: 0.85rem;
+    }
 
-  /* TABLE */
-  .table-wrap { background:white; border:1px solid var(--rule); border-radius:var(--radius); overflow:hidden; overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; }
-  th { background:var(--paper); padding:12px 16px; text-align:left; font-size:0.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; border-bottom:1px solid var(--rule); white-space:nowrap; }
-  td { padding:12px 16px; font-size:0.85rem; border-bottom:1px solid var(--rule); vertical-align:middle; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(201,147,42,0.03); }
+    /* Admin Layout */
+    .admin-container {
+      display: none;
+    }
 
-  /* BADGES */
-  .badge {
-    font-size:0.68rem;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.05em;
-    padding:3px 8px;
-    border-radius:3px;
-    display:inline-block;
-  }
-  .badge-free { background:#e8f5ec; color:var(--success); }
-  .badge-premium { background:#fef0f0; color:var(--error); }
-  .badge-published { background:#e8f5ec; color:var(--success); }
-  .badge-draft { background:#f5f4f1; color:var(--muted); }
-  .badge-active { background:#e8f5ec; color:var(--success); }
-  .badge-expired { background:#fef0f0; color:var(--error); }
-  .badge-pending { background:#fff8e6; color:var(--warning); }
-  .badge-cancelled { background:#f5f4f1; color:var(--muted); }
-  .badge-admin { background:rgba(201,147,42,0.15); color:var(--gold); }
-  .badge-user { background:#f5f4f1; color:var(--muted); }
+    .sidebar {
+      width: 260px;
+      background: #1a1a2e;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+    }
 
-  /* MODAL */
-  .modal-overlay {
-    position:fixed; inset:0;
-    background:rgba(0,0,0,0.5);
-    z-index:200;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-  }
-  .modal-overlay.open { display:flex; }
-  .modal {
-    background:white;
-    border-radius:8px;
-    padding:28px;
-    width:100%;
-    max-width:680px;
-    max-height:90vh;
-    overflow-y:auto;
-    position:relative;
-  }
-  .modal-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:20px; }
-  .modal-close {
-    position:absolute; top:16px; right:16px;
-    background:none; border:none; cursor:pointer;
-    font-size:1.2rem; color:var(--muted); line-height:1;
-  }
-  .modal-close:hover { color:var(--ink); }
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
 
-  /* FORM */
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-  .form-group { margin-bottom:16px; }
-  .form-label { display:block; font-size:0.8rem; font-weight:600; margin-bottom:5px; color:var(--ink); }
-  .form-input, .form-select, .form-textarea {
-    width:100%;
-    padding:10px 12px;
-    border:1.5px solid var(--rule);
-    border-radius:var(--radius);
-    font-family:'DM Sans',sans-serif;
-    font-size:0.88rem;
-    background:white;
-    color:var(--ink);
-    outline:none;
-    transition:border-color .2s;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--gold); }
-  .form-textarea { resize:vertical; min-height:200px; }
-  .toggle-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-  .toggle-label { font-size:0.85rem; font-weight:500; }
-  input[type="checkbox"] { width:16px; height:16px; accent-color:var(--gold); cursor:pointer; }
+    .sidebar-header h3 {
+      font-size: 1.2rem;
+    }
 
-  /* IMAGE PREVIEW */
-  .img-preview { margin-top:8px; border-radius:4px; overflow:hidden; }
-  .img-preview img { width:100%; max-height:160px; object-fit:cover; }
-  .img-uploading { font-size:0.82rem; color:var(--muted); margin-top:4px; }
+    .sidebar-header span {
+      color: #e67e22;
+    }
 
-  /* ALERT */
-  .alert { padding:10px 14px; border-radius:var(--radius); font-size:0.83rem; margin-bottom:14px; }
-  .alert-error { background:#fef0f0; border:1px solid #f5c6c6; color:var(--error); }
-  .alert-success { background:#f0faf4; border:1px solid #b6dfc9; color:var(--success); }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
 
-  /* LOADING */
-  .loading-state { text-align:center; padding:40px; color:var(--muted); }
-  .spinner { width:28px; height:28px; border:2px solid var(--rule); border-top-color:var(--gold); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 12px; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
 
-  /* TABS in content */
-  .view { display:none; }
-  .view.active { display:block; }
+    .nav-item.active {
+      background: rgba(230,126,34,0.15);
+      border-left-color: #e67e22;
+    }
 
-  /* EMPTY */
-  .empty-row td { text-align:center; color:var(--muted); padding:32px !important; font-style:italic; }
+    .main-content {
+      margin-left: 260px;
+      padding: 24px;
+    }
 
-  /* MOBILE MENU */
-  .menu-toggle { display:none; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--ink); }
+    .top-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
 
-  @media(max-width:900px) {
-    .menu-toggle { display:block; }
-    .sidebar { transform:translateX(-100%); }
-    .sidebar.open { transform:translateX(0); }
-    .main { margin-left:0; }
-    .content { padding:20px 16px; }
-    .topbar { padding:0 16px; }
-    .form-row { grid-template-columns:1fr; }
-    .stats-grid { grid-template-columns:1fr 1fr; }
-  }
-</style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #e67e22;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .panel {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #e67e22;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #d35400;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #ddd;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #e8f5e9;
+      color: #27ae60;
+    }
+
+    .badge-warning {
+      background: #fff3e0;
+      color: #e67e22;
+    }
+
+    .badge-danger {
+      background: #fee;
+      color: #e74c3c;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .form-group textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .image-preview {
+      margin-top: 10px;
+      max-width: 100%;
+      max-height: 150px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; z-index: 200; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">English<span>Pro</span> BD <span style="font-family:'DM Sans',sans-serif;font-size:.65rem;opacity:.4;font-weight:400;">Admin</span></div>
-
-  <span class="sidebar-label">Content</span>
-  <button class="nav-item active" onclick="showView('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
-  <button class="nav-item" onclick="showView('articles')"><span class="nav-icon">📰</span> Articles</button>
-  <button class="nav-item" onclick="showView('newArticle')"><span class="nav-icon">✏️</span> New Article</button>
-
-  <span class="sidebar-label">Users</span>
-  <button class="nav-item" onclick="showView('users')"><span class="nav-icon">👤</span> All Users</button>
-  <button class="nav-item" onclick="showView('subscriptions')"><span class="nav-icon">⭐</span> Subscriptions</button>
-  <button class="nav-item" onclick="showView('addSubscription')"><span class="nav-icon">➕</span> Add Subscription</button>
-
-  <div class="sidebar-footer">
-    <div id="adminEmail" style="margin-bottom:8px;"></div>
-    <button class="logout-btn" onclick="signOut()">🚪 Sign Out</button>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+<!-- Login Screen -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <h2>Admin Access</h2>
+    <p>Sign in to manage English Learning Lab</p>
+    <div id="loginError" class="login-error"></div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="adminEmail" placeholder="admin@example.com">
     </div>
-    <div class="topbar-right">
-      <span class="admin-badge">Admin</span>
-      <span id="topbarUser"></span>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="Password">
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="adminLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div id="adminDashboard" class="admin-container">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>English <span>Learning Lab</span></h3>
+      <p style="font-size: 0.7rem; opacity: 0.6; margin-top: 4px;">Admin Panel</p>
+    </div>
+    <div class="nav-item active" onclick="showPanel('dashboard')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/>
+        <rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showPanel('articles')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4h16v16H4z"/>
+        <line x1="8" y1="8" x2="16" y2="8"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+        <line x1="8" y1="16" x2="12" y2="16"/>
+      </svg>
+      Articles
+    </div>
+    <div class="nav-item" onclick="showPanel('newArticle')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      New Article
+    </div>
+    <div class="nav-item" onclick="showPanel('users')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Users
+    </div>
+    <div class="nav-item" onclick="showPanel('subscriptions')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+      Subscriptions
+    </div>
+    <div class="nav-item" onclick="logout()" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
     </div>
   </div>
 
-  <div class="content">
+  <div class="main-content">
+    <div class="top-bar">
+      <h3 id="panelTitle">Dashboard</h3>
+      <span id="adminUserEmail" style="color: #666; font-size: 0.85rem;"></span>
+    </div>
 
-    <!-- DASHBOARD VIEW -->
-    <div class="view active" id="view-dashboard">
+    <!-- Dashboard Panel -->
+    <div id="dashboardPanel" class="panel active">
       <div class="stats-grid" id="statsGrid">
-        <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-value" id="stat-total">-</div></div>
-        <div class="stat-card"><div class="stat-label">Published</div><div class="stat-value" id="stat-published">-</div></div>
-        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="stat-users">-</div></div>
-        <div class="stat-card"><div class="stat-label">Active Subs</div><div class="stat-value" id="stat-subs">-</div></div>
+        <div class="stat-card"><div class="stat-value" id="statArticles">0</div><div class="stat-label">Total Articles</div></div>
+        <div class="stat-card"><div class="stat-value" id="statPublished">0</div><div class="stat-label">Published</div></div>
+        <div class="stat-card"><div class="stat-value" id="statUsers">0</div><div class="stat-label">Total Users</div></div>
+        <div class="stat-card"><div class="stat-value" id="statSubs">0</div><div class="stat-label">Active Subs</div></div>
       </div>
-      <div style="background:white;border:1px solid var(--rule);border-radius:var(--radius);padding:24px;margin-bottom:20px">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:12px;">Quick Actions</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-primary" onclick="showView('newArticle')">✏️ Write New Article</button>
-          <button class="btn btn-secondary" onclick="showView('subscriptions')">⭐ Manage Subscriptions</button>
-          <button class="btn btn-secondary" onclick="showView('users')">👤 View All Users</button>
+      <div style="background: #f8f9fa; border-radius: 8px; padding: 20px;">
+        <h4 style="margin-bottom: 16px;">Quick Actions</h4>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="showPanel('newArticle')">Write New Article</button>
+          <button class="btn btn-outline" onclick="showPanel('subscriptions')">Manage Subscriptions</button>
         </div>
-      </div>
-      <div style="background:white;border:1px solid var(--rule);border-radius:var(--radius);padding:20px">
-        <h3 style="font-family:'Playfair Display',serif;margin-bottom:12px;">Recent Articles</h3>
-        <div id="recentArticles"></div>
       </div>
     </div>
 
-    <!-- ARTICLES VIEW -->
-    <div class="view" id="view-articles">
-      <div class="section-header">
-        <div class="section-title">All Articles</div>
-        <button class="btn btn-primary" onclick="showView('newArticle')">+ New Article</button>
+    <!-- Articles Panel -->
+    <div id="articlesPanel" class="panel">
+      <div class="panel-header">
+        <h3>All Articles</h3>
+        <button class="btn btn-primary" onclick="showPanel('newArticle')">+ New Article</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Views</th><th>Date</th><th>Actions</th></tr></thead>
-          <tbody id="articlesTable"><tr><td colspan="6" class="loading-state"><div class="spinner"></div></td></tr></tbody>
+      <div style="overflow-x: auto;">
+        <table id="articlesTable">
+          <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Views</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="5" style="text-align:center">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- NEW ARTICLE VIEW -->
-    <div class="view" id="view-newArticle">
-      <div class="section-header">
-        <div class="section-title" id="articleFormTitle">New Article</div>
-        <button class="btn btn-secondary" onclick="showView('articles')">← Back to Articles</button>
+    <!-- New Article Panel -->
+    <div id="newArticlePanel" class="panel">
+      <div class="panel-header">
+        <h3 id="articleFormTitle">Create New Article</h3>
+        <button class="btn btn-outline" onclick="resetArticleForm()">Clear</button>
       </div>
-      <div style="background:white;border:1px solid var(--rule);border-radius:var(--radius);padding:24px">
-        <div id="articleFormAlert"></div>
-        <div class="form-group">
-          <label class="form-label">Title *</label>
-          <input class="form-input" type="text" id="artTitle" placeholder="Article title" oninput="genSlug()">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Slug (URL) *</label>
-          <input class="form-input" type="text" id="artSlug" placeholder="auto-generated-from-title">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Excerpt (short description)</label>
-          <input class="form-input" type="text" id="artExcerpt" placeholder="One sentence summary for article cards">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Image</label>
-          <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
-            <input class="form-input" type="text" id="artImageUrl" placeholder="https://... or upload below" style="flex:1">
-            <label style="cursor:pointer">
-              <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="uploadImage(this)">
-              <span class="btn btn-secondary" style="white-space:nowrap" onclick="document.getElementById('imgFileInput').click()">📁 Upload</span>
-            </label>
-          </div>
-          <div class="img-uploading" id="imgUploading" style="display:none">⏳ Uploading...</div>
-          <div class="img-preview" id="imgPreview" style="display:none"><img id="imgPreviewImg" src="" alt=""></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Content (HTML) *</label>
-          <textarea class="form-textarea" id="artContent" placeholder="Write your article content here. You can use HTML tags like &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;strong&gt;, etc." style="min-height:300px"></textarea>
-        </div>
-        <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px">
-          <label class="toggle-row">
-            <input type="checkbox" id="artIsFree" checked>
-            <span class="toggle-label">Free Article (unchecked = Premium)</span>
-          </label>
-          <label class="toggle-row">
-            <input type="checkbox" id="artIsPublished">
-            <span class="toggle-label">Published (unchecked = Draft)</span>
-          </label>
-        </div>
-        <input type="hidden" id="artEditId">
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-primary" id="saveArticleBtn" onclick="saveArticle()">💾 Save Article</button>
-          <button class="btn btn-secondary" onclick="resetArticleForm()">🗑 Clear</button>
-        </div>
+      <div id="articleAlert"></div>
+      <input type="hidden" id="articleId">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" id="articleTitle" placeholder="Article title" oninput="generateSlug()">
       </div>
+      <div class="form-group">
+        <label>Slug (URL) *</label>
+        <input type="text" id="articleSlug" placeholder="url-friendly-slug">
+      </div>
+      <div class="form-group">
+        <label>Image URL</label>
+        <input type="text" id="articleImage" placeholder="https://...">
+        <button class="btn btn-outline" style="margin-top: 8px;" onclick="document.getElementById('imageFile').click()">Upload Image</button>
+        <input type="file" id="imageFile" accept="image/*" style="display:none" onchange="uploadImage()">
+        <img id="imagePreview" class="image-preview">
+      </div>
+      <div class="form-group">
+        <label>Excerpt</label>
+        <input type="text" id="articleExcerpt" placeholder="Short summary for article cards">
+      </div>
+      <div class="form-group">
+        <label>Content (HTML supported) *</label>
+        <textarea id="articleContent" placeholder="Write your article here..."></textarea>
+      </div>
+      <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <label><input type="checkbox" id="articleFree" checked> Free Article</label>
+        <label><input type="checkbox" id="articlePublished"> Publish Immediately</label>
+      </div>
+      <button class="btn btn-primary" onclick="saveArticle()">Save Article</button>
     </div>
 
-    <!-- USERS VIEW -->
-    <div class="view" id="view-users">
-      <div class="section-header">
-        <div class="section-title">All Users</div>
+    <!-- Users Panel -->
+    <div id="usersPanel" class="panel">
+      <div class="panel-header">
+        <h3>Registered Users</h3>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Joined</th><th>Subscription</th><th>Actions</th></tr></thead>
-          <tbody id="usersTable"><tr><td colspan="6" class="loading-state"><div class="spinner"></div></td></tr></tbody>
+      <div style="overflow-x: auto;">
+        <table id="usersTable">
+          <thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="5" style="text-align:center">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- SUBSCRIPTIONS VIEW -->
-    <div class="view" id="view-subscriptions">
-      <div class="section-header">
-        <div class="section-title">Subscriptions</div>
-        <button class="btn btn-primary" onclick="showView('addSubscription')">+ Add Subscription</button>
+    <!-- Subscriptions Panel -->
+    <div id="subscriptionsPanel" class="panel">
+      <div class="panel-header">
+        <h3>Subscriptions</h3>
+        <button class="btn btn-primary" onclick="showSubscriptionModal()">+ Add Subscription</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Status</th><th>Start</th><th>End</th><th>Actions</th></tr></thead>
-          <tbody id="subsTable"><tr><td colspan="7" class="loading-state"><div class="spinner"></div></td></tr></tbody>
+      <div style="overflow-x: auto;">
+        <table id="subscriptionsTable">
+          <thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Status</th><th>End Date</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="6" style="text-align:center">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- ADD SUBSCRIPTION VIEW -->
-    <div class="view" id="view-addSubscription">
-      <div class="section-header">
-        <div class="section-title" id="subFormTitle">Add Subscription</div>
-        <button class="btn btn-secondary" onclick="showView('subscriptions')">← Back</button>
-      </div>
-      <div style="background:white;border:1px solid var(--rule);border-radius:var(--radius);padding:24px;max-width:520px">
-        <div id="subFormAlert"></div>
-        <div class="form-group">
-          <label class="form-label">User Email *</label>
-          <input class="form-input" type="email" id="subUserEmail" placeholder="user@example.com">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Plan *</label>
-            <select class="form-select" id="subPlan" onchange="setSubAmount()">
-              <option value="monthly">Monthly (৳100)</option>
-              <option value="yearly">Yearly (৳1000)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Amount (BDT) *</label>
-            <input class="form-input" type="number" id="subAmount" value="100">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Start Date *</label>
-            <input class="form-input" type="date" id="subStart">
-          </div>
-          <div class="form-group">
-            <label class="form-label">End Date *</label>
-            <input class="form-input" type="date" id="subEnd">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="subStatus">
-            <option value="active">Active</option>
-            <option value="pending">Pending</option>
-            <option value="expired">Expired</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <input class="form-input" type="text" id="subNotes" placeholder="Payment reference, notes...">
-        </div>
-        <input type="hidden" id="subEditId">
-        <button class="btn btn-primary" id="saveSubBtn" onclick="saveSub()">💾 Save Subscription</button>
-      </div>
+<!-- Subscription Modal -->
+<div id="subscriptionModal" class="modal">
+  <div class="modal-content">
+    <h3 id="subModalTitle">Add Subscription</h3>
+    <input type="hidden" id="subEditId">
+    <div class="form-group">
+      <label>User Email</label>
+      <select id="subUserEmail" class="form-control">
+        <option value="">-- Select User --</option>
+      </select>
     </div>
-
-  </div><!-- end .content -->
-</main>
-
-<!-- CONFIRM MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal" style="max-width:400px">
-    <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
-    <div class="modal-title" id="confirmTitle">Confirm</div>
-    <p id="confirmMsg" style="color:var(--muted);margin-bottom:24px;font-size:.9rem"></p>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-danger" id="confirmOkBtn">Confirm</button>
-      <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+    <div class="form-group">
+      <label>Plan</label>
+      <select id="subPlan" onchange="updateSubAmount()">
+        <option value="monthly">Monthly - 100 BDT</option>
+        <option value="yearly">Yearly - 1000 BDT</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Amount (BDT)</label>
+      <input type="number" id="subAmount" value="100">
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="subStatus">
+        <option value="active">Active</option>
+        <option value="pending">Pending</option>
+        <option value="expired">Expired</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="subNotes" placeholder="Payment reference...">
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button class="btn btn-outline" onclick="closeSubscriptionModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSubscription()">Save</button>
     </div>
   </div>
 </div>
@@ -515,512 +522,383 @@
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 const IMGBB_KEY = '5eedf24deee3528bc34e811052972c74';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-let usersCache = [];
+let allUsers = [];
+let allSubscriptions = [];
 
-// ========== AUTH ==========
-async function checkAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return false; }
-  currentUser = session.user;
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
+  const errorDiv = document.getElementById('loginError');
 
-  // Check admin
-  const { data: role } = await sb.from('user_roles').select('role').eq('user_id', currentUser.id).maybeSingle();
+  if (!email || !password) {
+    errorDiv.textContent = 'Email and password required';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    errorDiv.textContent = error.message;
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  currentUser = data.user;
+
+  // Check if admin
+  const { data: role } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', currentUser.id)
+    .single();
+
   if (!role || role.role !== 'admin') {
-    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'DM Sans',sans-serif"><div style="text-align:center"><h2 style="font-family:'Playfair Display',serif;margin-bottom:8px">Access Denied</h2><p style="color:#777;margin-bottom:16px">You don't have admin privileges.</p><a href="index.html" style="color:#c9932a">← Return Home</a></div></div>`;
-    return false;
+    errorDiv.textContent = 'You do not have admin access';
+    errorDiv.style.display = 'block';
+    await supabase.auth.signOut();
+    return;
   }
 
-  document.getElementById('topbarUser').textContent = currentUser.email;
-  document.getElementById('adminEmail').textContent = currentUser.email;
-  return true;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminDashboard').style.display = 'block';
+  document.getElementById('adminUserEmail').textContent = currentUser.email;
+
+  loadDashboard();
+  loadArticles();
+  loadUsers();
+  loadSubscriptions();
 }
 
-async function signOut() {
-  await sb.auth.signOut();
-  window.location.href = 'login.html';
-}
-
-// ========== NAVIGATION ==========
-const viewTitles = {
-  dashboard: 'Dashboard', articles: 'Articles', newArticle: 'New Article',
-  users: 'Users', subscriptions: 'Subscriptions', addSubscription: 'Add Subscription'
-};
-
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-
-  document.getElementById('view-' + id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b => {
-    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${id}'`)) b.classList.add('active');
-  });
-
-  document.getElementById('topbarTitle').textContent = viewTitles[id] || id;
-  closeSidebar();
-
-  // Load data
-  if (id === 'articles') loadArticles();
-  if (id === 'users') loadUsers();
-  if (id === 'subscriptions') loadSubs();
-  if (id === 'dashboard') loadDashboard();
-  if (id === 'addSubscription') {
-    resetSubForm();
-    document.getElementById('subFormTitle').textContent = 'Add Subscription';
-    setDefaultDates();
-  }
-}
-
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
-
-// ========== DASHBOARD ==========
 async function loadDashboard() {
-  const [artRes, usersRes, subRes] = await Promise.all([
-    sb.from('articles').select('id,is_published', { count: 'exact' }),
-    sb.from('user_profiles').select('id', { count: 'exact' }),
-    sb.from('subscriptions').select('id,status,end_date')
-  ]);
+  const { data: articles } = await supabase.from('articles').select('id,is_published');
+  const { data: users } = await supabase.from('user_profiles').select('id');
+  const { data: subs } = await supabase.from('subscriptions').select('id,status,end_date');
 
-  const total = artRes.count || 0;
-  const published = (artRes.data || []).filter(a => a.is_published).length;
-  const users = usersRes.count || 0;
-  const activeSubs = (subRes.data || []).filter(s => s.status === 'active' && new Date(s.end_date) > new Date()).length;
+  const totalArticles = articles?.length || 0;
+  const published = articles?.filter(a => a.is_published).length || 0;
+  const totalUsers = users?.length || 0;
+  const activeSubs = subs?.filter(s => s.status === 'active' && new Date(s.end_date) > new Date()).length || 0;
 
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-published').textContent = published;
-  document.getElementById('stat-users').textContent = users;
-  document.getElementById('stat-subs').textContent = activeSubs;
-
-  // Recent articles
-  const { data: recent } = await sb.from('articles').select('title,slug,is_published,is_free,created_at').order('created_at', { ascending: false }).limit(5);
-  const el = document.getElementById('recentArticles');
-  if (!recent || !recent.length) { el.textContent = 'No articles yet.'; return; }
-  el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">` + recent.map(a => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--rule)">
-      <div>
-        <span style="font-size:.88rem;font-weight:500">${escHtml(a.title)}</span>
-        <span class="badge ${a.is_free ? 'badge-free' : 'badge-premium'}" style="margin-left:8px">${a.is_free ? 'Free' : 'Premium'}</span>
-        <span class="badge ${a.is_published ? 'badge-published' : 'badge-draft'}" style="margin-left:4px">${a.is_published ? 'Published' : 'Draft'}</span>
-      </div>
-      <div style="font-size:.75rem;color:var(--muted)">${new Date(a.created_at).toLocaleDateString()}</div>
-    </div>`).join('') + `</div>`;
+  document.getElementById('statArticles').textContent = totalArticles;
+  document.getElementById('statPublished').textContent = published;
+  document.getElementById('statUsers').textContent = totalUsers;
+  document.getElementById('statSubs').textContent = activeSubs;
 }
 
-// ========== ARTICLES ==========
 async function loadArticles() {
-  const tbody = document.getElementById('articlesTable');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr>';
-  const { data, error } = await sb.from('articles').select('*').order('created_at', { ascending: false });
-  if (error || !data) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;padding:16px">${error?.message}</td></tr>`; return; }
-  if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No articles yet. Create your first article!</td></tr>'; return; }
+  const { data } = await supabase.from('articles').select('*').order('created_at', { ascending: false });
+  const tbody = document.querySelector('#articlesTable tbody');
+  if (!data || !data.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">No articles yet</td></tr>';
+    return;
+  }
 
   tbody.innerHTML = data.map(a => `
     <tr>
-      <td><span style="font-weight:500;font-size:.88rem">${escHtml(a.title)}</span><br><span style="font-size:.72rem;color:var(--muted)">${a.slug}</span></td>
-      <td><span class="badge ${a.is_free ? 'badge-free' : 'badge-premium'}">${a.is_free ? 'Free' : 'Premium'}</span></td>
-      <td><span class="badge ${a.is_published ? 'badge-published' : 'badge-draft'}">${a.is_published ? 'Published' : 'Draft'}</span></td>
+      <td>${escapeHtml(a.title)}<br><small style="color:#999">${a.slug}</small></td>
+      <td><span class="badge ${a.is_free ? 'badge-success' : 'badge-warning'}">${a.is_free ? 'Free' : 'Premium'}</span></td>
+      <td><span class="badge ${a.is_published ? 'badge-success' : 'badge-danger'}">${a.is_published ? 'Published' : 'Draft'}</span></td>
       <td>${a.view_count || 0}</td>
-      <td style="font-size:.78rem;color:var(--muted);white-space:nowrap">${new Date(a.created_at).toLocaleDateString()}</td>
       <td>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-secondary btn-sm" onclick="editArticle('${a.id}')">✏️ Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteArticle('${a.id}','${escHtml(a.title).replace(/'/g,"\\'")}')">🗑</button>
-          <a href="article.html?slug=${a.slug}" target="_blank" class="btn btn-secondary btn-sm">👁</a>
-        </div>
+        <button class="btn btn-outline" style="padding: 4px 12px; margin-right: 5px;" onclick="editArticle('${a.id}')">Edit</button>
+        <button class="btn btn-danger" style="padding: 4px 12px;" onclick="deleteArticle('${a.id}')">Delete</button>
       </td>
-    </tr>`).join('');
+    </tr>
+  `).join('');
 }
 
-function genSlug() {
-  const title = document.getElementById('artTitle').value;
-  if (!document.getElementById('artEditId').value) {
-    document.getElementById('artSlug').value = title.toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim();
+async function loadUsers() {
+  const { data: profiles } = await supabase.from('user_profiles').select('*').order('created_at', { ascending: false });
+  const { data: roles } = await supabase.from('user_roles').select('*');
+  const roleMap = {};
+  (roles || []).forEach(r => roleMap[r.user_id] = r.role);
+
+  const tbody = document.querySelector('#usersTable tbody');
+  if (!profiles || !profiles.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">No users yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = profiles.map(p => `
+    <tr>
+      <td>${p.user_id.substring(0, 8)}...</td>
+      <td>${escapeHtml(p.full_name || '-')}</td>
+      <td><span class="badge ${roleMap[p.user_id] === 'admin' ? 'badge-warning' : 'badge-success'}">${roleMap[p.user_id] === 'admin' ? 'Admin' : 'User'}</span></td>
+      <td>${new Date(p.created_at).toLocaleDateString()}</td>
+      <td>
+        ${roleMap[p.user_id] !== 'admin' ? `<button class="btn btn-primary" style="padding: 4px 12px;" onclick="makeAdmin('${p.user_id}')">Make Admin</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadSubscriptions() {
+  const { data } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
+  allSubscriptions = data || [];
+
+  // Get user emails
+  const { data: profiles } = await supabase.from('user_profiles').select('user_id, full_name');
+  const userMap = {};
+  (profiles || []).forEach(p => userMap[p.user_id] = p.full_name || p.user_id.substring(0, 8));
+
+  const tbody = document.querySelector('#subscriptionsTable tbody');
+  if (!data || !data.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No subscriptions yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(s => `
+    <tr>
+      <td>${escapeHtml(userMap[s.user_id] || s.user_id.substring(0, 8))}</td>
+      <td>${s.plan === 'monthly' ? 'Monthly' : 'Yearly'}</td>
+      <td>৳${s.amount}</td>
+      <td><span class="badge ${s.status === 'active' ? 'badge-success' : s.status === 'pending' ? 'badge-warning' : 'badge-danger'}">${s.status}</span></td>
+      <td>${s.end_date ? new Date(s.end_date).toLocaleDateString() : '-'}</td>
+      <td>
+        <button class="btn btn-outline" style="padding: 4px 12px;" onclick="editSubscription('${s.id}')">Edit</button>
+        <button class="btn btn-danger" style="padding: 4px 12px;" onclick="deleteSubscription('${s.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function saveArticle() {
+  const id = document.getElementById('articleId').value;
+  const title = document.getElementById('articleTitle').value.trim();
+  const slug = document.getElementById('articleSlug').value.trim();
+  const content = document.getElementById('articleContent').value.trim();
+  const excerpt = document.getElementById('articleExcerpt').value.trim();
+  const image_url = document.getElementById('articleImage').value.trim();
+  const is_free = document.getElementById('articleFree').checked;
+  const is_published = document.getElementById('articlePublished').checked;
+
+  if (!title || !slug || !content) {
+    alert('Title, slug, and content are required');
+    return;
+  }
+
+  const payload = { title, slug, content, excerpt, image_url, is_free, is_published, updated_at: new Date() };
+
+  let result;
+  if (id) {
+    result = await supabase.from('articles').update(payload).eq('id', id);
+  } else {
+    payload.created_at = new Date();
+    payload.view_count = 0;
+    result = await supabase.from('articles').insert(payload);
+  }
+
+  if (result.error) {
+    alert('Error: ' + result.error.message);
+  } else {
+    alert(id ? 'Article updated!' : 'Article created!');
+    resetArticleForm();
+    loadArticles();
+    loadDashboard();
+    showPanel('articles');
+  }
+}
+
+async function deleteArticle(id) {
+  if (confirm('Delete this article?')) {
+    await supabase.from('articles').delete().eq('id', id);
+    loadArticles();
+    loadDashboard();
   }
 }
 
 async function editArticle(id) {
-  const { data: a } = await sb.from('articles').select('*').eq('id', id).single();
-  if (!a) return;
-
-  document.getElementById('artTitle').value = a.title;
-  document.getElementById('artSlug').value = a.slug;
-  document.getElementById('artExcerpt').value = a.excerpt || '';
-  document.getElementById('artImageUrl').value = a.image_url || '';
-  document.getElementById('artContent').value = a.content;
-  document.getElementById('artIsFree').checked = a.is_free;
-  document.getElementById('artIsPublished').checked = a.is_published;
-  document.getElementById('artEditId').value = a.id;
-  document.getElementById('articleFormTitle').textContent = 'Edit Article';
-
-  if (a.image_url) {
-    document.getElementById('imgPreviewImg').src = a.image_url;
-    document.getElementById('imgPreview').style.display = 'block';
+  const { data } = await supabase.from('articles').select('*').eq('id', id).single();
+  if (data) {
+    document.getElementById('articleId').value = data.id;
+    document.getElementById('articleTitle').value = data.title;
+    document.getElementById('articleSlug').value = data.slug;
+    document.getElementById('articleImage').value = data.image_url || '';
+    document.getElementById('articleExcerpt').value = data.excerpt || '';
+    document.getElementById('articleContent').value = data.content;
+    document.getElementById('articleFree').checked = data.is_free;
+    document.getElementById('articlePublished').checked = data.is_published;
+    document.getElementById('articleFormTitle').textContent = 'Edit Article';
+    showPanel('newArticle');
   }
-
-  showView('newArticle');
-}
-
-async function saveArticle() {
-  const title = document.getElementById('artTitle').value.trim();
-  const slug = document.getElementById('artSlug').value.trim();
-  const content = document.getElementById('artContent').value.trim();
-  const excerpt = document.getElementById('artExcerpt').value.trim();
-  const image_url = document.getElementById('artImageUrl').value.trim();
-  const is_free = document.getElementById('artIsFree').checked;
-  const is_published = document.getElementById('artIsPublished').checked;
-  const editId = document.getElementById('artEditId').value;
-  const alertEl = document.getElementById('articleFormAlert');
-
-  alertEl.innerHTML = '';
-  if (!title || !slug || !content) { alertEl.innerHTML = '<div class="alert alert-error">Title, slug, and content are required.</div>'; return; }
-
-  const btn = document.getElementById('saveArticleBtn');
-  btn.disabled = true;
-  btn.textContent = 'Saving...';
-
-  const payload = { title, slug, content, excerpt: excerpt || null, image_url: image_url || null, is_free, is_published, updated_at: new Date().toISOString() };
-
-  let error;
-  if (editId) {
-    ({ error } = await sb.from('articles').update(payload).eq('id', editId));
-  } else {
-    payload.view_count = 0;
-    ({ error } = await sb.from('articles').insert(payload));
-  }
-
-  btn.disabled = false;
-  btn.textContent = '💾 Save Article';
-
-  if (error) {
-    alertEl.innerHTML = `<div class="alert alert-error">${error.message}</div>`;
-    return;
-  }
-
-  alertEl.innerHTML = '<div class="alert alert-success">Article saved successfully!</div>';
-  if (!editId) resetArticleForm();
-  setTimeout(() => alertEl.innerHTML = '', 3000);
-  showView('articles');
 }
 
 function resetArticleForm() {
-  ['artTitle','artSlug','artExcerpt','artImageUrl','artContent'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('artIsFree').checked = true;
-  document.getElementById('artIsPublished').checked = false;
-  document.getElementById('artEditId').value = '';
-  document.getElementById('articleFormTitle').textContent = 'New Article';
-  document.getElementById('imgPreview').style.display = 'none';
-  document.getElementById('articleFormAlert').innerHTML = '';
+  document.getElementById('articleId').value = '';
+  document.getElementById('articleTitle').value = '';
+  document.getElementById('articleSlug').value = '';
+  document.getElementById('articleImage').value = '';
+  document.getElementById('articleExcerpt').value = '';
+  document.getElementById('articleContent').value = '';
+  document.getElementById('articleFree').checked = true;
+  document.getElementById('articlePublished').checked = false;
+  document.getElementById('articleFormTitle').textContent = 'Create New Article';
+  document.getElementById('imagePreview').style.display = 'none';
 }
 
-async function deleteArticle(id, title) {
-  showConfirm(`Delete "${title}"?`, 'This action cannot be undone.', async () => {
-    await sb.from('articles').delete().eq('id', id);
-    loadArticles();
-  });
+function generateSlug() {
+  const title = document.getElementById('articleTitle').value;
+  if (!document.getElementById('articleId').value) {
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    document.getElementById('articleSlug').value = slug;
+  }
 }
 
-// ========== IMAGE UPLOAD ==========
-async function uploadImage(input) {
-  const file = input.files[0];
+async function uploadImage() {
+  const file = document.getElementById('imageFile').files[0];
   if (!file) return;
-
-  document.getElementById('imgUploading').style.display = 'block';
-  document.getElementById('imgPreview').style.display = 'none';
 
   const formData = new FormData();
   formData.append('image', file);
 
   try {
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method:'POST', body:formData });
-    const json = await res.json();
-    if (json.success) {
-      const url = json.data.url;
-      document.getElementById('artImageUrl').value = url;
-      document.getElementById('imgPreviewImg').src = url;
-      document.getElementById('imgPreview').style.display = 'block';
-    } else {
-      alert('Image upload failed: ' + (json.error?.message || 'Unknown error'));
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('articleImage').value = data.data.url;
+      document.getElementById('imagePreview').src = data.data.url;
+      document.getElementById('imagePreview').style.display = 'block';
     }
-  } catch(e) {
-    alert('Upload failed: ' + e.message);
-  } finally {
-    document.getElementById('imgUploading').style.display = 'none';
+  } catch (e) {
+    alert('Upload failed');
   }
-}
-
-// Preview on URL change
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('artImageUrl')?.addEventListener('blur', e => {
-    const url = e.target.value.trim();
-    if (url) {
-      document.getElementById('imgPreviewImg').src = url;
-      document.getElementById('imgPreview').style.display = 'block';
-    }
-  });
-});
-
-// ========== USERS ==========
-async function loadUsers() {
-  const tbody = document.getElementById('usersTable');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr>';
-
-  // Get auth users via profiles join
-  const { data: profiles } = await sb.from('user_profiles').select('*').order('created_at', { ascending: false });
-  const { data: roles } = await sb.from('user_roles').select('*');
-  const { data: subs } = await sb.from('subscriptions').select('*').eq('status','active').gt('end_date', new Date().toISOString());
-
-  if (!profiles) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red;padding:16px">Failed to load users</td></tr>'; return; }
-
-  // Get emails from auth - we need to use a workaround via Supabase admin API
-  // Instead use user_id and display partial info
-  usersCache = profiles;
-  const roleMap = {};
-  (roles || []).forEach(r => roleMap[r.user_id] = r.role);
-  const subMap = {};
-  (subs || []).forEach(s => subMap[s.user_id] = s);
-
-  if (!profiles.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No users yet.</td></tr>'; return; }
-
-  tbody.innerHTML = profiles.map(p => {
-    const role = roleMap[p.user_id] || 'user';
-    const hasSub = !!subMap[p.user_id];
-    return `
-      <tr>
-        <td style="font-size:.82rem;color:var(--muted)">${p.user_id.substring(0,8)}...</td>
-        <td style="font-size:.85rem">${escHtml(p.full_name || '—')}</td>
-        <td><span class="badge ${role === 'admin' ? 'badge-admin' : 'badge-user'}">${role}</span></td>
-        <td style="font-size:.78rem;color:var(--muted)">${new Date(p.created_at).toLocaleDateString()}</td>
-        <td><span class="badge ${hasSub ? 'badge-active' : 'badge-draft'}">${hasSub ? '⭐ Active' : 'Free'}</span></td>
-        <td>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            ${role !== 'admin' ? `<button class="btn btn-secondary btn-sm" onclick="makeAdmin('${p.user_id}')">Make Admin</button>` : `<button class="btn btn-danger btn-sm" onclick="removeAdmin('${p.user_id}')">Remove Admin</button>`}
-          </div>
-        </td>
-      </tr>`;
-  }).join('');
 }
 
 async function makeAdmin(userId) {
-  showConfirm('Make Admin?', 'This user will have full admin access.', async () => {
-    await sb.from('user_roles').upsert({ user_id: userId, role: 'admin' }, { onConflict: 'user_id' });
+  if (confirm('Make this user an admin?')) {
+    await supabase.from('user_roles').upsert({ user_id: userId, role: 'admin' });
     loadUsers();
-  });
+  }
 }
 
-async function removeAdmin(userId) {
-  if (userId === currentUser.id) { alert("You can't remove your own admin role."); return; }
-  showConfirm('Remove Admin?', 'This user will lose admin access.', async () => {
-    await sb.from('user_roles').update({ role: 'user' }).eq('user_id', userId);
-    loadUsers();
-  });
-}
-
-// ========== SUBSCRIPTIONS ==========
-async function loadSubs() {
-  const tbody = document.getElementById('subsTable');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr>';
-
-  const { data, error } = await sb.from('subscriptions').select('*').order('created_at', { ascending: false });
-  const { data: profiles } = await sb.from('user_profiles').select('*');
-  const profileMap = {};
-  (profiles || []).forEach(p => profileMap[p.user_id] = p);
-
-  if (error || !data) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:red;padding:16px">Failed to load</td></tr>'; return; }
-  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-row">No subscriptions yet. Add one manually after receiving payment.</td></tr>'; return; }
-
-  tbody.innerHTML = data.map(s => {
-    const profile = profileMap[s.user_id];
-    const displayName = profile?.full_name || s.user_id.substring(0,8) + '...';
-    const isActive = s.status === 'active' && new Date(s.end_date) > new Date();
-    const statusClass = isActive ? 'badge-active' : s.status === 'pending' ? 'badge-pending' : s.status === 'cancelled' ? 'badge-cancelled' : 'badge-expired';
-
-    return `
-      <tr>
-        <td style="font-size:.85rem">${escHtml(displayName)}</td>
-        <td><span class="badge badge-premium">${s.plan === 'monthly' ? '📅 Monthly' : '📆 Yearly'}</span></td>
-        <td style="font-size:.85rem">৳${s.amount}</td>
-        <td><span class="badge ${statusClass}">${s.status}</span></td>
-        <td style="font-size:.78rem;color:var(--muted)">${s.start_date ? new Date(s.start_date).toLocaleDateString() : '—'}</td>
-        <td style="font-size:.78rem;color:var(--muted)">${s.end_date ? new Date(s.end_date).toLocaleDateString() : '—'}</td>
-        <td>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="btn btn-secondary btn-sm" onclick="editSub('${s.id}')">✏️ Edit</button>
-            <button class="btn btn-success btn-sm" onclick="quickActivate('${s.id}')">✅</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteSub('${s.id}')">🗑</button>
-          </div>
-        </td>
-      </tr>`;
-  }).join('');
-}
-
-function setDefaultDates() {
-  const today = new Date();
-  const start = today.toISOString().split('T')[0];
-  const end = new Date(today);
-  end.setMonth(end.getMonth() + 1);
-  const endStr = end.toISOString().split('T')[0];
-  document.getElementById('subStart').value = start;
-  document.getElementById('subEnd').value = endStr;
-}
-
-function setSubAmount() {
-  const plan = document.getElementById('subPlan').value;
-  const amount = plan === 'yearly' ? 1000 : 100;
-  document.getElementById('subAmount').value = amount;
-
-  const today = new Date();
-  const end = new Date(today);
-  if (plan === 'yearly') end.setFullYear(end.getFullYear() + 1);
-  else end.setMonth(end.getMonth() + 1);
-  document.getElementById('subEnd').value = end.toISOString().split('T')[0];
-}
-
-function resetSubForm() {
-  ['subUserEmail','subNotes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('subPlan').value = 'monthly';
-  document.getElementById('subAmount').value = 100;
-  document.getElementById('subStatus').value = 'active';
-  document.getElementById('subEditId').value = '';
-  document.getElementById('subFormAlert').innerHTML = '';
-}
-
-async function editSub(id) {
-  const { data: s } = await sb.from('subscriptions').select('*').eq('id', id).single();
-  if (!s) return;
-
-  // Get user email from profile
-  const { data: profile } = await sb.from('user_profiles').select('*').eq('user_id', s.user_id).maybeSingle();
-  document.getElementById('subUserEmail').value = profile?.full_name || s.user_id;
-  document.getElementById('subPlan').value = s.plan;
-  document.getElementById('subAmount').value = s.amount;
-  document.getElementById('subStatus').value = s.status;
-  document.getElementById('subStart').value = s.start_date ? s.start_date.split('T')[0] : '';
-  document.getElementById('subEnd').value = s.end_date ? s.end_date.split('T')[0] : '';
-  document.getElementById('subNotes').value = s.notes || '';
-  document.getElementById('subEditId').value = s.id;
-  document.getElementById('subFormTitle').textContent = 'Edit Subscription';
-  showView('addSubscription');
-}
-
-async function saveSub() {
-  const emailOrId = document.getElementById('subUserEmail').value.trim();
+async function saveSubscription() {
+  const editId = document.getElementById('subEditId').value;
+  const userId = document.getElementById('subUserEmail').value;
   const plan = document.getElementById('subPlan').value;
   const amount = parseInt(document.getElementById('subAmount').value);
   const status = document.getElementById('subStatus').value;
-  const start_date = document.getElementById('subStart').value;
-  const end_date = document.getElementById('subEnd').value;
-  const notes = document.getElementById('subNotes').value.trim();
-  const editId = document.getElementById('subEditId').value;
-  const alertEl = document.getElementById('subFormAlert');
+  const notes = document.getElementById('subNotes').value;
 
-  alertEl.innerHTML = '';
-
-  const btn = document.getElementById('saveSubBtn');
-  btn.disabled = true;
-  btn.textContent = 'Saving...';
-
-  let userId;
-
-  if (editId) {
-    // Get existing user_id
-    const { data: existing } = await sb.from('subscriptions').select('user_id').eq('id', editId).single();
-    userId = existing?.user_id;
-  } else {
-    // Find user by searching profiles by name or ID
-    const { data: profiles } = await sb.from('user_profiles').select('user_id,full_name').ilike('full_name', `%${emailOrId}%`);
-    if (!profiles || !profiles.length) {
-      // Try exact user_id match
-      const { data: byId } = await sb.from('user_profiles').select('user_id').eq('user_id', emailOrId).maybeSingle();
-      userId = byId?.user_id;
-    } else {
-      userId = profiles[0].user_id;
-    }
-
-    if (!userId) {
-      alertEl.innerHTML = '<div class="alert alert-error">User not found. Enter the user\'s full name or user ID exactly as registered.</div>';
-      btn.disabled = false; btn.textContent = '💾 Save Subscription';
-      return;
-    }
-  }
+  const endDate = new Date();
+  if (plan === 'monthly') endDate.setMonth(endDate.getMonth() + 1);
+  else endDate.setFullYear(endDate.getFullYear() + 1);
 
   const payload = {
     user_id: userId,
-    plan, amount, status, notes: notes || null,
-    start_date: start_date || null,
-    end_date: end_date || null,
-    activated_by: currentUser.id,
-    updated_at: new Date().toISOString()
+    plan,
+    amount,
+    status,
+    notes,
+    start_date: status === 'active' ? new Date() : null,
+    end_date: status === 'active' ? endDate : null,
+    updated_at: new Date()
   };
 
-  let error;
+  let result;
   if (editId) {
-    ({ error } = await sb.from('subscriptions').update(payload).eq('id', editId));
+    result = await supabase.from('subscriptions').update(payload).eq('id', editId);
   } else {
-    ({ error } = await sb.from('subscriptions').insert(payload));
+    payload.created_at = new Date();
+    result = await supabase.from('subscriptions').insert(payload);
   }
 
-  btn.disabled = false;
-  btn.textContent = '💾 Save Subscription';
+  if (result.error) {
+    alert('Error: ' + result.error.message);
+  } else {
+    alert('Subscription saved!');
+    closeSubscriptionModal();
+    loadSubscriptions();
+    loadDashboard();
+  }
+}
 
-  if (error) {
-    alertEl.innerHTML = `<div class="alert alert-error">${error.message}</div>`;
-    return;
+async function deleteSubscription(id) {
+  if (confirm('Delete this subscription?')) {
+    await supabase.from('subscriptions').delete().eq('id', id);
+    loadSubscriptions();
+    loadDashboard();
+  }
+}
+
+async function editSubscription(id) {
+  const sub = allSubscriptions.find(s => s.id === id);
+  if (sub) {
+    document.getElementById('subEditId').value = sub.id;
+    document.getElementById('subPlan').value = sub.plan;
+    document.getElementById('subAmount').value = sub.amount;
+    document.getElementById('subStatus').value = sub.status;
+    document.getElementById('subNotes').value = sub.notes || '';
+    document.getElementById('subModalTitle').textContent = 'Edit Subscription';
+    await loadUserDropdown(sub.user_id);
+    document.getElementById('subscriptionModal').classList.add('active');
+  }
+}
+
+async function loadUserDropdown(selectedId = null) {
+  const { data: profiles } = await supabase.from('user_profiles').select('user_id, full_name');
+  const { data: users } = await supabase.auth.admin.listUsers();
+  const emailMap = new Map();
+  if (users?.users) {
+    users.users.forEach(u => emailMap.set(u.id, u.email));
   }
 
-  alertEl.innerHTML = '<div class="alert alert-success">Subscription saved!</div>';
-  setTimeout(() => { alertEl.innerHTML = ''; showView('subscriptions'); }, 1500);
+  const select = document.getElementById('subUserEmail');
+  select.innerHTML = '<option value="">-- Select User --</option>' +
+    (profiles || []).map(p => `<option value="${p.user_id}" ${selectedId === p.user_id ? 'selected' : ''}>${emailMap.get(p.user_id) || p.user_id.substring(0, 8)}</option>`).join('');
 }
 
-async function quickActivate(id) {
-  const { data: s } = await sb.from('subscriptions').select('plan').eq('id', id).single();
-  const end = new Date();
-  if (s.plan === 'yearly') end.setFullYear(end.getFullYear() + 1);
-  else end.setMonth(end.getMonth() + 1);
-
-  await sb.from('subscriptions').update({
-    status: 'active',
-    start_date: new Date().toISOString(),
-    end_date: end.toISOString()
-  }).eq('id', id);
-  loadSubs();
+function showSubscriptionModal() {
+  loadUserDropdown();
+  document.getElementById('subEditId').value = '';
+  document.getElementById('subPlan').value = 'monthly';
+  document.getElementById('subAmount').value = 100;
+  document.getElementById('subStatus').value = 'active';
+  document.getElementById('subNotes').value = '';
+  document.getElementById('subModalTitle').textContent = 'Add Subscription';
+  document.getElementById('subscriptionModal').classList.add('active');
 }
 
-async function deleteSub(id) {
-  showConfirm('Delete Subscription?', 'This will remove the subscription record.', async () => {
-    await sb.from('subscriptions').delete().eq('id', id);
-    loadSubs();
-  });
+function closeSubscriptionModal() {
+  document.getElementById('subscriptionModal').classList.remove('active');
 }
 
-// ========== CONFIRM MODAL ==========
-function showConfirm(title, msg, callback) {
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMsg').textContent = msg;
-  document.getElementById('confirmOkBtn').onclick = async () => {
-    closeModal('confirmModal');
-    await callback();
-  };
-  document.getElementById('confirmModal').classList.add('open');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ========== UTILS ==========
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function updateSubAmount() {
+  const plan = document.getElementById('subPlan').value;
+  document.getElementById('subAmount').value = plan === 'yearly' ? 1000 : 100;
 }
 
-// ========== INIT ==========
-async function init() {
-  const ok = await checkAuth();
-  if (!ok) return;
-  loadDashboard();
+function showPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`${panel}Panel`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.target.closest('.nav-item').classList.add('active');
+  document.getElementById('panelTitle').textContent = document.querySelector('.nav-item.active').innerText.replace(/[^a-zA-Z\s]/g, '').trim();
 }
 
-init();
+async function logout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+}
+
+// Image preview on URL change
+document.getElementById('articleImage')?.addEventListener('input', function() {
+  const preview = document.getElementById('imagePreview');
+  if (this.value) {
+    preview.src = this.value;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>
