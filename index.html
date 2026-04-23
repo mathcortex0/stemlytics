@@ -3,222 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Varsity Admission Portal | Admission News, Dates & Notices</title>
+  <title>Varsity Admission Portal</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f7fb;
-      color: #1a1a2e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
     }
     
     /* Header */
     .header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
       color: white;
-      padding: 16px 32px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .header-inner {
-      max-width: 1400px;
-      margin: 0 auto;
+      padding: 20px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .logo h1 { font-size: 1.5rem; }
+    .logo p { font-size: 0.8rem; opacity: 0.8; }
     
-    .logo-icon {
-      font-size: 32px;
-    }
-    
-    .logo h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-    
-    .logo p {
-      font-size: 0.75rem;
-      opacity: 0.8;
-    }
-    
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    
-    /* Notification Bell */
     .notification-bell {
       position: relative;
       cursor: pointer;
-      padding: 8px;
-    }
-    
-    .bell-icon {
       font-size: 24px;
     }
     
-    .notification-badge {
+    .badge {
       position: absolute;
-      top: 0;
-      right: 0;
+      top: -8px;
+      right: -12px;
       background: #e74c3c;
       color: white;
-      font-size: 10px;
-      font-weight: bold;
+      font-size: 11px;
       padding: 2px 6px;
       border-radius: 10px;
-      min-width: 18px;
-      text-align: center;
+      display: none;
     }
     
-    /* Notification Panel */
     .notification-panel {
       position: absolute;
       top: 70px;
       right: 20px;
-      width: 350px;
+      width: 320px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       display: none;
-      z-index: 200;
-      max-height: 500px;
+      z-index: 1000;
+      max-height: 400px;
       overflow-y: auto;
     }
     
-    .notification-panel.open {
+    .notification-panel.show {
       display: block;
     }
     
     .notification-item {
-      padding: 16px;
+      padding: 15px;
       border-bottom: 1px solid #eee;
       cursor: pointer;
-      transition: background 0.2s;
-    }
-    
-    .notification-item:hover {
-      background: #f5f5f5;
     }
     
     .notification-item.urgent {
       border-left: 3px solid #e74c3c;
+      background: #fff5f5;
     }
     
-    .notification-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .notification-message {
-      font-size: 13px;
-      color: #666;
-    }
-    
-    .notification-time {
-      font-size: 11px;
-      color: #999;
-      margin-top: 6px;
-    }
-    
-    /* Categories Tabs */
+    /* Categories */
     .categories {
-      max-width: 1400px;
-      margin: 32px auto 24px;
-      padding: 0 32px;
       display: flex;
       gap: 12px;
+      padding: 24px 32px;
       flex-wrap: wrap;
-    }
-    
-    .category-btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 40px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
       background: white;
-      color: #1a1a2e;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin: 20px;
+      border-radius: 12px;
     }
     
-    .category-btn.active {
+    .cat-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 30px;
+      background: #e0e0e0;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .cat-btn.active {
       background: #1a1a2e;
       color: white;
     }
     
-    .category-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    /* University Cards */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
     }
     
-    /* Universities Grid */
-    .universities-grid {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 32px 48px;
+    .unis-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 24px;
     }
     
-    .university-card {
+    .uni-card {
       background: white;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       cursor: pointer;
+      transition: transform 0.2s;
     }
     
-    .university-card:hover {
+    .uni-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
     
     .card-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 24px;
+      padding: 30px;
       text-align: center;
-      position: relative;
-    }
-    
-    .card-header.varsity { background: linear-gradient(135deg, #1a73e8, #0d47a1); }
-    .card-header.engineering { background: linear-gradient(135deg, #f39c12, #e67e22); }
-    .card-header.medical { background: linear-gradient(135deg, #27ae60, #1e8449); }
-    
-    .university-logo {
-      width: 80px;
-      height: 80px;
-      background: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-      font-size: 32px;
-      font-weight: bold;
-    }
-    
-    .university-name {
       color: white;
-      font-size: 1.25rem;
+    }
+    
+    .card-header.Varsity { background: linear-gradient(135deg, #1a73e8, #0d47a1); }
+    .card-header.Engineering { background: linear-gradient(135deg, #f39c12, #e67e22); }
+    .card-header.Medical { background: linear-gradient(135deg, #27ae60, #1e8449); }
+    
+    .uni-name {
+      font-size: 1.3rem;
       font-weight: 700;
+      margin-top: 10px;
     }
     
     .card-body {
@@ -228,115 +150,77 @@
     .deadline {
       background: #fee;
       color: #e74c3c;
-      padding: 8px 12px;
+      padding: 8px;
       border-radius: 8px;
       font-size: 13px;
-      font-weight: 600;
       margin-bottom: 12px;
     }
     
-    .exam-date {
-      color: #27ae60;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-    
-    .circular-link {
+    .btn-link {
       display: inline-block;
+      margin-top: 12px;
       padding: 8px 16px;
       background: #1a73e8;
       color: white;
       text-decoration: none;
       border-radius: 8px;
       font-size: 13px;
-      font-weight: 500;
-      margin-top: 8px;
     }
     
-    .featured-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #e74c3c;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: bold;
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
     }
     
-    /* Loading skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 12px;
-    }
-    
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    
-    /* Footer */
     .footer {
       text-align: center;
-      padding: 32px;
+      padding: 30px;
       background: #1a1a2e;
       color: #888;
-      margin-top: 48px;
+      margin-top: 40px;
     }
     
     @media (max-width: 768px) {
-      .universities-grid { grid-template-columns: 1fr; padding: 0 16px; }
-      .categories { padding: 0 16px; }
-      .notification-panel { width: 90%; right: 5%; left: 5%; }
+      .categories { margin: 10px; }
+      .unis-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
-      <div class="logo-icon">📚</div>
-      <div>
-        <h1>Varsity Admission</h1>
-        <p>Your Gateway to Higher Education</p>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="notification-bell" id="notificationBell">
-        <div class="bell-icon">🔔</div>
-        <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
-      </div>
-      <a href="admin.html" style="color:white; text-decoration:none;">Admin</a>
-    </div>
+<div class="header">
+  <div class="logo">
+    <h1>📚 Varsity Admission</h1>
+    <p>Your Gateway to Higher Education</p>
   </div>
-  
-  <!-- Notification Panel -->
-  <div class="notification-panel" id="notificationPanel">
-    <div style="padding: 12px; background: #f5f5f5; font-weight: 600; border-bottom: 1px solid #ddd;">Notifications</div>
-    <div id="notificationsList"></div>
+  <div class="notification-bell" id="bellBtn">
+    🔔
+    <span class="badge" id="notifBadge">0</span>
   </div>
-</header>
-
-<div class="categories">
-  <button class="category-btn active" data-category="">🏛️ All Universities</button>
-  <button class="category-btn" data-category="Varsity">🎓 University</button>
-  <button class="category-btn" data-category="Engineering">⚙️ Engineering</button>
-  <button class="category-btn" data-category="Medical">🩺 Medical</button>
 </div>
 
-<div class="universities-grid" id="universitiesGrid">
-  <!-- Skeletons -->
-  <div class="skeleton" style="height: 380px;"></div>
-  <div class="skeleton" style="height: 380px;"></div>
-  <div class="skeleton" style="height: 380px;"></div>
+<div class="notification-panel" id="notifPanel">
+  <div style="padding: 12px; background: #f5f5f5; font-weight: bold; border-bottom: 1px solid #ddd;">Notifications</div>
+  <div id="notifList">Loading...</div>
+</div>
+
+<div class="categories" id="categories">
+  <button class="cat-btn active" data-cat="">All</button>
+  <button class="cat-btn" data-cat="Varsity">🎓 Varsity</button>
+  <button class="cat-btn" data-cat="Engineering">⚙️ Engineering</button>
+  <button class="cat-btn" data-cat="Medical">🩺 Medical</button>
+</div>
+
+<div class="container">
+  <div class="unis-grid" id="unisGrid">
+    <div class="loading">Loading universities...</div>
+  </div>
 </div>
 
 <footer class="footer">
-  <p>© 2024 Varsity Admission Portal | All admission information in one place</p>
+  <p>© 2024 Varsity Admission Portal | All rights reserved</p>
+  <p><a href="admin.html" style="color: #888;">Admin Login</a></p>
 </footer>
 
 <script>
@@ -345,131 +229,116 @@ const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 
 let supabase;
 let allUniversities = [];
-let activeCategory = '';
+let currentCategory = '';
 
+// Initialize Supabase
 async function init() {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   await loadUniversities();
   await loadNotifications();
 }
 
+// Load universities
 async function loadUniversities() {
-  let query = supabase.from('universities').select(`
-    *,
-    admission_circulars (*)
-  `);
-  
-  if (activeCategory) {
-    query = query.eq('category', activeCategory);
+  try {
+    let query = supabase.from('universities').select('*');
+    
+    if (currentCategory) {
+      query = query.eq('category', currentCategory);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    
+    allUniversities = data || [];
+    renderUniversities();
+  } catch (err) {
+    console.error('Error:', err);
+    document.getElementById('unisGrid').innerHTML = `<div class="loading">Error loading: ${err.message}</div>`;
   }
-  
-  const { data, error } = await query;
-  
-  if (error) {
-    console.error(error);
-    return;
-  }
-  
-  allUniversities = data || [];
-  renderUniversities();
 }
 
+// Render universities
 function renderUniversities() {
-  const grid = document.getElementById('universitiesGrid');
+  const grid = document.getElementById('unisGrid');
   
   if (allUniversities.length === 0) {
-    grid.innerHTML = '<div style="text-align:center; padding:60px;">No universities found.</div>';
+    grid.innerHTML = '<div class="loading">No universities found.</div>';
     return;
   }
   
-  grid.innerHTML = allUniversities.map(uni => {
-    const circular = uni.admission_circulars?.find(c => c.is_published) || {};
-    const deadline = circular.application_deadline ? new Date(circular.application_deadline) : null;
-    const isDeadlineSoon = deadline && (deadline - new Date()) / (1000 * 60 * 60 * 24) <= 7;
-    
-    return `
-      <div class="university-card" onclick="location.href='university.html?id=${uni.id}'">
-        <div class="card-header ${uni.category.toLowerCase()}">
-          ${circular.is_featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
-          <div class="university-logo">
-            ${uni.logo_url ? `<img src="${uni.logo_url}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;">` : uni.name.charAt(0)}
-          </div>
-          <div class="university-name">${escapeHtml(uni.name)}</div>
-          <div style="font-size:12px; opacity:0.9; margin-top:4px;">${uni.category}</div>
-        </div>
-        <div class="card-body">
-          ${circular.application_deadline ? `
-            <div class="deadline" style="${isDeadlineSoon ? 'background:#e74c3c; color:white;' : ''}">
-              ⏰ Deadline: ${new Date(circular.application_deadline).toLocaleDateString()}
-              ${isDeadlineSoon ? ' (⚠️ Soon!)' : ''}
-            </div>
-          ` : ''}
-          ${circular.exam_date ? `
-            <div class="exam-date">
-              📅 Exam: ${new Date(circular.exam_date).toLocaleDateString()}
-            </div>
-          ` : ''}
-          <p style="color:#666; font-size:14px; margin-bottom:12px;">
-            ${escapeHtml(uni.description?.substring(0, 100) || 'Click for admission details')}
-          </p>
-          ${circular.circular_link ? `
-            <a href="${circular.circular_link}" target="_blank" class="circular-link" onclick="event.stopPropagation()">
-              📄 View Circular →
-            </a>
-          ` : ''}
-        </div>
+  grid.innerHTML = allUniversities.map(uni => `
+    <div class="uni-card" onclick="viewUniversity(${uni.id})">
+      <div class="card-header ${uni.category}">
+        <div class="uni-name">${escapeHtml(uni.name)}</div>
+        <div style="font-size: 12px; margin-top: 5px;">${uni.category}</div>
       </div>
-    `;
-  }).join('');
-}
-
-async function loadNotifications() {
-  const { data, error } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('is_published', true)
-    .eq('show_on_homepage', true)
-    .order('created_at', { ascending: false })
-    .limit(10);
-  
-  if (error) return;
-  
-  const unreadCount = data.filter(n => !localStorage.getItem(`read_${n.id}`)).length;
-  const badge = document.getElementById('notificationBadge');
-  if (unreadCount > 0) {
-    badge.textContent = unreadCount;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
-  }
-  
-  const container = document.getElementById('notificationsList');
-  container.innerHTML = data.map(notif => `
-    <div class="notification-item ${notif.is_urgent ? 'urgent' : ''}" onclick="markAsRead(${notif.id}, '${notif.link || ''}')">
-      <div class="notification-title">${escapeHtml(notif.title)}</div>
-      <div class="notification-message">${escapeHtml(notif.message)}</div>
-      <div class="notification-time">${timeAgo(notif.created_at)}</div>
+      <div class="card-body">
+        <p style="color: #666; font-size: 14px;">${escapeHtml(uni.description?.substring(0, 100) || 'No description')}</p>
+        <a href="#" class="btn-link" onclick="event.stopPropagation();viewUniversity(${uni.id})">View Details →</a>
+      </div>
     </div>
   `).join('');
-  
-  if (data.length === 0) {
-    container.innerHTML = '<div style="padding: 20px; text-align:center; color:#999;">No new notifications</div>';
+}
+
+// Load notifications
+async function loadNotifications() {
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('is_published', true)
+      .eq('show_on_homepage', true)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    const notifs = data || [];
+    const unreadCount = notifs.filter(n => !localStorage.getItem(`read_${n.id}`)).length;
+    
+    const badge = document.getElementById('notifBadge');
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+    
+    const container = document.getElementById('notifList');
+    if (notifs.length === 0) {
+      container.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No notifications</div>';
+    } else {
+      container.innerHTML = notifs.map(n => `
+        <div class="notification-item ${n.is_urgent ? 'urgent' : ''}" onclick="markRead(${n.id}, '${n.link || ''}')">
+          <div style="font-weight: 600;">${escapeHtml(n.title)}</div>
+          <div style="font-size: 13px; color: #666; margin-top: 5px;">${escapeHtml(n.message)}</div>
+          <div style="font-size: 11px; color: #999; margin-top: 8px;">${timeAgo(n.created_at)}</div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Notif error:', err);
   }
 }
 
-function markAsRead(id, link) {
+function markRead(id, link) {
   localStorage.setItem(`read_${id}`, 'true');
   if (link) window.open(link, '_blank');
   loadNotifications();
-  document.getElementById('notificationPanel').classList.remove('open');
+  document.getElementById('notifPanel').classList.remove('show');
+}
+
+function viewUniversity(id) {
+  window.location.href = `university.html?id=${id}`;
 }
 
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
   const days = Math.floor(hours / 24);
   return `${days} day${days > 1 ? 's' : ''} ago`;
@@ -481,25 +350,26 @@ function escapeHtml(str) {
 }
 
 // Category filter
-document.querySelectorAll('.category-btn').forEach(btn => {
+document.querySelectorAll('.cat-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    activeCategory = btn.dataset.category;
+    currentCategory = btn.dataset.cat;
     loadUniversities();
   });
 });
 
 // Notification bell
-document.getElementById('notificationBell').addEventListener('click', (e) => {
+document.getElementById('bellBtn').addEventListener('click', (e) => {
   e.stopPropagation();
-  document.getElementById('notificationPanel').classList.toggle('open');
+  document.getElementById('notifPanel').classList.toggle('show');
 });
 
 document.addEventListener('click', () => {
-  document.getElementById('notificationPanel').classList.remove('open');
+  document.getElementById('notifPanel').classList.remove('show');
 });
 
+// Start
 init();
 </script>
 </body>
