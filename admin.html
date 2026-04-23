@@ -3,546 +3,277 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
+  <title>Article | English Learning Platform</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f0f2f5;
-    }
-    
-    .auth-container {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 30px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    
-    .auth-container h2 { margin-bottom: 10px; }
-    .auth-container p { color: #666; margin-bottom: 20px; }
-    
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 16px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    
-    button {
-      padding: 12px 24px;
-      background: #1a73e8;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    
-    button:hover { background: #1557b0; }
-    
-    .error {
-      background: #fee;
-      color: #e74c3c;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      display: none;
-    }
-    
-    .dashboard {
-      display: none;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
+      background: #fafafa;
+      color: #1a1a2e;
     }
     
     .header {
-      background: #1a1a2e;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: white;
       padding: 16px 24px;
-      margin: -20px -20px 20px -20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     
-    .logout-btn { background: #e74c3c; }
+    .back-link {
+      color: white;
+      text-decoration: none;
+    }
     
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    
+    .article-header {
+      margin-bottom: 32px;
+    }
+    
+    .article-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .badge-free { background: #27ae60; color: white; }
+    .badge-premium { background: #f39c12; color: white; }
+    
+    .article-title {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    
+    .article-meta {
+      color: #666;
+      font-size: 14px;
       margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #eee;
     }
     
-    .stat-card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .stat-number { font-size: 2rem; font-weight: 800; color: #1a73e8; }
-    .stat-label { color: #666; font-size: 13px; margin-top: 5px; }
-    
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .tab {
-      padding: 10px 20px;
-      background: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    
-    .tab.active {
-      background: #1a1a2e;
-      color: white;
-    }
-    
-    .panel {
-      display: none;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .panel.active { display: block; }
-    
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
-    
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #f8f9fa; }
-    
-    .btn-small { padding: 4px 12px; font-size: 12px; margin: 0 4px; }
-    .btn-danger { background: #e74c3c; }
-    .btn-success { background: #27ae60; }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    
-    .modal.active { display: flex; }
-    
-    .modal-content {
-      background: white;
-      padding: 30px;
+    .article-image {
+      width: 100%;
       border-radius: 16px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
+      margin-bottom: 32px;
     }
     
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #333;
+    .article-content {
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+    
+    .article-content p {
+      margin-bottom: 1.5em;
+    }
+    
+    .article-content h2 {
+      margin: 1.5em 0 0.5em;
+    }
+    
+    .paywall {
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      display: none;
+      text-align: center;
+      padding: 60px 40px;
+      border-radius: 16px;
+      margin-top: 40px;
     }
     
-    .toast.show { display: block; }
+    .paywall h3 {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+    }
+    
+    .paywall .price {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    
+    .subscribe-btn {
+      display: inline-block;
+      background: #e74c3c;
+      color: white;
+      padding: 12px 32px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    
+    @media (max-width: 768px) {
+      .article-title { font-size: 1.8rem; }
+      .paywall { padding: 40px 24px; }
+    }
   </style>
 </head>
 <body>
 
-<div id="authScreen" class="auth-container">
-  <h2>🔐 Admin Login</h2>
-  <p>Sign in to manage admission portal</p>
-  <div id="errorMsg" class="error"></div>
-  <input type="email" id="email" placeholder="Email" value="text.me.md.alamin@gmail.com">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Sign In</button>
-</div>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="back-link">← Back to Articles</a>
+    <a href="index.html" style="color:white; text-decoration:none; font-weight:600;">English Learning</a>
+  </div>
+</header>
 
-<div id="dashboard" class="dashboard">
-  <div class="header">
-    <h2>📚 Admin Dashboard</h2>
-    <button class="logout-btn" onclick="logout()">Logout</button>
-  </div>
-  
-  <div class="stats">
-    <div class="stat-card"><div class="stat-number" id="totalUnis">0</div><div class="stat-label">Universities</div></div>
-    <div class="stat-card"><div class="stat-number" id="totalCirculars">0</div><div class="stat-label">Circulars</div></div>
-    <div class="stat-card"><div class="stat-number" id="totalNotifs">0</div><div class="stat-label">Notifications</div></div>
-    <div class="stat-card"><div class="stat-number" id="totalResources">0</div><div class="stat-label">Resources</div></div>
-  </div>
-  
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('unis')">🏛️ Universities</button>
-    <button class="tab" onclick="showTab('circulars')">📢 Circulars</button>
-    <button class="tab" onclick="showTab('notifs')">🔔 Notifications</button>
-    <button class="tab" onclick="showTab('resources')">📚 Resources</button>
-  </div>
-  
-  <!-- Universities Panel -->
-  <div id="unisPanel" class="panel active">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-      <h3>Universities</h3>
-      <button onclick="openUniModal()">+ Add University</button>
-    </div>
-    <div id="unisList"></div>
-  </div>
-  
-  <!-- Circulars Panel -->
-  <div id="circularsPanel" class="panel">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-      <h3>Admission Circulars</h3>
-      <button onclick="openCircularModal()">+ Add Circular</button>
-    </div>
-    <div id="circularsList"></div>
-  </div>
-  
-  <!-- Notifications Panel -->
-  <div id="notifsPanel" class="panel">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-      <h3>Notifications</h3>
-      <button onclick="openNotifModal()">+ Add Notification</button>
-    </div>
-    <div id="notifsList"></div>
-  </div>
-  
-  <!-- Resources Panel -->
-  <div id="resourcesPanel" class="panel">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-      <h3>Resources</h3>
-      <button onclick="openResourceModal()">+ Add Resource</button>
-    </div>
-    <div id="resourcesList"></div>
-  </div>
+<div class="container" id="articleContainer">
+  <div class="loading">Loading article...</div>
 </div>
-
-<!-- University Modal -->
-<div id="uniModal" class="modal">
-  <div class="modal-content">
-    <h3 id="uniModalTitle">Add University</h3>
-    <input type="hidden" id="uniId">
-    <div class="form-group"><label>Name</label><input type="text" id="uniName" placeholder="University name"></div>
-    <div class="form-group"><label>Category</label><select id="uniCategory"><option value="Varsity">Varsity</option><option value="Engineering">Engineering</option><option value="Medical">Medical</option></select></div>
-    <div class="form-group"><label>Description</label><textarea id="uniDesc" rows="3"></textarea></div>
-    <div class="form-group"><label>Website</label><input type="text" id="uniWebsite" placeholder="https://"></div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button onclick="closeUniModal()">Cancel</button>
-      <button class="btn-success" onclick="saveUniversity()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Circular Modal -->
-<div id="circularModal" class="modal">
-  <div class="modal-content">
-    <h3 id="circularModalTitle">Add Circular</h3>
-    <input type="hidden" id="circularId">
-    <div class="form-group"><label>University</label><select id="circularUniId"></select></div>
-    <div class="form-group"><label>Title</label><input type="text" id="circularTitle"></div>
-    <div class="form-group"><label>Circular Link</label><input type="text" id="circularLink" placeholder="https://"></div>
-    <div class="form-group"><label>Deadline</label><input type="date" id="circularDeadline"></div>
-    <div class="form-group"><label>Exam Date</label><input type="date" id="circularExamDate"></div>
-    <div class="form-group"><label>Featured</label><input type="checkbox" id="circularFeatured"></div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button onclick="closeCircularModal()">Cancel</button>
-      <button class="btn-success" onclick="saveCircular()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Notification Modal -->
-<div id="notifModal" class="modal">
-  <div class="modal-content">
-    <h3>Add Notification</h3>
-    <input type="hidden" id="notifId">
-    <div class="form-group"><label>Title</label><input type="text" id="notifTitle"></div>
-    <div class="form-group"><label>Message</label><textarea id="notifMessage" rows="3"></textarea></div>
-    <div class="form-group"><label>Link</label><input type="text" id="notifLink" placeholder="https://"></div>
-    <div class="form-group"><label><input type="checkbox" id="notifUrgent"> Urgent</label></div>
-    <div class="form-group"><label><input type="checkbox" id="notifShowHome" checked> Show on homepage</label></div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button onclick="closeNotifModal()">Cancel</button>
-      <button class="btn-success" onclick="saveNotification()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Resource Modal -->
-<div id="resourceModal" class="modal">
-  <div class="modal-content">
-    <h3>Add Resource</h3>
-    <input type="hidden" id="resourceId">
-    <div class="form-group"><label>University</label><select id="resourceUniId"></select></div>
-    <div class="form-group"><label>Title</label><input type="text" id="resourceTitle"></div>
-    <div class="form-group"><label>Type</label><select id="resourceType"><option>PDF</option><option>Link</option><option>Notice</option></select></div>
-    <div class="form-group"><label>URL</label><input type="text" id="resourceUrl"></div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button onclick="closeResourceModal()">Cancel</button>
-      <button class="btn-success" onclick="saveResource()">Save</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 
 let supabase;
-let universities = [];
+let currentUser = null;
+let hasActiveSubscription = false;
 
-async function login() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const errDiv = document.getElementById('errorMsg');
-  
+async function init() {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   
-  if (error) {
-    errDiv.textContent = error.message;
-    errDiv.style.display = 'block';
+  // Get slug from URL
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+  
+  if (!slug) {
+    document.getElementById('articleContainer').innerHTML = '<div class="loading">Article not found</div>';
     return;
   }
   
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  await loadAll();
-}
-
-async function logout() {
-  await supabase.auth.signOut();
-  location.reload();
-}
-
-async function loadAll() {
-  await loadUniversities();
-  await loadCirculars();
-  await loadNotifications();
-  await loadResources();
-}
-
-async function loadUniversities() {
-  const { data } = await supabase.from('universities').select('*').order('name');
-  universities = data || [];
-  document.getElementById('totalUnis').textContent = universities.length;
+  // Check auth
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    
+    // Check subscription
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('status', 'active')
+      .single();
+    hasActiveSubscription = !!sub;
+  }
   
-  const container = document.getElementById('unisList');
-  if (universities.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No universities yet</p>';
+  await loadArticle(slug);
+}
+
+async function loadArticle(slug) {
+  const { data: article, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .single();
+  
+  if (error || !article) {
+    document.getElementById('articleContainer').innerHTML = '<div class="loading">Article not found</div>';
     return;
   }
   
-  container.innerHTML = `<table><thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead><tbody>${
-    universities.map(u => `<tr><td>${escapeHtml(u.name)}</td><td>${u.category}</td><td><button class="btn-small" onclick="editUni(${u.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteUni(${u.id})">Delete</button></td></tr>`).join('')
-  }</tbody></table>`;
+  // Update view count
+  await supabase
+    .from('articles')
+    .update({ view_count: (article.view_count || 0) + 1 })
+    .eq('id', article.id);
+  
+  renderArticle(article);
 }
 
-async function loadCirculars() {
-  const { data } = await supabase.from('admission_circulars').select('*, universities(name)').order('created_at', { ascending: false });
-  document.getElementById('totalCirculars').textContent = data?.length || 0;
+function renderArticle(article) {
+  const isPremium = !article.is_free;
+  const canAccess = article.is_free || hasActiveSubscription;
   
-  const container = document.getElementById('circularsList');
-  if (!data || data.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No circulars yet</p>';
-    return;
+  document.title = `${article.title} | English Learning Platform`;
+  
+  let html = `
+    <div class="article-header">
+      <span class="article-badge ${article.is_free ? 'badge-free' : 'badge-premium'}">
+        ${article.is_free ? 'FREE' : 'PREMIUM'}
+      </span>
+      <h1 class="article-title">${escapeHtml(article.title)}</h1>
+      <div class="article-meta">
+        Published on ${new Date(article.created_at).toLocaleDateString()} • ${article.view_count || 0} views
+      </div>
+    </div>
+  `;
+  
+  if (article.image_url) {
+    html += `<img src="${article.image_url}" class="article-image" alt="${escapeHtml(article.title)}">`;
   }
   
-  container.innerHTML = `<table><thead><tr><th>University</th><th>Title</th><th>Deadline</th><th>Actions</th></tr></thead><tbody>${
-    data.map(c => `<tr><td>${escapeHtml(c.universities?.name)}</td><td>${escapeHtml(c.title)}</td><td>${c.application_deadline || 'TBA'}</td><td><button class="btn-small" onclick="editCircular(${c.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteCircular(${c.id})">Delete</button></td></tr>`).join('')
-  }</tbody></table>`;
-}
-
-async function loadNotifications() {
-  const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
-  document.getElementById('totalNotifs').textContent = data?.length || 0;
-  
-  const container = document.getElementById('notifsList');
-  if (!data || data.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No notifications yet</p>';
-    return;
+  if (canAccess) {
+    // Full content
+    html += `<div class="article-content">${formatContent(article.content)}</div>`;
+  } else {
+    // Preview + paywall
+    html += `
+      <div class="article-content">
+        ${formatContent(article.content.substring(0, 500))}
+        <p><em>... content continues</em></p>
+      </div>
+      <div class="paywall">
+        <h3>📚 Unlock Premium Content</h3>
+        <p>Get access to all premium articles and improve your English faster!</p>
+        <div class="price">
+          Monthly: 100 BDT<br>
+          Yearly: 1000 BDT
+        </div>
+        <p>Contact us on Telegram to subscribe:</p>
+        <a href="https://t.me/adamzampas" target="_blank" class="subscribe-btn">📞 Contact @adamzampas</a>
+      </div>
+    `;
   }
   
-  container.innerHTML = `<table><thead><tr><th>Title</th><th>Message</th><th>Urgent</th><th>Actions</th></tr></thead><tbody>${
-    data.map(n => `<tr><td>${escapeHtml(n.title)}</td><td>${escapeHtml(n.message.substring(0, 50))}</td><td>${n.is_urgent ? 'Yes' : 'No'}</td><td><button class="btn-small" onclick="editNotif(${n.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteNotif(${n.id})">Delete</button></td></tr>`).join('')
-  }</tbody></table>`;
+  document.getElementById('articleContainer').innerHTML = html;
 }
 
-async function loadResources() {
-  const { data } = await supabase.from('resources').select('*, universities(name)');
-  document.getElementById('totalResources').textContent = data?.length || 0;
-  
-  const container = document.getElementById('resourcesList');
-  if (!data || data.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No resources yet</p>';
-    return;
+function formatContent(content) {
+  if (!content) return '';
+  // Simple paragraph formatting for plain text
+  if (!/<[a-z]/i.test(content)) {
+    return content.split(/\n\s*\n/).filter(p => p.trim()).map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
   }
-  
-  container.innerHTML = `<table><thead><tr><th>University</th><th>Title</th><th>Type</th><th>Actions</th></tr></thead><tbody>${
-    data.map(r => `<tr><td>${escapeHtml(r.universities?.name)}</td><td>${escapeHtml(r.title)}</td><td>${r.resource_type}</td><td><button class="btn-small" onclick="editResource(${r.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteResource(${r.id})">Delete</button></td></tr>`).join('')
-  }</tbody></table>`;
-}
-
-// Save functions
-async function saveUniversity() {
-  const id = document.getElementById('uniId').value;
-  const data = {
-    name: document.getElementById('uniName').value,
-    category: document.getElementById('uniCategory').value,
-    description: document.getElementById('uniDesc').value,
-    website: document.getElementById('uniWebsite').value
-  };
-  
-  let result;
-  if (id) result = await supabase.from('universities').update(data).eq('id', id);
-  else result = await supabase.from('universities').insert([data]);
-  
-  if (result.error) showToast('Error: ' + result.error.message);
-  else { showToast('Saved!'); closeUniModal(); loadUniversities(); }
-}
-
-async function saveCircular() {
-  const data = {
-    university_id: parseInt(document.getElementById('circularUniId').value),
-    title: document.getElementById('circularTitle').value,
-    circular_link: document.getElementById('circularLink').value,
-    application_deadline: document.getElementById('circularDeadline').value,
-    exam_date: document.getElementById('circularExamDate').value,
-    is_featured: document.getElementById('circularFeatured').checked,
-    is_published: true
-  };
-  
-  const result = await supabase.from('admission_circulars').insert([data]);
-  if (result.error) showToast('Error: ' + result.error.message);
-  else { showToast('Saved!'); closeCircularModal(); loadCirculars(); }
-}
-
-async function saveNotification() {
-  const data = {
-    title: document.getElementById('notifTitle').value,
-    message: document.getElementById('notifMessage').value,
-    link: document.getElementById('notifLink').value,
-    is_urgent: document.getElementById('notifUrgent').checked,
-    show_on_homepage: document.getElementById('notifShowHome').checked,
-    is_published: true
-  };
-  
-  const result = await supabase.from('notifications').insert([data]);
-  if (result.error) showToast('Error: ' + result.error.message);
-  else { showToast('Saved!'); closeNotifModal(); loadNotifications(); }
-}
-
-async function saveResource() {
-  const data = {
-    university_id: parseInt(document.getElementById('resourceUniId').value),
-    title: document.getElementById('resourceTitle').value,
-    resource_type: document.getElementById('resourceType').value,
-    file_url: document.getElementById('resourceUrl').value
-  };
-  
-  const result = await supabase.from('resources').insert([data]);
-  if (result.error) showToast('Error: ' + result.error.message);
-  else { showToast('Saved!'); closeResourceModal(); loadResources(); }
-}
-
-async function deleteUni(id) {
-  if (confirm('Delete this university?')) {
-    await supabase.from('universities').delete().eq('id', id);
-    loadUniversities();
-  }
-}
-
-async function deleteCircular(id) {
-  if (confirm('Delete this circular?')) {
-    await supabase.from('admission_circulars').delete().eq('id', id);
-    loadCirculars();
-  }
-}
-
-async function deleteNotif(id) {
-  if (confirm('Delete this notification?')) {
-    await supabase.from('notifications').delete().eq('id', id);
-    loadNotifications();
-  }
-}
-
-async function deleteResource(id) {
-  if (confirm('Delete this resource?')) {
-    await supabase.from('resources').delete().eq('id', id);
-    loadResources();
-  }
-}
-
-// Modal functions
-function openUniModal() { document.getElementById('uniModal').classList.add('active'); }
-function closeUniModal() { document.getElementById('uniModal').classList.remove('active'); document.getElementById('uniId').value = ''; document.getElementById('uniName').value = ''; }
-
-function openCircularModal() {
-  const select = document.getElementById('circularUniId');
-  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
-  document.getElementById('circularModal').classList.add('active');
-}
-function closeCircularModal() { document.getElementById('circularModal').classList.remove('active'); }
-
-function openNotifModal() { document.getElementById('notifModal').classList.add('active'); }
-function closeNotifModal() { document.getElementById('notifModal').classList.remove('active'); }
-
-function openResourceModal() {
-  const select = document.getElementById('resourceUniId');
-  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
-  document.getElementById('resourceModal').classList.add('active');
-}
-function closeResourceModal() { document.getElementById('resourceModal').classList.remove('active'); }
-
-// Placeholder edit functions
-function editUni(id) { alert('Edit feature - implement as needed'); }
-function editCircular(id) { alert('Edit feature - implement as needed'); }
-function editNotif(id) { alert('Edit feature - implement as needed'); }
-function editResource(id) { alert('Edit feature - implement as needed'); }
-
-function showTab(tab) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`${tab}Panel`).classList.add('active');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+  return content;
 }
 
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
 }
+
+init();
 </script>
 </body>
 </html>
