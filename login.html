@@ -1,365 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In – EnglishPro BD</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  :root {
-    --ink: #0d0d0d;
-    --paper: #faf8f3;
-    --cream: #f0ece0;
-    --gold: #c9932a;
-    --gold-light: #e8b84b;
-    --accent: #1a4d6e;
-    --muted: #7a756a;
-    --rule: #e2ddd4;
-    --error: #c0392b;
-    --success: #1a6e3c;
-    --radius: 6px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:'DM Sans',sans-serif;
-    background:var(--ink);
-    color:var(--ink);
-    min-height:100vh;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | English Learning Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  /* LEFT PANEL */
-  .left-panel {
-    background:var(--ink);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    padding:60px 56px;
-    position:relative;
-    overflow:hidden;
-  }
-  .left-panel::before {
-    content:'';
-    position:absolute;
-    inset:0;
-    background:repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,147,42,0.04) 40px, rgba(201,147,42,0.04) 41px);
-  }
-  .left-content { position:relative; z-index:1; }
-  .logo { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; color:var(--paper); margin-bottom:48px; text-decoration:none; display:block; }
-  .logo span { color:var(--gold); }
-  .left-panel h1 { font-family:'Playfair Display',serif; font-size:2.8rem; font-weight:900; color:var(--paper); line-height:1.1; margin-bottom:16px; }
-  .left-panel h1 em { font-style:normal; color:var(--gold); }
-  .left-panel p { color:rgba(250,248,243,0.6); font-size:1rem; line-height:1.6; margin-bottom:40px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-  .features { list-style:none; display:flex; flex-direction:column; gap:14px; }
-  .feature-item {
-    display:flex;
-    align-items:flex-start;
-    gap:12px;
-    color:rgba(250,248,243,0.8);
-    font-size:0.9rem;
-  }
-  .feature-icon {
-    width:28px;
-    height:28px;
-    background:rgba(201,147,42,0.15);
-    border:1px solid rgba(201,147,42,0.3);
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:0.8rem;
-    flex-shrink:0;
-    margin-top:1px;
-  }
+    .auth-container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
 
-  .plans-preview {
-    margin-top:40px;
-    padding-top:32px;
-    border-top:1px solid rgba(255,255,255,0.1);
-    display:flex;
-    gap:16px;
-  }
-  .plan-preview-card {
-    flex:1;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(201,147,42,0.2);
-    border-radius:8px;
-    padding:14px;
-  }
-  .plan-preview-card.highlight { border-color:var(--gold); background:rgba(201,147,42,0.1); }
-  .ppc-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.4); margin-bottom:4px; }
-  .ppc-price { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:var(--gold-light); }
-  .ppc-desc { font-size:0.72rem; color:rgba(255,255,255,0.4); margin-top:2px; }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
 
-  /* RIGHT PANEL */
-  .right-panel {
-    background:var(--paper);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    padding:60px 56px;
-    overflow-y:auto;
-  }
-  .form-card { max-width:400px; width:100%; margin:0 auto; }
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
 
-  .tab-row {
-    display:flex;
-    background:var(--cream);
-    border-radius:var(--radius);
-    padding:4px;
-    margin-bottom:32px;
-  }
-  .tab-btn {
-    flex:1;
-    padding:10px;
-    border:none;
-    background:transparent;
-    border-radius:4px;
-    font-family:'DM Sans',sans-serif;
-    font-size:0.88rem;
-    font-weight:600;
-    cursor:pointer;
-    transition:all .2s;
-    color:var(--muted);
-  }
-  .tab-btn.active { background:white; color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+    .logo span {
+      color: #e67e22;
+    }
 
-  .form-title { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; margin-bottom:6px; }
-  .form-sub { font-size:0.88rem; color:var(--muted); margin-bottom:28px; }
+    .logo p {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 4px;
+    }
 
-  .form-group { margin-bottom:18px; }
-  .form-label { display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px; color:var(--ink); }
-  .form-input {
-    width:100%;
-    padding:12px 14px;
-    border:1.5px solid var(--rule);
-    border-radius:var(--radius);
-    font-family:'DM Sans',sans-serif;
-    font-size:0.92rem;
-    background:white;
-    color:var(--ink);
-    outline:none;
-    transition:border-color .2s;
-  }
-  .form-input:focus { border-color:var(--gold); }
-  .form-input::placeholder { color:#bbb; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: #f0f0f0;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+    }
 
-  .form-btn {
-    width:100%;
-    padding:14px;
-    background:var(--gold);
-    color:white;
-    border:none;
-    border-radius:var(--radius);
-    font-family:'DM Sans',sans-serif;
-    font-size:0.95rem;
-    font-weight:700;
-    cursor:pointer;
-    transition:background .2s;
-    margin-top:8px;
-    position:relative;
-  }
-  .form-btn:hover { background:var(--gold-light); }
-  .form-btn:disabled { opacity:.6; cursor:not-allowed; }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-  .spinner-inline {
-    width:18px; height:18px;
-    border:2px solid rgba(255,255,255,0.3);
-    border-top-color:white;
-    border-radius:50%;
-    animation:spin .6s linear infinite;
-    display:inline-block;
-    vertical-align:middle;
-    margin-right:6px;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
+    .tab-btn.active {
+      background: white;
+      color: #e67e22;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-  .alert {
-    padding:12px 14px;
-    border-radius:var(--radius);
-    font-size:0.85rem;
-    margin-bottom:16px;
-    display:none;
-  }
-  .alert.error { background:#fef0f0; border:1px solid #f5c6c6; color:var(--error); display:block; }
-  .alert.success { background:#f0faf4; border:1px solid #b6dfc9; color:var(--success); display:block; }
+    .form-group {
+      margin-bottom: 20px;
+    }
 
-  .divider {
-    text-align:center;
-    position:relative;
-    margin:20px 0;
-    font-size:0.8rem;
-    color:var(--muted);
-  }
-  .divider::before, .divider::after {
-    content:'';
-    position:absolute;
-    top:50%;
-    width:42%;
-    height:1px;
-    background:var(--rule);
-  }
-  .divider::before { left:0; }
-  .divider::after { right:0; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
 
-  .telegram-btn {
-    width:100%;
-    padding:12px;
-    background:white;
-    color:var(--ink);
-    border:1.5px solid var(--rule);
-    border-radius:var(--radius);
-    font-family:'DM Sans',sans-serif;
-    font-size:0.88rem;
-    font-weight:600;
-    cursor:pointer;
-    transition:all .2s;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    text-decoration:none;
-  }
-  .telegram-btn:hover { border-color:var(--gold); }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
 
-  .back-link {
-    display:block;
-    text-align:center;
-    margin-top:24px;
-    font-size:0.82rem;
-    color:var(--muted);
-    text-decoration:none;
-  }
-  .back-link:hover { color:var(--gold); }
+    .form-group input:focus {
+      outline: none;
+      border-color: #e67e22;
+    }
 
-  .success-state {
-    text-align:center;
-    padding:20px 0;
-    display:none;
-  }
-  .success-icon { font-size:3rem; margin-bottom:12px; }
-  .success-state h3 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:8px; }
-  .success-state p { color:var(--muted); font-size:0.9rem; line-height:1.5; }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-  @media(max-width:768px) {
-    body { grid-template-columns:1fr; }
-    .left-panel { display:none; }
-    .right-panel { padding:40px 24px; min-height:100vh; }
-  }
-</style>
+    .btn-primary {
+      background: #e67e22;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #d35400;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert-error {
+      background: #fee;
+      color: #e74c3c;
+      border: 1px solid #fcc;
+    }
+
+    .alert-success {
+      background: #e8f5e9;
+      color: #27ae60;
+      border: 1px solid #c8e6c9;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 24px 0;
+      position: relative;
+      color: #999;
+      font-size: 0.8rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 45%;
+      height: 1px;
+      background: #e0e0e0;
+    }
+
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    .telegram-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background: white;
+      color: #333;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .telegram-btn:hover {
+      border-color: #e67e22;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #666;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      color: #e67e22;
+    }
+
+    .success-state {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+
+    .success-state h3 {
+      margin: 16px 0 8px;
+    }
+
+    .success-state p {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
 <body>
 
-<div class="left-panel">
-  <div class="left-content">
-    <a href="index.html" class="logo">English<span>Pro</span> BD</a>
-    <h1>Learn <em>English</em><br>Like a Pro</h1>
-    <p>Join thousands of Bangladeshi learners mastering English with fresh daily articles, grammar guides, and exam tips.</p>
-
-    <ul class="features">
-      <li class="feature-item"><span class="feature-icon">📰</span> Daily new articles — grammar, vocabulary, IELTS & more</li>
-      <li class="feature-item"><span class="feature-icon">🆓</span> Free articles available to everyone — no payment needed</li>
-      <li class="feature-item"><span class="feature-icon">⭐</span> Premium content unlocked instantly after subscription</li>
-      <li class="feature-item"><span class="feature-icon">📱</span> Subscribe via Telegram — easy manual activation</li>
-    </ul>
-
-    <div class="plans-preview">
-      <div class="plan-preview-card">
-        <div class="ppc-label">Monthly</div>
-        <div class="ppc-price">৳100</div>
-        <div class="ppc-desc">per month</div>
-      </div>
-      <div class="plan-preview-card highlight">
-        <div class="ppc-label">Yearly · Best Value</div>
-        <div class="ppc-price">৳1000</div>
-        <div class="ppc-desc">save 17%</div>
-      </div>
-    </div>
+<div class="auth-container">
+  <div class="logo">
+    <h1>English <span>Learning Lab</span></h1>
+    <p>Sign in to continue learning</p>
   </div>
-</div>
 
-<div class="right-panel">
-  <div class="form-card">
-    <div class="tab-row">
-      <button class="tab-btn active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
-      <button class="tab-btn" id="tabSignUp" onclick="switchTab('signup')">Create Account</button>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('signin')">Sign In</button>
+    <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+  </div>
+
+  <!-- Sign In Form -->
+  <div id="signinForm">
+    <div id="signinAlert" class="alert"></div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="signinEmail" placeholder="you@example.com">
     </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="signinPassword" placeholder="Your password">
+    </div>
+    <button class="btn btn-primary" id="signinBtn" onclick="signIn()">Sign In</button>
+  </div>
 
-    <!-- SIGN IN FORM -->
-    <div id="signinForm">
-      <div class="form-title">Welcome back</div>
-      <div class="form-sub">Sign in to access your premium content</div>
-      <div class="alert" id="signinAlert"></div>
+  <!-- Sign Up Form -->
+  <div id="signupForm" style="display: none;">
+    <div id="signupAlert" class="alert"></div>
+    <div id="signupSuccess" class="success-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2">
+        <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <h3>Account Created!</h3>
+      <p>Check your email to verify your account.</p>
+      <p style="margin-top: 8px;">After verification, contact @adamzampas on Telegram to activate premium.</p>
+    </div>
+    <div id="signupFields">
       <div class="form-group">
-        <label class="form-label">Email Address</label>
-        <input class="form-input" type="email" id="signinEmail" placeholder="you@example.com" autocomplete="email">
+        <label>Full Name</label>
+        <input type="text" id="signupName" placeholder="Your full name">
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="signinPassword" placeholder="Your password" autocomplete="current-password">
+        <label>Email Address</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com">
       </div>
-      <button class="form-btn" id="signinBtn" onclick="signIn()">Sign In</button>
-
-      <div class="divider">or</div>
-
-      <a href="https://t.me/adamzampas" target="_blank" class="telegram-btn">📱 Contact @adamzampas for subscription</a>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signupPassword" placeholder="At least 6 characters">
+      </div>
+      <button class="btn btn-primary" id="signupBtn" onclick="signUp()">Create Account</button>
     </div>
-
-    <!-- SIGN UP FORM -->
-    <div id="signupForm" style="display:none">
-      <div class="form-title">Create Account</div>
-      <div class="form-sub">Sign up free — subscribe to premium anytime</div>
-      <div class="alert" id="signupAlert"></div>
-      <div class="success-state" id="signupSuccess">
-        <div class="success-icon">✅</div>
-        <h3>Account Created!</h3>
-        <p>Check your email to verify your account, then sign in to start reading.</p>
-        <p style="margin-top:12px;font-size:.82rem;color:var(--muted)">After signing in, contact <a href="https://t.me/adamzampas" target="_blank" style="color:var(--gold)">@adamzampas</a> on Telegram to activate premium.</p>
-      </div>
-      <div id="signupFields">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input class="form-input" type="text" id="signupName" placeholder="Your full name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input class="form-input" type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input class="form-input" type="password" id="signupPassword" placeholder="At least 6 characters" autocomplete="new-password">
-        </div>
-        <button class="form-btn" id="signupBtn" onclick="signUp()">Create Account</button>
-      </div>
-    </div>
-
-    <a href="index.html" class="back-link">← Back to articles</a>
   </div>
+
+  <div class="divider">or</div>
+
+  <a href="https://t.me/adamzampas" target="_blank" class="telegram-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.214-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.058 5.56-5.022c.242-.213-.053-.333-.374-.12l-6.87 4.326-2.96-.924c-.642-.2-.654-.642.134-.95l11.56-4.456c.535-.19 1.004.128.827.902z"/>
+    </svg>
+    Contact @adamzampas on Telegram
+  </a>
+
+  <a href="index.html" class="back-link">← Back to Home</a>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const redirectUrl = new URLSearchParams(location.search).get('redirect') || 'index.html';
+const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
 
 // Check if already logged in
-sb.auth.getSession().then(({ data: { session } }) => {
+supabase.auth.getSession().then(({ data: { session } }) => {
   if (session) window.location.href = redirectUrl;
 });
 
 function switchTab(tab) {
   const isSignIn = tab === 'signin';
-  document.getElementById('tabSignIn').classList.toggle('active', isSignIn);
-  document.getElementById('tabSignUp').classList.toggle('active', !isSignIn);
-  document.getElementById('signinForm').style.display = isSignIn ? 'block' : 'none';
-  document.getElementById('signupForm').style.display = isSignIn ? 'none' : 'block';
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  if (isSignIn) {
+    document.getElementById('tabSignIn').classList.add('active');
+    document.getElementById('signinForm').style.display = 'block';
+    document.getElementById('signupForm').style.display = 'none';
+  } else {
+    document.getElementById('tabSignUp').classList.add('active');
+    document.getElementById('signinForm').style.display = 'none';
+    document.getElementById('signupForm').style.display = 'block';
+  }
 }
 
 async function signIn() {
@@ -368,25 +338,28 @@ async function signIn() {
   const alertEl = document.getElementById('signinAlert');
   const btn = document.getElementById('signinBtn');
 
+  alertEl.style.display = 'none';
   alertEl.className = 'alert';
-  alertEl.textContent = '';
 
   if (!email || !password) {
-    alertEl.className = 'alert error';
-    alertEl.textContent = 'Please fill in all fields.';
+    alertEl.textContent = 'Please enter email and password';
+    alertEl.className = 'alert alert-error';
+    alertEl.style.display = 'block';
     return;
   }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-inline"></span> Signing in...';
+  btn.innerHTML = '<span class="spinner"></span>Signing in...';
 
-  const { error } = await sb.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  btn.disabled = false;
+  btn.innerHTML = 'Sign In';
 
   if (error) {
-    btn.disabled = false;
-    btn.textContent = 'Sign In';
-    alertEl.className = 'alert error';
-    alertEl.textContent = error.message === 'Invalid login credentials' ? 'Incorrect email or password.' : error.message;
+    alertEl.textContent = error.message === 'Invalid login credentials' ? 'Incorrect email or password' : error.message;
+    alertEl.className = 'alert alert-error';
+    alertEl.style.display = 'block';
     return;
   }
 
@@ -400,35 +373,39 @@ async function signUp() {
   const alertEl = document.getElementById('signupAlert');
   const btn = document.getElementById('signupBtn');
 
+  alertEl.style.display = 'none';
   alertEl.className = 'alert';
-  alertEl.textContent = '';
 
   if (!name || !email || !password) {
-    alertEl.className = 'alert error';
-    alertEl.textContent = 'Please fill in all fields.';
+    alertEl.textContent = 'Please fill all fields';
+    alertEl.className = 'alert alert-error';
+    alertEl.style.display = 'block';
     return;
   }
 
   if (password.length < 6) {
-    alertEl.className = 'alert error';
-    alertEl.textContent = 'Password must be at least 6 characters.';
+    alertEl.textContent = 'Password must be at least 6 characters';
+    alertEl.className = 'alert alert-error';
+    alertEl.style.display = 'block';
     return;
   }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-inline"></span> Creating account...';
+  btn.innerHTML = '<span class="spinner"></span>Creating account...';
 
-  const { error } = await sb.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: { data: { full_name: name } }
   });
 
+  btn.disabled = false;
+  btn.innerHTML = 'Create Account';
+
   if (error) {
-    btn.disabled = false;
-    btn.textContent = 'Create Account';
-    alertEl.className = 'alert error';
     alertEl.textContent = error.message;
+    alertEl.className = 'alert alert-error';
+    alertEl.style.display = 'block';
     return;
   }
 
@@ -437,7 +414,7 @@ async function signUp() {
 }
 
 // Enter key support
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     const isSignIn = document.getElementById('signinForm').style.display !== 'none';
     if (isSignIn) signIn();
