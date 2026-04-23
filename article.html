@@ -1,583 +1,507 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Article – EnglishPro BD</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  :root {
-    --ink: #0d0d0d;
-    --paper: #faf8f3;
-    --cream: #f0ece0;
-    --gold: #c9932a;
-    --gold-light: #e8b84b;
-    --accent: #1a4d6e;
-    --muted: #7a756a;
-    --rule: #e2ddd4;
-    --free-tag: #1a6e3c;
-    --premium-tag: #6e1a1a;
-    --radius: 4px;
-    --shadow: 0 2px 20px rgba(0,0,0,0.08);
-    --content-width: 720px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article | English Learning Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  header {
-    background:var(--ink);
-    color:var(--paper);
-    padding:0 24px;
-    position:sticky;
-    top:0;
-    z-index:100;
-    border-bottom:3px solid var(--gold);
-  }
-  .header-inner {
-    max-width:1200px;
-    margin:0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    height:64px;
-  }
-  .logo { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900; text-decoration:none; color:var(--paper); }
-  .logo span { color:var(--gold); }
-  .header-nav { display:flex; align-items:center; gap:8px; }
-  .nav-btn {
-    font-family:'DM Sans',sans-serif;
-    font-size:0.85rem;
-    font-weight:500;
-    padding:8px 18px;
-    border-radius:var(--radius);
-    border:none;
-    cursor:pointer;
-    text-decoration:none;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    transition:all .2s;
-  }
-  .btn-ghost { background:transparent; color:var(--paper); border:1px solid rgba(255,255,255,0.2); }
-  .btn-ghost:hover { background:rgba(255,255,255,0.1); }
-  .btn-gold { background:var(--gold); color:#fff; font-weight:600; }
-  .btn-gold:hover { background:var(--gold-light); }
-  .user-badge { display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--paper); }
-  .sub-badge { background:var(--gold); color:#fff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.05em; }
-  .sub-badge.free { background:var(--muted); }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fafafa;
+      color: #1a1a2e;
+    }
 
-  /* BREADCRUMB */
-  .breadcrumb {
-    max-width:var(--content-width);
-    margin:0 auto;
-    padding:16px 24px 0;
-    font-size:0.8rem;
-    color:var(--muted);
-    display:flex;
-    gap:6px;
-    align-items:center;
-  }
-  .breadcrumb a { color:var(--muted); text-decoration:none; }
-  .breadcrumb a:hover { color:var(--gold); }
+    .header {
+      background: #1a1a2e;
+      color: white;
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid #e67e22;
+    }
 
-  /* ARTICLE CONTAINER */
-  .article-wrap {
-    max-width:var(--content-width);
-    margin:0 auto;
-    padding:24px 24px 80px;
-  }
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  /* ARTICLE HEADER */
-  .article-header { margin-bottom:32px; }
-  .article-meta {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:16px;
-    flex-wrap:wrap;
-  }
-  .article-tag {
-    font-size:0.72rem;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    padding:4px 12px;
-    border-radius:2px;
-    color:white;
-  }
-  .tag-free { background:var(--free-tag); }
-  .tag-premium { background:var(--premium-tag); }
-  .article-date { font-size:0.82rem; color:var(--muted); font-weight:500; }
-  .article-views { font-size:0.82rem; color:var(--muted); display:flex; align-items:center; gap:4px; }
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: white;
+    }
 
-  .article-title {
-    font-family:'Playfair Display',serif;
-    font-size:clamp(1.8rem, 4vw, 2.8rem);
-    font-weight:900;
-    line-height:1.15;
-    margin-bottom:16px;
-    color:var(--ink);
-  }
-  .article-excerpt {
-    font-size:1.05rem;
-    color:var(--muted);
-    line-height:1.6;
-    font-style:italic;
-    border-left:3px solid var(--gold);
-    padding-left:16px;
-    margin-bottom:24px;
-  }
+    .logo span {
+      color: #e67e22;
+    }
 
-  /* HERO IMAGE */
-  .article-img {
-    width:100%;
-    aspect-ratio:16/9;
-    object-fit:cover;
-    border-radius:var(--radius);
-    margin-bottom:36px;
-    display:block;
-  }
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
 
-  /* ARTICLE CONTENT */
-  .article-content {
-    font-size:1.05rem;
-    line-height:1.8;
-    color:#1a1a1a;
-  }
-  .article-content h2 {
-    font-family:'Playfair Display',serif;
-    font-size:1.5rem;
-    font-weight:700;
-    margin:36px 0 14px;
-    color:var(--ink);
-  }
-  .article-content h3 {
-    font-family:'Playfair Display',serif;
-    font-size:1.2rem;
-    font-weight:700;
-    margin:28px 0 12px;
-    color:var(--ink);
-  }
-  .article-content p { margin-bottom:18px; }
-  .article-content ul, .article-content ol { margin:16px 0 16px 24px; }
-  .article-content li { margin-bottom:8px; }
-  .article-content strong { color:var(--ink); }
-  .article-content em { color:var(--accent); }
-  .article-content blockquote {
-    border-left:4px solid var(--gold);
-    padding:12px 20px;
-    background:var(--cream);
-    margin:24px 0;
-    font-style:italic;
-    color:var(--muted);
-    border-radius:0 var(--radius) var(--radius) 0;
-  }
-  .article-content code {
-    background:var(--cream);
-    padding:2px 6px;
-    border-radius:2px;
-    font-family:monospace;
-    font-size:0.9em;
-  }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
 
-  /* PREVIEW (blurred content) */
-  .preview-section { position:relative; }
-  .preview-blur {
-    -webkit-mask-image:linear-gradient(180deg, black 0%, transparent 80%);
-    mask-image:linear-gradient(180deg, black 0%, transparent 80%);
-    pointer-events:none;
-    max-height:200px;
-    overflow:hidden;
-  }
+    .article-header {
+      margin-bottom: 32px;
+    }
 
-  /* PAYWALL */
-  .paywall {
-    background:white;
-    border:2px solid var(--gold);
-    border-radius:8px;
-    padding:40px 32px;
-    text-align:center;
-    margin-top:32px;
-    position:relative;
-    overflow:hidden;
-  }
-  .paywall::before {
-    content:'';
-    position:absolute;
-    inset:0;
-    background:repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(201,147,42,0.03) 20px, rgba(201,147,42,0.03) 21px);
-    pointer-events:none;
-  }
-  .paywall-icon { font-size:2.5rem; margin-bottom:12px; }
-  .paywall h3 { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; margin-bottom:8px; }
-  .paywall p { color:var(--muted); font-size:0.95rem; margin-bottom:24px; line-height:1.5; }
-  .paywall-plans {
-    display:flex;
-    gap:16px;
-    justify-content:center;
-    margin-bottom:24px;
-    flex-wrap:wrap;
-  }
-  .plan-pill {
-    background:var(--cream);
-    border:2px solid var(--rule);
-    border-radius:8px;
-    padding:16px 24px;
-    min-width:140px;
-    cursor:pointer;
-    transition:all .2s;
-  }
-  .plan-pill.selected, .plan-pill:hover { border-color:var(--gold); background:rgba(201,147,42,0.08); }
-  .plan-pill .plan-name { font-size:0.75rem; text-transform:uppercase; letter-spacing:.08em; font-weight:600; color:var(--muted); margin-bottom:4px; }
-  .plan-pill .plan-amt { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--ink); }
-  .plan-pill .plan-period { font-size:0.78rem; color:var(--muted); }
-  .paywall-cta {
-    display:flex;
-    gap:12px;
-    justify-content:center;
-    flex-wrap:wrap;
-    margin-bottom:16px;
-  }
-  .btn-paywall-primary {
-    background:var(--gold);
-    color:white;
-    border:none;
-    padding:14px 28px;
-    border-radius:var(--radius);
-    font-family:'DM Sans',sans-serif;
-    font-size:0.95rem;
-    font-weight:700;
-    cursor:pointer;
-    text-decoration:none;
-    transition:background .2s;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-  }
-  .btn-paywall-primary:hover { background:var(--gold-light); }
-  .btn-paywall-secondary {
-    background:transparent;
-    color:var(--ink);
-    border:2px solid var(--rule);
-    padding:14px 28px;
-    border-radius:var(--radius);
-    font-family:'DM Sans',sans-serif;
-    font-size:0.95rem;
-    font-weight:600;
-    cursor:pointer;
-    text-decoration:none;
-    transition:all .2s;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-  }
-  .btn-paywall-secondary:hover { border-color:var(--ink); }
-  .paywall-note { font-size:0.78rem; color:var(--muted); }
-  .paywall-note a { color:var(--gold); font-weight:600; }
+    .article-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
 
-  /* LOADING / ERROR */
-  .loading { text-align:center; padding:80px 20px; color:var(--muted); }
-  .spinner { width:36px; height:36px; border:3px solid var(--rule); border-top-color:var(--gold); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 16px; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .error-box { text-align:center; padding:80px 20px; }
-  .error-box h2 { font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:8px; }
-  .error-box p { color:var(--muted); margin-bottom:20px; }
+    .tag-free {
+      background: #27ae60;
+      color: white;
+    }
 
-  /* DIVIDER */
-  .article-divider { border:none; border-top:1px solid var(--rule); margin:48px 0; }
+    .tag-premium {
+      background: #e67e22;
+      color: white;
+    }
 
-  /* SHARE */
-  .share-row {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-top:40px;
-    padding-top:24px;
-    border-top:1px solid var(--rule);
-  }
-  .share-label { font-size:0.85rem; font-weight:600; color:var(--muted); }
-  .share-btn {
-    padding:8px 16px;
-    border:1px solid var(--rule);
-    background:white;
-    border-radius:20px;
-    font-size:0.82rem;
-    cursor:pointer;
-    transition:all .2s;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    text-decoration:none;
-    color:var(--ink);
-  }
-  .share-btn:hover { border-color:var(--gold); color:var(--gold); }
+    .article-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
 
-  /* MORE ARTICLES */
-  .more-section {
-    max-width:1200px;
-    margin:0 auto;
-    padding:40px 24px 60px;
-    border-top:1px solid var(--rule);
-  }
-  .more-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; margin-bottom:24px; }
-  .more-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px; }
-  .more-card {
-    background:white;
-    border:1px solid var(--rule);
-    border-radius:var(--radius);
-    overflow:hidden;
-    text-decoration:none;
-    color:var(--ink);
-    transition:transform .2s, box-shadow .2s;
-  }
-  .more-card:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
-  .more-img { height:150px; overflow:hidden; background:#e0dbd2; }
-  .more-img img { width:100%; height:100%; object-fit:cover; }
-  .more-body { padding:14px; }
-  .more-card-tag { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:2px 8px; border-radius:2px; color:white; display:inline-block; margin-bottom:6px; }
-  .more-card-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; line-height:1.3; }
+    .article-meta {
+      display: flex;
+      gap: 16px;
+      color: #666;
+      font-size: 0.85rem;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e0e0e0;
+    }
 
-  footer {
-    background:var(--ink);
-    color:rgba(250,248,243,0.5);
-    padding:24px;
-    text-align:center;
-    font-size:0.82rem;
-    border-top:3px solid var(--gold);
-  }
-  footer strong { color:var(--paper); }
+    .article-image {
+      width: 100%;
+      border-radius: 12px;
+      margin: 32px 0;
+    }
 
-  @media(max-width:600px) {
-    .article-title { font-size:1.6rem; }
-    .paywall { padding:28px 20px; }
-    .paywall-plans { flex-direction:column; align-items:center; }
-  }
-</style>
+    .article-content {
+      font-size: 1.05rem;
+      line-height: 1.8;
+    }
+
+    .article-content p {
+      margin-bottom: 1.2em;
+    }
+
+    .article-content h2 {
+      font-size: 1.5rem;
+      margin: 1.5em 0 0.5em;
+    }
+
+    .article-content h3 {
+      font-size: 1.2rem;
+      margin: 1.2em 0 0.5em;
+    }
+
+    .article-content ul, .article-content ol {
+      margin: 1em 0;
+      padding-left: 1.5em;
+    }
+
+    .paywall {
+      background: white;
+      border: 2px solid #e67e22;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .paywall h3 {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .paywall p {
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .paywall-plans {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .plan-pill {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px 24px;
+      min-width: 140px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .plan-pill:hover, .plan-pill.selected {
+      border-color: #e67e22;
+      background: rgba(230,126,34,0.05);
+    }
+
+    .plan-name {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+    }
+
+    .plan-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #e67e22;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: #e67e22;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #d35400;
+    }
+
+    .preview-blur {
+      max-height: 300px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview-blur::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to bottom, transparent, white);
+    }
+
+    .share-section {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .share-btn {
+      padding: 8px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      text-decoration: none;
+      color: #666;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .share-btn:hover {
+      border-color: #e67e22;
+      color: #e67e22;
+    }
+
+    .more-section {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .more-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .more-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+
+    .more-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .more-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .more-card-content {
+      padding: 12px;
+    }
+
+    .more-card-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .loading, .error {
+      text-align: center;
+      padding: 80px 20px;
+      color: #666;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #e67e22;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer {
+      background: #1a1a2e;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 32px;
+      font-size: 0.8rem;
+      margin-top: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .article-title { font-size: 1.8rem; }
+      .container { padding: 24px 16px; }
+      .paywall { padding: 24px; }
+    }
+  </style>
 </head>
 <body>
 
-<header>
+<header class="header">
   <div class="header-inner">
-    <a href="index.html" class="logo">English<span>Pro</span> BD</a>
-    <div class="header-nav" id="headerNav">
-      <a href="login.html" class="nav-btn btn-ghost">Sign In</a>
-      <a href="login.html" class="nav-btn btn-gold">Get Premium</a>
-    </div>
+    <a href="index.html" class="logo">English <span>Learning Lab</span></a>
+    <a href="index.html" class="back-link">← Back</a>
   </div>
 </header>
 
-<div id="app">
+<div id="articleContainer" class="container">
   <div class="loading"><div class="spinner"></div>Loading article...</div>
 </div>
 
-<footer>
-  <p><strong>EnglishPro BD</strong> · &copy; <span id="year"></span> · For subscriptions contact <a href="https://t.me/adamzampas" target="_blank" style="color:var(--gold-light)">@adamzampas</a></p>
+<footer class="footer">
+  <p>© 2024 English Learning Lab. All rights reserved.</p>
 </footer>
 
 <script>
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-document.getElementById('year').textContent = new Date().getFullYear();
-
-const slug = new URLSearchParams(location.search).get('slug');
+const slug = new URLSearchParams(window.location.search).get('slug');
 let currentUser = null;
 let userSubscription = null;
 
 async function init() {
-  if (!slug) { showError('No article specified.', 'Return Home'); return; }
+  if (!slug) {
+    document.getElementById('articleContainer').innerHTML = '<div class="error">Article not found</div>';
+    return;
+  }
 
-  const { data: { session } } = await sb.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   currentUser = session?.user || null;
 
   if (currentUser) {
-    await loadSubscription();
-    updateHeader();
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('status', 'active')
+      .gt('end_date', new Date().toISOString())
+      .maybeSingle();
+    userSubscription = data;
   }
 
   await loadArticle();
 }
 
-async function loadSubscription() {
-  const { data } = await sb.from('subscriptions')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .eq('status', 'active')
-    .gt('end_date', new Date().toISOString())
-    .maybeSingle();
-  userSubscription = data;
-}
-
-function updateHeader() {
-  const nav = document.getElementById('headerNav');
-  const hasSub = !!userSubscription;
-  nav.innerHTML = `
-    <div class="user-badge">
-      <span>${currentUser.email.split('@')[0]}</span>
-      <span class="sub-badge ${hasSub ? '' : 'free'}">${hasSub ? '⭐ Premium' : 'Free'}</span>
-    </div>
-    ${!hasSub ? `<a href="#paywall-section" class="nav-btn btn-gold">Get Premium</a>` : ''}
-    <button onclick="signOut()" class="nav-btn btn-ghost">Sign Out</button>
-  `;
-}
-
-async function signOut() {
-  await sb.auth.signOut();
-  window.location.reload();
-}
-
 async function loadArticle() {
-  const { data: article, error } = await sb.from('articles')
+  const { data: article, error } = await supabase
+    .from('articles')
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
     .maybeSingle();
 
   if (error || !article) {
-    showError('Article not found or no longer published.', 'Browse Articles');
+    document.getElementById('articleContainer').innerHTML = '<div class="error">Article not found</div>';
     return;
   }
 
   // Increment view count
-  try { await sb.rpc('increment_view_count', { article_slug: slug }); } catch(e) {}
+  try {
+    await supabase.rpc('increment_view_count', { article_slug: slug });
+  } catch(e) {}
 
-  document.title = `${article.title} – EnglishPro BD`;
-
-  const canRead = article.is_free || !!userSubscription;
-  renderArticle(article, canRead);
-
-  // Load more articles
-  loadMoreArticles(article.id);
+  document.title = `${article.title} | English Learning Lab`;
+  renderArticle(article);
 }
 
-function renderArticle(article, canRead) {
-  const date = new Date(article.created_at).toLocaleDateString('en-BD', { year:'numeric', month:'long', day:'numeric' });
-  const img = article.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800';
+function renderArticle(article) {
+  const canRead = article.is_free || !!userSubscription;
+  const date = new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const imgUrl = article.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800';
 
   let contentHtml;
   if (canRead) {
     contentHtml = `<div class="article-content">${article.content}</div>`;
   } else {
-    // Show preview (first ~300 chars of text content stripped)
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = article.content;
-    const textContent = tempDiv.textContent || '';
-    const preview = textContent.substring(0, 350) + '...';
+    const plainText = article.content.replace(/<[^>]+>/g, '');
+    const preview = plainText.substring(0, 400) + '...';
 
     contentHtml = `
-      <div class="preview-section">
-        <div class="preview-blur">
-          <div class="article-content">
-            <p>${escHtml(preview)}</p>
+      <div class="preview-blur">
+        <div class="article-content">${escapeHtml(preview)}</div>
+      </div>
+      <div class="paywall">
+        <h3>Premium Article</h3>
+        <p>This article is available to premium members only.</p>
+        <div class="paywall-plans">
+          <div class="plan-pill selected" onclick="selectPlan('monthly')">
+            <div class="plan-name">Monthly</div>
+            <div class="plan-price">৳100</div>
+          </div>
+          <div class="plan-pill" onclick="selectPlan('yearly')">
+            <div class="plan-name">Yearly</div>
+            <div class="plan-price">৳1000</div>
           </div>
         </div>
-        <div class="paywall" id="paywall-section">
-          <div class="paywall-icon">🔒</div>
-          <h3>Premium Article</h3>
-          <p>This article is available to premium members only.<br>Subscribe to unlock all lessons, guides, and vocabulary content.</p>
-          <div class="paywall-plans">
-            <div class="plan-pill selected">
-              <div class="plan-name">Monthly</div>
-              <div class="plan-amt">৳100</div>
-              <div class="plan-period">per month</div>
-            </div>
-            <div class="plan-pill">
-              <div class="plan-name">Yearly</div>
-              <div class="plan-amt">৳1000</div>
-              <div class="plan-period">per year · Save 17%</div>
-            </div>
-          </div>
-          <div class="paywall-cta">
-            <a href="https://t.me/adamzampas" target="_blank" class="btn-paywall-primary">📱 Subscribe via Telegram</a>
-            ${!currentUser ? `<a href="login.html?redirect=${encodeURIComponent(location.href)}" class="btn-paywall-secondary">Sign In</a>` : ''}
-          </div>
-          <p class="paywall-note">Contact <a href="https://t.me/adamzampas" target="_blank">@adamzampas</a> on Telegram • Pay 100 BDT/month or 1000 BDT/year • Manual activation within 24 hours</p>
-        </div>
-      </div>`;
+        <a href="https://t.me/adamzampas" target="_blank" class="btn">Subscribe via Telegram</a>
+        ${!currentUser ? '<p style="margin-top: 16px;"><a href="login.html" style="color:#e67e22;">Sign in</a> to your account</p>' : ''}
+      </div>
+    `;
   }
 
-  document.getElementById('app').innerHTML = `
-    <div class="breadcrumb">
-      <a href="index.html">← Home</a>
-      <span>/</span>
-      <span>${escHtml(article.title).substring(0, 40)}${article.title.length > 40 ? '...' : ''}</span>
-    </div>
-
-    <div class="article-wrap">
-      <div class="article-header">
-        <div class="article-meta">
-          <span class="article-tag ${article.is_free ? 'tag-free' : 'tag-premium'}">${article.is_free ? '✓ Free' : '⭐ Premium'}</span>
-          <span class="article-date">${date}</span>
-          <span class="article-views">👁 ${article.view_count || 0} views</span>
-        </div>
-        <h1 class="article-title">${escHtml(article.title)}</h1>
-        ${article.excerpt ? `<p class="article-excerpt">${escHtml(article.excerpt)}</p>` : ''}
+  document.getElementById('articleContainer').innerHTML = `
+    <div class="article-header">
+      <span class="article-tag ${article.is_free ? 'tag-free' : 'tag-premium'}">${article.is_free ? 'FREE' : 'PREMIUM'}</span>
+      <h1 class="article-title">${escapeHtml(article.title)}</h1>
+      <div class="article-meta">
+        <span>${date}</span>
+        <span>${article.view_count || 0} views</span>
       </div>
-
-      <img class="article-img" src="${img}" alt="${escHtml(article.title)}">
-
-      ${contentHtml}
-
-      ${canRead ? `
-        <div class="share-row">
-          <span class="share-label">Share:</span>
-          <a href="https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(article.title)}" target="_blank" class="share-btn">📱 Telegram</a>
-          <a href="https://wa.me/?text=${encodeURIComponent(article.title + ' ' + location.href)}" target="_blank" class="share-btn">💬 WhatsApp</a>
-          <button onclick="copyLink()" class="share-btn">🔗 Copy Link</button>
-        </div>
-      ` : ''}
     </div>
-
-    <div id="moreSection"></div>
+    <img src="${imgUrl}" class="article-image" alt="${escapeHtml(article.title)}">
+    ${contentHtml}
+    ${canRead ? `
+      <div class="share-section">
+        <span>Share this article:</span>
+        <a href="https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}" target="_blank" class="share-btn">Telegram</a>
+        <a href="https://wa.me/?text=${encodeURIComponent(article.title + ' ' + window.location.href)}" target="_blank" class="share-btn">WhatsApp</a>
+        <button onclick="copyLink()" class="share-btn">Copy Link</button>
+      </div>
+    ` : ''}
   `;
+
+  if (canRead) {
+    loadMoreArticles(article.id);
+  }
 }
 
 async function loadMoreArticles(currentId) {
-  const { data } = await sb.from('articles')
-    .select('title,slug,image_url,is_free,created_at')
+  const { data } = await supabase
+    .from('articles')
+    .select('title,slug,image_url,is_free')
     .eq('is_published', true)
     .neq('id', currentId)
-    .order('created_at', { ascending: false })
     .limit(4);
 
   if (!data || !data.length) return;
 
-  document.getElementById('moreSection').innerHTML = `
+  const moreHtml = `
     <div class="more-section">
       <div class="more-title">More Articles</div>
       <div class="more-grid">
         ${data.map(a => `
           <a href="article.html?slug=${a.slug}" class="more-card">
-            <div class="more-img"><img src="${a.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600'}" alt="" loading="lazy"></div>
-            <div class="more-body">
-              <span class="more-card-tag ${a.is_free ? 'tag-free' : 'tag-premium'}">${a.is_free ? 'Free' : 'Premium'}</span>
-              <div class="more-card-title">${escHtml(a.title)}</div>
+            <img src="${a.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400'}" alt="">
+            <div class="more-card-content">
+              <div class="more-card-title">${escapeHtml(a.title)}</div>
             </div>
-          </a>`).join('')}
+          </a>
+        `).join('')}
       </div>
-    </div>`;
-}
+    </div>
+  `;
 
-function showError(msg, btnText) {
-  document.getElementById('app').innerHTML = `
-    <div class="error-box">
-      <h2>404</h2>
-      <p>${msg}</p>
-      <a href="index.html" class="nav-btn btn-gold" style="display:inline-flex">← ${btnText || 'Home'}</a>
-    </div>`;
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  document.getElementById('articleContainer').insertAdjacentHTML('beforeend', moreHtml);
 }
 
 function copyLink() {
-  navigator.clipboard.writeText(location.href).then(() => alert('Link copied!'));
+  navigator.clipboard.writeText(window.location.href);
+  alert('Link copied!');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, c => {
+    if (c === '&') return '&amp;';
+    if (c === '<') return '&lt;';
+    if (c === '>') return '&gt;';
+    return c;
+  });
 }
 
 init();
