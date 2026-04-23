@@ -3,259 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Varsity Admission Portal</title>
-  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Panel</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #f5f7fb;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+    }
+    
+    .auth-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .auth-container h2 { margin-bottom: 10px; }
+    .auth-container p { color: #666; margin-bottom: 20px; }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    button {
+      padding: 12px 24px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    button:hover { background: #1557b0; }
+    
+    .error {
+      background: #fee;
+      color: #e74c3c;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    
+    .dashboard {
+      display: none;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     
     .header {
       background: #1a1a2e;
       color: white;
-      padding: 16px 32px;
+      padding: 16px 24px;
+      margin: -20px -20px 20px -20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
     }
     
-    .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
+    .logout-btn { background: #e74c3c; }
     
-    .logout-btn {
-      background: #e74c3c;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    .auth-screen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .auth-card {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    }
-    
-    .auth-card h2 {
-      margin-bottom: 8px;
-    }
-    
-    .auth-card p {
-      color: #666;
-      margin-bottom: 24px;
-    }
-    
-    .auth-error {
-      background: #fee;
-      color: #e74c3c;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      display: none;
-      font-size: 14px;
-    }
-    
-    .field {
-      margin-bottom: 16px;
-    }
-    
-    .field label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      font-size: 13px;
-    }
-    
-    .field input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    
-    .btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    .btn-primary {
-      background: #1a73e8;
-      color: white;
-      width: 100%;
-    }
-    
-    .btn-success {
-      background: #27ae60;
-      color: white;
-    }
-    
-    .btn-danger {
-      background: #e74c3c;
-      color: white;
-    }
-    
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #ddd;
-    }
-    
-    .dashboard {
-      display: none;
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    
-    .stats-grid {
+    .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      margin-bottom: 32px;
+      gap: 16px;
+      margin-bottom: 24px;
     }
     
     .stat-card {
       background: white;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 20px;
+      border-radius: 12px;
       text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #1a73e8;
-    }
-    
-    .stat-label {
-      color: #666;
-      font-size: 13px;
-      margin-top: 6px;
-    }
+    .stat-number { font-size: 2rem; font-weight: 800; color: #1a73e8; }
+    .stat-label { color: #666; font-size: 13px; margin-top: 5px; }
     
     .tabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 24px;
-      border-bottom: 2px solid #ddd;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
     
-    .tab-btn {
-      padding: 12px 24px;
-      background: none;
+    .tab {
+      padding: 10px 20px;
+      background: white;
       border: none;
-      font-size: 15px;
-      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
-      color: #666;
     }
     
-    .tab-btn.active {
-      color: #1a73e8;
-      border-bottom: 2px solid #1a73e8;
-      margin-bottom: -2px;
+    .tab.active {
+      background: #1a1a2e;
+      color: white;
     }
     
     .panel {
       display: none;
       background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
-    .panel.active {
-      display: block;
-    }
+    .panel.active { display: block; }
     
-    .form-group {
-      margin-bottom: 20px;
-    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
     
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 13px;
-    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #f8f9fa; }
     
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    
-    .data-table {
-      width: 100%;
-      overflow-x: auto;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    
-    th {
-      background: #f8f9fa;
-      font-weight: 600;
-    }
-    
-    .action-btns {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .action-btns button {
-      padding: 4px 10px;
-      font-size: 12px;
-    }
+    .btn-small { padding: 4px 12px; font-size: 12px; margin: 0 4px; }
+    .btn-danger { background: #e74c3c; }
+    .btn-success { background: #27ae60; }
     
     .modal {
       display: none;
@@ -270,25 +146,16 @@
       z-index: 1000;
     }
     
-    .modal.active {
-      display: flex;
-    }
+    .modal.active { display: flex; }
     
     .modal-content {
       background: white;
-      padding: 32px;
+      padding: 30px;
       border-radius: 16px;
       max-width: 500px;
       width: 90%;
       max-height: 90vh;
       overflow-y: auto;
-    }
-    
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 24px;
     }
     
     .toast {
@@ -300,103 +167,76 @@
       padding: 12px 20px;
       border-radius: 8px;
       display: none;
-      z-index: 1000;
     }
     
-    .toast.show {
-      display: block;
-      animation: slideIn 0.3s ease;
-    }
-    
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-    
-    @media (max-width: 768px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .form-row { grid-template-columns: 1fr; }
-      .dashboard { padding: 16px; }
-    }
+    .toast.show { display: block; }
   </style>
 </head>
 <body>
 
-<!-- Auth Screen -->
-<div id="authScreen" class="auth-screen">
-  <div class="auth-card">
-    <h2>🔐 Admin Access</h2>
-    <p>Sign in to manage admission portal</p>
-    <div id="authError" class="auth-error"></div>
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="adminEmail" placeholder="admin@example.com" value="text.me.md.alamin@gmail.com">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="adminPassword" placeholder="Password">
-    </div>
-    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
-  </div>
+<div id="authScreen" class="auth-container">
+  <h2>🔐 Admin Login</h2>
+  <p>Sign in to manage admission portal</p>
+  <div id="errorMsg" class="error"></div>
+  <input type="email" id="email" placeholder="Email" value="text.me.md.alamin@gmail.com">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Sign In</button>
 </div>
 
-<!-- Dashboard -->
 <div id="dashboard" class="dashboard">
-  <div class="header" style="margin: -24px -24px 24px -24px; border-radius: 0;">
-    <div class="logo">📚 Varsity Admission Admin</div>
-    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  <div class="header">
+    <h2>📚 Admin Dashboard</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
   
-  <div class="stats-grid" id="statsGrid">
-    <div class="stat-card"><div class="stat-number" id="statUnis">0</div><div class="stat-label">Universities</div></div>
-    <div class="stat-card"><div class="stat-number" id="statCirculars">0</div><div class="stat-label">Circulars</div></div>
-    <div class="stat-card"><div class="stat-number" id="statNotifs">0</div><div class="stat-label">Notifications</div></div>
-    <div class="stat-card"><div class="stat-number" id="statResources">0</div><div class="stat-label">Resources</div></div>
+  <div class="stats">
+    <div class="stat-card"><div class="stat-number" id="totalUnis">0</div><div class="stat-label">Universities</div></div>
+    <div class="stat-card"><div class="stat-number" id="totalCirculars">0</div><div class="stat-label">Circulars</div></div>
+    <div class="stat-card"><div class="stat-number" id="totalNotifs">0</div><div class="stat-label">Notifications</div></div>
+    <div class="stat-card"><div class="stat-number" id="totalResources">0</div><div class="stat-label">Resources</div></div>
   </div>
   
   <div class="tabs">
-    <button class="tab-btn active" data-tab="universities">🏛️ Universities</button>
-    <button class="tab-btn" data-tab="circulars">📢 Admission Circulars</button>
-    <button class="tab-btn" data-tab="notifications">🔔 Notifications</button>
-    <button class="tab-btn" data-tab="resources">📚 Resources</button>
+    <button class="tab active" onclick="showTab('unis')">🏛️ Universities</button>
+    <button class="tab" onclick="showTab('circulars')">📢 Circulars</button>
+    <button class="tab" onclick="showTab('notifs')">🔔 Notifications</button>
+    <button class="tab" onclick="showTab('resources')">📚 Resources</button>
   </div>
   
-  <div id="universitiesPanel" class="panel active">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h3>Manage Universities</h3>
-      <button class="btn btn-success" onclick="openUniModal()">+ Add University</button>
+  <!-- Universities Panel -->
+  <div id="unisPanel" class="panel active">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+      <h3>Universities</h3>
+      <button onclick="openUniModal()">+ Add University</button>
     </div>
-    <div class="data-table" id="unisTable"><div class="loading">Loading...</div></div>
+    <div id="unisList"></div>
   </div>
   
+  <!-- Circulars Panel -->
   <div id="circularsPanel" class="panel">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
       <h3>Admission Circulars</h3>
-      <button class="btn btn-success" onclick="openCircularModal()">+ Add Circular</button>
+      <button onclick="openCircularModal()">+ Add Circular</button>
     </div>
-    <div class="data-table" id="circularsTable"><div class="loading">Loading...</div></div>
+    <div id="circularsList"></div>
   </div>
   
-  <div id="notificationsPanel" class="panel">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+  <!-- Notifications Panel -->
+  <div id="notifsPanel" class="panel">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
       <h3>Notifications</h3>
-      <button class="btn btn-success" onclick="openNotifModal()">+ Add Notification</button>
+      <button onclick="openNotifModal()">+ Add Notification</button>
     </div>
-    <div class="data-table" id="notifsTable"><div class="loading">Loading...</div></div>
+    <div id="notifsList"></div>
   </div>
   
+  <!-- Resources Panel -->
   <div id="resourcesPanel" class="panel">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h3>Resources & Materials</h3>
-      <button class="btn btn-success" onclick="openResourceModal()">+ Add Resource</button>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+      <h3>Resources</h3>
+      <button onclick="openResourceModal()">+ Add Resource</button>
     </div>
-    <div class="data-table" id="resourcesTable"><div class="loading">Loading...</div></div>
+    <div id="resourcesList"></div>
   </div>
 </div>
 
@@ -405,12 +245,14 @@
   <div class="modal-content">
     <h3 id="uniModalTitle">Add University</h3>
     <input type="hidden" id="uniId">
-    <div class="form-group"><label>University Name</label><input type="text" id="uniName" placeholder="e.g., University of Dhaka"></div>
-    <div class="form-group"><label>Category</label><select id="uniCategory"><option value="Varsity">🎓 Varsity</option><option value="Engineering">⚙️ Engineering</option><option value="Medical">🩺 Medical</option></select></div>
-    <div class="form-group"><label>Logo URL (optional)</label><input type="text" id="uniLogo" placeholder="https://..."></div>
-    <div class="form-group"><label>Description</label><textarea id="uniDesc" placeholder="University description..."></textarea></div>
-    <div class="form-group"><label>Website</label><input type="text" id="uniWebsite" placeholder="https://..."></div>
-    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeUniModal()">Cancel</button><button class="btn btn-primary" onclick="saveUniversity()">Save</button></div>
+    <div class="form-group"><label>Name</label><input type="text" id="uniName" placeholder="University name"></div>
+    <div class="form-group"><label>Category</label><select id="uniCategory"><option value="Varsity">Varsity</option><option value="Engineering">Engineering</option><option value="Medical">Medical</option></select></div>
+    <div class="form-group"><label>Description</label><textarea id="uniDesc" rows="3"></textarea></div>
+    <div class="form-group"><label>Website</label><input type="text" id="uniWebsite" placeholder="https://"></div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button onclick="closeUniModal()">Cancel</button>
+      <button class="btn-success" onclick="saveUniversity()">Save</button>
+    </div>
   </div>
 </div>
 
@@ -420,41 +262,48 @@
     <h3 id="circularModalTitle">Add Circular</h3>
     <input type="hidden" id="circularId">
     <div class="form-group"><label>University</label><select id="circularUniId"></select></div>
-    <div class="form-group"><label>Title</label><input type="text" id="circularTitle" placeholder="e.g., Admission 2024-25"></div>
-    <div class="form-group"><label>Circular Link</label><input type="text" id="circularLink" placeholder="https://..."></div>
-    <div class="form-row"><div class="form-group"><label>Deadline</label><input type="date" id="circularDeadline"></div><div class="form-group"><label>Exam Date</label><input type="date" id="circularExamDate"></div></div>
-    <div class="form-group"><label>Exam Date Text</label><input type="text" id="circularExamText" placeholder="e.g., To be announced"></div>
-    <div class="form-group"><label>Details</label><textarea id="circularDetails" placeholder="Additional details..."></textarea></div>
-    <div class="form-group"><label><input type="checkbox" id="circularFeatured"> Featured on homepage</label></div>
-    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeCircularModal()">Cancel</button><button class="btn btn-primary" onclick="saveCircular()">Save</button></div>
+    <div class="form-group"><label>Title</label><input type="text" id="circularTitle"></div>
+    <div class="form-group"><label>Circular Link</label><input type="text" id="circularLink" placeholder="https://"></div>
+    <div class="form-group"><label>Deadline</label><input type="date" id="circularDeadline"></div>
+    <div class="form-group"><label>Exam Date</label><input type="date" id="circularExamDate"></div>
+    <div class="form-group"><label>Featured</label><input type="checkbox" id="circularFeatured"></div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button onclick="closeCircularModal()">Cancel</button>
+      <button class="btn-success" onclick="saveCircular()">Save</button>
+    </div>
   </div>
 </div>
 
 <!-- Notification Modal -->
 <div id="notifModal" class="modal">
   <div class="modal-content">
-    <h3 id="notifModalTitle">Add Notification</h3>
+    <h3>Add Notification</h3>
     <input type="hidden" id="notifId">
-    <div class="form-group"><label>Title</label><input type="text" id="notifTitle" placeholder="Notification title"></div>
-    <div class="form-group"><label>Message</label><textarea id="notifMessage" placeholder="Notification message..."></textarea></div>
-    <div class="form-group"><label>Link</label><input type="text" id="notifLink" placeholder="https://..."></div>
-    <div class="form-group"><label><input type="checkbox" id="notifUrgent"> Urgent (red highlight)</label></div>
+    <div class="form-group"><label>Title</label><input type="text" id="notifTitle"></div>
+    <div class="form-group"><label>Message</label><textarea id="notifMessage" rows="3"></textarea></div>
+    <div class="form-group"><label>Link</label><input type="text" id="notifLink" placeholder="https://"></div>
+    <div class="form-group"><label><input type="checkbox" id="notifUrgent"> Urgent</label></div>
     <div class="form-group"><label><input type="checkbox" id="notifShowHome" checked> Show on homepage</label></div>
-    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeNotifModal()">Cancel</button><button class="btn btn-primary" onclick="saveNotification()">Save</button></div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button onclick="closeNotifModal()">Cancel</button>
+      <button class="btn-success" onclick="saveNotification()">Save</button>
+    </div>
   </div>
 </div>
 
 <!-- Resource Modal -->
 <div id="resourceModal" class="modal">
   <div class="modal-content">
-    <h3 id="resourceModalTitle">Add Resource</h3>
+    <h3>Add Resource</h3>
     <input type="hidden" id="resourceId">
     <div class="form-group"><label>University</label><select id="resourceUniId"></select></div>
-    <div class="form-group"><label>Title</label><input type="text" id="resourceTitle" placeholder="e.g., Admission Guide 2024"></div>
-    <div class="form-group"><label>Type</label><select id="resourceType"><option value="PDF">📄 PDF</option><option value="Link">🔗 Link</option><option value="Notice">📢 Notice</option><option value="Syllabus">📖 Syllabus</option><option value="Question Bank">📝 Question Bank</option></select></div>
-    <div class="form-group"><label>File URL</label><input type="text" id="resourceUrl" placeholder="https://..."></div>
-    <div class="form-group"><label>Description</label><textarea id="resourceDesc" placeholder="Description..."></textarea></div>
-    <div class="modal-buttons"><button class="btn btn-outline" onclick="closeResourceModal()">Cancel</button><button class="btn btn-primary" onclick="saveResource()">Save</button></div>
+    <div class="form-group"><label>Title</label><input type="text" id="resourceTitle"></div>
+    <div class="form-group"><label>Type</label><select id="resourceType"><option>PDF</option><option>Link</option><option>Notice</option></select></div>
+    <div class="form-group"><label>URL</label><input type="text" id="resourceUrl"></div>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button onclick="closeResourceModal()">Cancel</button>
+      <button class="btn-success" onclick="saveResource()">Save</button>
+    </div>
   </div>
 </div>
 
@@ -464,576 +313,225 @@
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 
-let supabase = null;
-let currentUser = null;
-
-// Global data stores
+let supabase;
 let universities = [];
-let circulars = [];
-let notifications = [];
-let resources = [];
 
-// ========== AUTH ==========
-async function doLogin() {
-  const email = document.getElementById('adminEmail').value;
-  const password = document.getElementById('adminPassword').value;
-  const errDiv = document.getElementById('authError');
+async function login() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const errDiv = document.getElementById('errorMsg');
   
-  if (!email || !password) {
-    errDiv.textContent = 'Email and password required';
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  
+  if (error) {
+    errDiv.textContent = error.message;
     errDiv.style.display = 'block';
     return;
   }
   
-  try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      errDiv.textContent = error.message;
-      errDiv.style.display = 'block';
-      return;
-    }
-    
-    currentUser = data.user;
-    
-    // Check if admin (using your email)
-    if (currentUser.email !== 'text.me.md.alamin@gmail.com') {
-      await supabase.auth.signOut();
-      errDiv.textContent = 'You are not authorized as admin';
-      errDiv.style.display = 'block';
-      return;
-    }
-    
-    // Show dashboard and load data
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    
-    await loadAllData();
-    
-  } catch (err) {
-    errDiv.textContent = 'Login failed: ' + err.message;
-    errDiv.style.display = 'block';
-  }
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  await loadAll();
 }
 
-async function doLogout() {
-  if (supabase) await supabase.auth.signOut();
+async function logout() {
+  await supabase.auth.signOut();
   location.reload();
 }
 
-// ========== LOAD ALL DATA ==========
-async function loadAllData() {
-  await Promise.all([
-    loadUniversities(),
-    loadCirculars(),
-    loadNotifications(),
-    loadResources()
-  ]);
-  updateStats();
+async function loadAll() {
+  await loadUniversities();
+  await loadCirculars();
+  await loadNotifications();
+  await loadResources();
 }
 
 async function loadUniversities() {
-  const { data, error } = await supabase.from('universities').select('*').order('name');
-  if (error) {
-    console.error('Error loading universities:', error);
-    document.getElementById('unisTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading universities</p>';
-    return;
-  }
+  const { data } = await supabase.from('universities').select('*').order('name');
   universities = data || [];
-  renderUniversities();
-}
-
-function renderUniversities() {
-  const container = document.getElementById('unisTable');
-  if (!universities || universities.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No universities yet. Add one!</p>';
+  document.getElementById('totalUnis').textContent = universities.length;
+  
+  const container = document.getElementById('unisList');
+  if (universities.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:40px;">No universities yet</p>';
     return;
   }
   
-  container.innerHTML = `
-    <table>
-      <thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead>
-      <tbody>
-        ${universities.map(uni => `
-          <tr>
-            <td><strong>${escapeHtml(uni.name)}</strong><br><small>${escapeHtml(uni.description?.substring(0, 60)) || ''}</small></td>
-            <td>${uni.category}</td>
-            <td class="action-btns">
-              <button class="btn btn-outline" onclick='editUni(${JSON.stringify(uni)})'>Edit</button>
-              <button class="btn btn-danger" onclick="deleteUni(${uni.id}, '${escapeHtml(uni.name)}')">Delete</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+  container.innerHTML = `<table><thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead><tbody>${
+    universities.map(u => `<tr><td>${escapeHtml(u.name)}</td><td>${u.category}</td><td><button class="btn-small" onclick="editUni(${u.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteUni(${u.id})">Delete</button></td></tr>`).join('')
+  }</tbody></table>`;
 }
 
 async function loadCirculars() {
-  const { data, error } = await supabase
-    .from('admission_circulars')
-    .select('*, universities(name)')
-    .order('created_at', { ascending: false });
-  if (error) {
-    console.error('Error loading circulars:', error);
-    document.getElementById('circularsTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading circulars</p>';
-    return;
-  }
-  circulars = data || [];
-  renderCirculars();
-}
-
-function renderCirculars() {
-  const container = document.getElementById('circularsTable');
-  if (!circulars || circulars.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No circulars yet. Add one!</p>';
+  const { data } = await supabase.from('admission_circulars').select('*, universities(name)').order('created_at', { ascending: false });
+  document.getElementById('totalCirculars').textContent = data?.length || 0;
+  
+  const container = document.getElementById('circularsList');
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:40px;">No circulars yet</p>';
     return;
   }
   
-  container.innerHTML = `
-    <table>
-      <thead><tr><th>University</th><th>Title</th><th>Deadline</th><th>Featured</th><th>Actions</th></tr></thead>
-      <tbody>
-        ${circulars.map(c => `
-          <tr>
-            <td>${escapeHtml(c.universities?.name || 'Unknown')}</td>
-            <td>${escapeHtml(c.title)}</td>
-            <td>${c.application_deadline ? new Date(c.application_deadline).toLocaleDateString() : 'TBA'}</td>
-            <td>${c.is_featured ? '⭐ Yes' : 'No'}</td>
-            <td class="action-btns">
-              <button class="btn btn-outline" onclick='editCircular(${JSON.stringify(c)})'>Edit</button>
-              <button class="btn btn-danger" onclick="deleteCircular(${c.id})">Delete</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+  container.innerHTML = `<table><thead><tr><th>University</th><th>Title</th><th>Deadline</th><th>Actions</th></tr></thead><tbody>${
+    data.map(c => `<tr><td>${escapeHtml(c.universities?.name)}</td><td>${escapeHtml(c.title)}</td><td>${c.application_deadline || 'TBA'}</td><td><button class="btn-small" onclick="editCircular(${c.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteCircular(${c.id})">Delete</button></td></tr>`).join('')
+  }</tbody></table>`;
 }
 
 async function loadNotifications() {
-  const { data, error } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
-  if (error) {
-    console.error('Error loading notifications:', error);
-    document.getElementById('notifsTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading notifications</p>';
-    return;
-  }
-  notifications = data || [];
-  renderNotifications();
-}
-
-function renderNotifications() {
-  const container = document.getElementById('notifsTable');
-  if (!notifications || notifications.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No notifications yet. Add one!</p>';
+  const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
+  document.getElementById('totalNotifs').textContent = data?.length || 0;
+  
+  const container = document.getElementById('notifsList');
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:40px;">No notifications yet</p>';
     return;
   }
   
-  container.innerHTML = `
-    <table>
-      <thead><tr><th>Title</th><th>Message</th><th>Urgent</th><th>On Homepage</th><th>Actions</th></tr></thead>
-      <tbody>
-        ${notifications.map(n => `
-          <tr>
-            <td><strong>${escapeHtml(n.title)}</strong></td>
-            <td>${escapeHtml(n.message.substring(0, 60))}${n.message.length > 60 ? '...' : ''}</td>
-            <td>${n.is_urgent ? '🔴 Yes' : 'No'}</td>
-            <td>${n.show_on_homepage ? '✅ Yes' : 'No'}</td>
-            <td class="action-btns">
-              <button class="btn btn-outline" onclick='editNotif(${JSON.stringify(n)})'>Edit</button>
-              <button class="btn btn-danger" onclick="deleteNotif(${n.id})">Delete</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+  container.innerHTML = `<table><thead><tr><th>Title</th><th>Message</th><th>Urgent</th><th>Actions</th></tr></thead><tbody>${
+    data.map(n => `<tr><td>${escapeHtml(n.title)}</td><td>${escapeHtml(n.message.substring(0, 50))}</td><td>${n.is_urgent ? 'Yes' : 'No'}</td><td><button class="btn-small" onclick="editNotif(${n.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteNotif(${n.id})">Delete</button></td></tr>`).join('')
+  }</tbody></table>`;
 }
 
 async function loadResources() {
-  const { data, error } = await supabase
-    .from('resources')
-    .select('*, universities(name)')
-    .order('created_at', { ascending: false });
-  if (error) {
-    console.error('Error loading resources:', error);
-    document.getElementById('resourcesTable').innerHTML = '<p style="text-align:center; padding:40px; color:red;">Error loading resources</p>';
-    return;
-  }
-  resources = data || [];
-  renderResources();
-}
-
-function renderResources() {
-  const container = document.getElementById('resourcesTable');
-  if (!resources || resources.length === 0) {
-    container.innerHTML = '<p style="text-align:center; padding:40px;">No resources yet. Add one!</p>';
+  const { data } = await supabase.from('resources').select('*, universities(name)');
+  document.getElementById('totalResources').textContent = data?.length || 0;
+  
+  const container = document.getElementById('resourcesList');
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:40px;">No resources yet</p>';
     return;
   }
   
-  container.innerHTML = `
-    <table>
-      <thead><tr><th>University</th><th>Title</th><th>Type</th><th>Actions</th></tr></thead>
-      <tbody>
-        ${resources.map(r => `
-          <tr>
-            <td>${escapeHtml(r.universities?.name || 'Unknown')}</td>
-            <td>${escapeHtml(r.title)}</td>
-            <td>${r.resource_type}</td>
-            <td class="action-btns">
-              <button class="btn btn-outline" onclick='editResource(${JSON.stringify(r)})'>Edit</button>
-              <button class="btn btn-danger" onclick="deleteResource(${r.id})">Delete</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+  container.innerHTML = `<table><thead><tr><th>University</th><th>Title</th><th>Type</th><th>Actions</th></tr></thead><tbody>${
+    data.map(r => `<tr><td>${escapeHtml(r.universities?.name)}</td><td>${escapeHtml(r.title)}</td><td>${r.resource_type}</td><td><button class="btn-small" onclick="editResource(${r.id})">Edit</button><button class="btn-small btn-danger" onclick="deleteResource(${r.id})">Delete</button></td></tr>`).join('')
+  }</tbody></table>`;
 }
 
-function updateStats() {
-  document.getElementById('statUnis').textContent = universities.length;
-  document.getElementById('statCirculars').textContent = circulars.length;
-  document.getElementById('statNotifs').textContent = notifications.length;
-  document.getElementById('statResources').textContent = resources.length;
-}
-
-// ========== UNIVERSITY CRUD ==========
-function openUniModal(uni = null) {
-  if (uni) {
-    document.getElementById('uniModalTitle').textContent = 'Edit University';
-    document.getElementById('uniId').value = uni.id;
-    document.getElementById('uniName').value = uni.name;
-    document.getElementById('uniCategory').value = uni.category;
-    document.getElementById('uniLogo').value = uni.logo_url || '';
-    document.getElementById('uniDesc').value = uni.description || '';
-    document.getElementById('uniWebsite').value = uni.website || '';
-  } else {
-    document.getElementById('uniModalTitle').textContent = 'Add University';
-    document.getElementById('uniId').value = '';
-    document.getElementById('uniName').value = '';
-    document.getElementById('uniCategory').value = 'Varsity';
-    document.getElementById('uniLogo').value = '';
-    document.getElementById('uniDesc').value = '';
-    document.getElementById('uniWebsite').value = '';
-  }
-  document.getElementById('uniModal').classList.add('active');
-}
-
-function closeUniModal() {
-  document.getElementById('uniModal').classList.remove('active');
-}
-
+// Save functions
 async function saveUniversity() {
   const id = document.getElementById('uniId').value;
   const data = {
     name: document.getElementById('uniName').value,
     category: document.getElementById('uniCategory').value,
-    logo_url: document.getElementById('uniLogo').value || null,
-    description: document.getElementById('uniDesc').value || null,
-    website: document.getElementById('uniWebsite').value || null,
-    updated_at: new Date().toISOString()
+    description: document.getElementById('uniDesc').value,
+    website: document.getElementById('uniWebsite').value
   };
   
-  if (!data.name) {
-    showToast('University name is required');
-    return;
-  }
-  
   let result;
-  if (id) {
-    result = await supabase.from('universities').update(data).eq('id', id);
-  } else {
-    data.created_at = new Date().toISOString();
-    result = await supabase.from('universities').insert([data]);
-  }
+  if (id) result = await supabase.from('universities').update(data).eq('id', id);
+  else result = await supabase.from('universities').insert([data]);
   
-  if (result.error) {
-    showToast('Error: ' + result.error.message);
-  } else {
-    showToast(id ? 'University updated!' : 'University added!');
-    closeUniModal();
-    await loadUniversities();
-    updateStats();
-  }
-}
-
-function editUni(uni) {
-  openUniModal(uni);
-}
-
-async function deleteUni(id, name) {
-  if (!confirm(`Delete "${name}"? This will also delete all circulars and resources for this university.`)) return;
-  
-  const { error } = await supabase.from('universities').delete().eq('id', id);
-  if (error) {
-    showToast('Error: ' + error.message);
-  } else {
-    showToast('University deleted');
-    await loadUniversities();
-    await loadCirculars();
-    await loadResources();
-    updateStats();
-  }
-}
-
-// ========== CIRCULAR CRUD ==========
-function openCircularModal(circular = null) {
-  // Populate university dropdown
-  const select = document.getElementById('circularUniId');
-  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
-  
-  if (circular) {
-    document.getElementById('circularModalTitle').textContent = 'Edit Circular';
-    document.getElementById('circularId').value = circular.id;
-    document.getElementById('circularUniId').value = circular.university_id;
-    document.getElementById('circularTitle').value = circular.title;
-    document.getElementById('circularLink').value = circular.circular_link || '';
-    document.getElementById('circularDeadline').value = circular.application_deadline || '';
-    document.getElementById('circularExamDate').value = circular.exam_date || '';
-    document.getElementById('circularExamText').value = circular.exam_date_text || '';
-    document.getElementById('circularDetails').value = circular.details || '';
-    document.getElementById('circularFeatured').checked = circular.is_featured || false;
-  } else {
-    document.getElementById('circularModalTitle').textContent = 'Add Circular';
-    document.getElementById('circularId').value = '';
-    document.getElementById('circularUniId').value = '';
-    document.getElementById('circularTitle').value = '';
-    document.getElementById('circularLink').value = '';
-    document.getElementById('circularDeadline').value = '';
-    document.getElementById('circularExamDate').value = '';
-    document.getElementById('circularExamText').value = '';
-    document.getElementById('circularDetails').value = '';
-    document.getElementById('circularFeatured').checked = false;
-  }
-  document.getElementById('circularModal').classList.add('active');
-}
-
-function closeCircularModal() {
-  document.getElementById('circularModal').classList.remove('active');
+  if (result.error) showToast('Error: ' + result.error.message);
+  else { showToast('Saved!'); closeUniModal(); loadUniversities(); }
 }
 
 async function saveCircular() {
-  const id = document.getElementById('circularId').value;
   const data = {
     university_id: parseInt(document.getElementById('circularUniId').value),
     title: document.getElementById('circularTitle').value,
-    circular_link: document.getElementById('circularLink').value || null,
-    application_deadline: document.getElementById('circularDeadline').value || null,
-    exam_date: document.getElementById('circularExamDate').value || null,
-    exam_date_text: document.getElementById('circularExamText').value || null,
-    details: document.getElementById('circularDetails').value || null,
+    circular_link: document.getElementById('circularLink').value,
+    application_deadline: document.getElementById('circularDeadline').value,
+    exam_date: document.getElementById('circularExamDate').value,
     is_featured: document.getElementById('circularFeatured').checked,
-    is_published: true,
-    updated_at: new Date().toISOString()
+    is_published: true
   };
   
-  if (!data.title) {
-    showToast('Title is required');
-    return;
-  }
-  if (!data.university_id) {
-    showToast('Please select a university');
-    return;
-  }
-  
-  let result;
-  if (id) {
-    result = await supabase.from('admission_circulars').update(data).eq('id', id);
-  } else {
-    data.created_at = new Date().toISOString();
-    result = await supabase.from('admission_circulars').insert([data]);
-  }
-  
-  if (result.error) {
-    showToast('Error: ' + result.error.message);
-  } else {
-    showToast(id ? 'Circular updated!' : 'Circular added!');
-    closeCircularModal();
-    await loadCirculars();
-    updateStats();
-  }
-}
-
-function editCircular(circular) {
-  openCircularModal(circular);
-}
-
-async function deleteCircular(id) {
-  if (!confirm('Delete this circular?')) return;
-  const { error } = await supabase.from('admission_circulars').delete().eq('id', id);
-  if (error) {
-    showToast('Error: ' + error.message);
-  } else {
-    showToast('Circular deleted');
-    await loadCirculars();
-    updateStats();
-  }
-}
-
-// ========== NOTIFICATION CRUD ==========
-function openNotifModal(notif = null) {
-  if (notif) {
-    document.getElementById('notifModalTitle').textContent = 'Edit Notification';
-    document.getElementById('notifId').value = notif.id;
-    document.getElementById('notifTitle').value = notif.title;
-    document.getElementById('notifMessage').value = notif.message;
-    document.getElementById('notifLink').value = notif.link || '';
-    document.getElementById('notifUrgent').checked = notif.is_urgent || false;
-    document.getElementById('notifShowHome').checked = notif.show_on_homepage !== false;
-  } else {
-    document.getElementById('notifModalTitle').textContent = 'Add Notification';
-    document.getElementById('notifId').value = '';
-    document.getElementById('notifTitle').value = '';
-    document.getElementById('notifMessage').value = '';
-    document.getElementById('notifLink').value = '';
-    document.getElementById('notifUrgent').checked = false;
-    document.getElementById('notifShowHome').checked = true;
-  }
-  document.getElementById('notifModal').classList.add('active');
-}
-
-function closeNotifModal() {
-  document.getElementById('notifModal').classList.remove('active');
+  const result = await supabase.from('admission_circulars').insert([data]);
+  if (result.error) showToast('Error: ' + result.error.message);
+  else { showToast('Saved!'); closeCircularModal(); loadCirculars(); }
 }
 
 async function saveNotification() {
-  const id = document.getElementById('notifId').value;
   const data = {
     title: document.getElementById('notifTitle').value,
     message: document.getElementById('notifMessage').value,
-    link: document.getElementById('notifLink').value || null,
+    link: document.getElementById('notifLink').value,
     is_urgent: document.getElementById('notifUrgent').checked,
     show_on_homepage: document.getElementById('notifShowHome').checked,
-    is_published: true,
-    updated_at: new Date().toISOString()
+    is_published: true
   };
   
-  if (!data.title || !data.message) {
-    showToast('Title and message are required');
-    return;
-  }
-  
-  let result;
-  if (id) {
-    result = await supabase.from('notifications').update(data).eq('id', id);
-  } else {
-    data.created_at = new Date().toISOString();
-    result = await supabase.from('notifications').insert([data]);
-  }
-  
-  if (result.error) {
-    showToast('Error: ' + result.error.message);
-  } else {
-    showToast(id ? 'Notification updated!' : 'Notification added!');
-    closeNotifModal();
-    await loadNotifications();
-    updateStats();
-  }
-}
-
-function editNotif(notif) {
-  openNotifModal(notif);
-}
-
-async function deleteNotif(id) {
-  if (!confirm('Delete this notification?')) return;
-  const { error } = await supabase.from('notifications').delete().eq('id', id);
-  if (error) {
-    showToast('Error: ' + error.message);
-  } else {
-    showToast('Notification deleted');
-    await loadNotifications();
-    updateStats();
-  }
-}
-
-// ========== RESOURCE CRUD ==========
-function openResourceModal(resource = null) {
-  const select = document.getElementById('resourceUniId');
-  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
-  
-  if (resource) {
-    document.getElementById('resourceModalTitle').textContent = 'Edit Resource';
-    document.getElementById('resourceId').value = resource.id;
-    document.getElementById('resourceUniId').value = resource.university_id;
-    document.getElementById('resourceTitle').value = resource.title;
-    document.getElementById('resourceType').value = resource.resource_type;
-    document.getElementById('resourceUrl').value = resource.file_url || '';
-    document.getElementById('resourceDesc').value = resource.description || '';
-  } else {
-    document.getElementById('resourceModalTitle').textContent = 'Add Resource';
-    document.getElementById('resourceId').value = '';
-    document.getElementById('resourceUniId').value = '';
-    document.getElementById('resourceTitle').value = '';
-    document.getElementById('resourceType').value = 'PDF';
-    document.getElementById('resourceUrl').value = '';
-    document.getElementById('resourceDesc').value = '';
-  }
-  document.getElementById('resourceModal').classList.add('active');
-}
-
-function closeResourceModal() {
-  document.getElementById('resourceModal').classList.remove('active');
+  const result = await supabase.from('notifications').insert([data]);
+  if (result.error) showToast('Error: ' + result.error.message);
+  else { showToast('Saved!'); closeNotifModal(); loadNotifications(); }
 }
 
 async function saveResource() {
-  const id = document.getElementById('resourceId').value;
   const data = {
     university_id: parseInt(document.getElementById('resourceUniId').value),
     title: document.getElementById('resourceTitle').value,
     resource_type: document.getElementById('resourceType').value,
-    file_url: document.getElementById('resourceUrl').value || null,
-    description: document.getElementById('resourceDesc').value || null,
-    is_published: true,
-    updated_at: new Date().toISOString()
+    file_url: document.getElementById('resourceUrl').value
   };
   
-  if (!data.title) {
-    showToast('Title is required');
-    return;
-  }
-  if (!data.university_id) {
-    showToast('Please select a university');
-    return;
-  }
-  
-  let result;
-  if (id) {
-    result = await supabase.from('resources').update(data).eq('id', id);
-  } else {
-    data.created_at = new Date().toISOString();
-    result = await supabase.from('resources').insert([data]);
-  }
-  
-  if (result.error) {
-    showToast('Error: ' + result.error.message);
-  } else {
-    showToast(id ? 'Resource updated!' : 'Resource added!');
-    closeResourceModal();
-    await loadResources();
-    updateStats();
+  const result = await supabase.from('resources').insert([data]);
+  if (result.error) showToast('Error: ' + result.error.message);
+  else { showToast('Saved!'); closeResourceModal(); loadResources(); }
+}
+
+async function deleteUni(id) {
+  if (confirm('Delete this university?')) {
+    await supabase.from('universities').delete().eq('id', id);
+    loadUniversities();
   }
 }
 
-function editResource(resource) {
-  openResourceModal(resource);
+async function deleteCircular(id) {
+  if (confirm('Delete this circular?')) {
+    await supabase.from('admission_circulars').delete().eq('id', id);
+    loadCirculars();
+  }
+}
+
+async function deleteNotif(id) {
+  if (confirm('Delete this notification?')) {
+    await supabase.from('notifications').delete().eq('id', id);
+    loadNotifications();
+  }
 }
 
 async function deleteResource(id) {
-  if (!confirm('Delete this resource?')) return;
-  const { error } = await supabase.from('resources').delete().eq('id', id);
-  if (error) {
-    showToast('Error: ' + error.message);
-  } else {
-    showToast('Resource deleted');
-    await loadResources();
-    updateStats();
+  if (confirm('Delete this resource?')) {
+    await supabase.from('resources').delete().eq('id', id);
+    loadResources();
   }
 }
 
-// ========== UTILITIES ==========
+// Modal functions
+function openUniModal() { document.getElementById('uniModal').classList.add('active'); }
+function closeUniModal() { document.getElementById('uniModal').classList.remove('active'); document.getElementById('uniId').value = ''; document.getElementById('uniName').value = ''; }
+
+function openCircularModal() {
+  const select = document.getElementById('circularUniId');
+  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+  document.getElementById('circularModal').classList.add('active');
+}
+function closeCircularModal() { document.getElementById('circularModal').classList.remove('active'); }
+
+function openNotifModal() { document.getElementById('notifModal').classList.add('active'); }
+function closeNotifModal() { document.getElementById('notifModal').classList.remove('active'); }
+
+function openResourceModal() {
+  const select = document.getElementById('resourceUniId');
+  select.innerHTML = universities.map(u => `<option value="${u.id}">${escapeHtml(u.name)}</option>`).join('');
+  document.getElementById('resourceModal').classList.add('active');
+}
+function closeResourceModal() { document.getElementById('resourceModal').classList.remove('active'); }
+
+// Placeholder edit functions
+function editUni(id) { alert('Edit feature - implement as needed'); }
+function editCircular(id) { alert('Edit feature - implement as needed'); }
+function editNotif(id) { alert('Edit feature - implement as needed'); }
+function editResource(id) { alert('Edit feature - implement as needed'); }
+
+function showTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`${tab}Panel`).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
@@ -1045,21 +543,6 @@ function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
 }
-
-// Tab switching
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(`${btn.dataset.tab}Panel`).classList.add('active');
-  });
-});
-
-// Enter key login
-document.getElementById('adminPassword').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') doLogin();
-});
 </script>
 </body>
 </html>
