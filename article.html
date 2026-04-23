@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article | English Learning Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fafafa;
+      color: #1a1a2e;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .back-link {
+      color: white;
+      text-decoration: none;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    
+    .article-header {
+      margin-bottom: 32px;
+    }
+    
+    .article-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .badge-free { background: #27ae60; color: white; }
+    .badge-premium { background: #f39c12; color: white; }
+    
+    .article-title {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    
+    .article-meta {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .article-image {
+      width: 100%;
+      border-radius: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .article-content {
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+    
+    .article-content p {
+      margin-bottom: 1.5em;
+    }
+    
+    .article-content h2 {
+      margin: 1.5em 0 0.5em;
+    }
+    
+    .paywall {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      padding: 60px 40px;
+      border-radius: 16px;
+      margin-top: 40px;
+    }
+    
+    .paywall h3 {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+    }
+    
+    .paywall .price {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    
+    .subscribe-btn {
+      display: inline-block;
+      background: #e74c3c;
+      color: white;
+      padding: 12px 32px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    
+    @media (max-width: 768px) {
+      .article-title { font-size: 1.8rem; }
+      .paywall { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="back-link">← Back to Articles</a>
+    <a href="index.html" style="color:white; text-decoration:none; font-weight:600;">English Learning</a>
+  </div>
+</header>
+
+<div class="container" id="articleContainer">
+  <div class="loading">Loading article...</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
+
+let supabase;
+let currentUser = null;
+let hasActiveSubscription = false;
+
+async function init() {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  
+  // Get slug from URL
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+  
+  if (!slug) {
+    document.getElementById('articleContainer').innerHTML = '<div class="loading">Article not found</div>';
+    return;
+  }
+  
+  // Check auth
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    
+    // Check subscription
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('status', 'active')
+      .single();
+    hasActiveSubscription = !!sub;
+  }
+  
+  await loadArticle(slug);
+}
+
+async function loadArticle(slug) {
+  const { data: article, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .single();
+  
+  if (error || !article) {
+    document.getElementById('articleContainer').innerHTML = '<div class="loading">Article not found</div>';
+    return;
+  }
+  
+  // Update view count
+  await supabase
+    .from('articles')
+    .update({ view_count: (article.view_count || 0) + 1 })
+    .eq('id', article.id);
+  
+  renderArticle(article);
+}
+
+function renderArticle(article) {
+  const isPremium = !article.is_free;
+  const canAccess = article.is_free || hasActiveSubscription;
+  
+  document.title = `${article.title} | English Learning Platform`;
+  
+  let html = `
+    <div class="article-header">
+      <span class="article-badge ${article.is_free ? 'badge-free' : 'badge-premium'}">
+        ${article.is_free ? 'FREE' : 'PREMIUM'}
+      </span>
+      <h1 class="article-title">${escapeHtml(article.title)}</h1>
+      <div class="article-meta">
+        Published on ${new Date(article.created_at).toLocaleDateString()} • ${article.view_count || 0} views
+      </div>
+    </div>
+  `;
+  
+  if (article.image_url) {
+    html += `<img src="${article.image_url}" class="article-image" alt="${escapeHtml(article.title)}">`;
+  }
+  
+  if (canAccess) {
+    // Full content
+    html += `<div class="article-content">${formatContent(article.content)}</div>`;
+  } else {
+    // Preview + paywall
+    html += `
+      <div class="article-content">
+        ${formatContent(article.content.substring(0, 500))}
+        <p><em>... content continues</em></p>
+      </div>
+      <div class="paywall">
+        <h3>📚 Unlock Premium Content</h3>
+        <p>Get access to all premium articles and improve your English faster!</p>
+        <div class="price">
+          Monthly: 100 BDT<br>
+          Yearly: 1000 BDT
+        </div>
+        <p>Contact us on Telegram to subscribe:</p>
+        <a href="https://t.me/adamzampas" target="_blank" class="subscribe-btn">📞 Contact @adamzampas</a>
+      </div>
+    `;
+  }
+  
+  document.getElementById('articleContainer').innerHTML = html;
+}
+
+function formatContent(content) {
+  if (!content) return '';
+  // Simple paragraph formatting for plain text
+  if (!/<[a-z]/i.test(content)) {
+    return content.split(/\n\s*\n/).filter(p => p.trim()).map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+  }
+  return content;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+}
+
+init();
+</script>
+</body>
+</html>
