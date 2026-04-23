@@ -3,20 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Varsity Admission Portal</title>
+  <title>English Learning Platform | Master English Daily</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #fafafa;
+      color: #1a1a2e;
     }
     
     /* Header */
     .header {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: white;
-      padding: 20px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -24,324 +39,405 @@
       gap: 16px;
     }
     
-    .logo h1 { font-size: 1.5rem; }
-    .logo p { font-size: 0.8rem; opacity: 0.8; }
-    
-    .notification-bell {
-      position: relative;
-      cursor: pointer;
-      font-size: 24px;
+    .logo h1 {
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, #fff, #a8c0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
     
-    .badge {
-      position: absolute;
-      top: -8px;
-      right: -12px;
-      background: #e74c3c;
+    .logo p {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .nav-links a {
       color: white;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      display: none;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
     }
     
-    .notification-panel {
-      position: absolute;
-      top: 70px;
-      right: 20px;
-      width: 320px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      display: none;
-      z-index: 1000;
-      max-height: 400px;
-      overflow-y: auto;
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.1);
     }
     
-    .notification-panel.show {
-      display: block;
+    .subscribe-btn {
+      background: #e74c3c;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-weight: 600;
     }
     
-    .notification-item {
-      padding: 15px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
+    .subscribe-btn:hover {
+      background: #c0392b;
     }
     
-    .notification-item.urgent {
-      border-left: 3px solid #e74c3c;
-      background: #fff5f5;
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 24px;
+      text-align: center;
     }
     
-    /* Categories */
-    .categories {
+    .hero h2 {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Feed */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .feed-header h3 {
+      font-size: 1.8rem;
+    }
+    
+    .filter-buttons {
       display: flex;
       gap: 12px;
-      padding: 24px 32px;
-      flex-wrap: wrap;
-      background: white;
-      margin: 20px;
-      border-radius: 12px;
     }
     
-    .cat-btn {
-      padding: 10px 24px;
+    .filter-btn {
+      padding: 8px 20px;
       border: none;
       border-radius: 30px;
       background: #e0e0e0;
       cursor: pointer;
       font-weight: 600;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
     
-    .cat-btn.active {
+    .filter-btn.active {
       background: #1a1a2e;
       color: white;
     }
     
-    /* University Cards */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px 40px;
-    }
-    
-    .unis-grid {
+    /* Article Grid */
+    .articles-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 24px;
+      gap: 32px;
     }
     
-    .uni-card {
+    .article-card {
       background: white;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
-      transition: transform 0.2s;
+      position: relative;
     }
     
-    .uni-card:hover {
+    .article-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     }
     
-    .card-header {
-      padding: 30px;
-      text-align: center;
+    .article-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .premium-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #f39c12;
       color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
     }
     
-    .card-header.Varsity { background: linear-gradient(135deg, #1a73e8, #0d47a1); }
-    .card-header.Engineering { background: linear-gradient(135deg, #f39c12, #e67e22); }
-    .card-header.Medical { background: linear-gradient(135deg, #27ae60, #1e8449); }
-    
-    .uni-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-top: 10px;
+    .free-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #27ae60;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
     }
     
-    .card-body {
+    .article-content {
       padding: 20px;
     }
     
-    .deadline {
-      background: #fee;
-      color: #e74c3c;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 13px;
+    .article-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .article-excerpt {
+      color: #666;
+      font-size: 0.875rem;
+      line-height: 1.5;
       margin-bottom: 12px;
     }
     
-    .btn-link {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 8px 16px;
-      background: #1a73e8;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 13px;
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #999;
     }
     
+    /* Loading */
     .loading {
       text-align: center;
       padding: 60px;
       color: #666;
     }
     
+    /* Footer */
     .footer {
-      text-align: center;
-      padding: 30px;
       background: #1a1a2e;
       color: #888;
-      margin-top: 40px;
+      text-align: center;
+      padding: 40px;
+      margin-top: 60px;
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     
     @media (max-width: 768px) {
-      .categories { margin: 10px; }
-      .unis-grid { grid-template-columns: 1fr; }
+      .hero h2 { font-size: 1.8rem; }
+      .articles-grid { grid-template-columns: 1fr; }
+      .header-inner { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo">
-    <h1>📚 Varsity Admission</h1>
-    <p>Your Gateway to Higher Education</p>
+<header class="header">
+  <div class="header-inner">
+    <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
+      <h1>📚 English Learning Platform</h1>
+      <p>Master English Daily</p>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="#" id="loginLink" onclick="checkAuth()">Login</a>
+      <a href="#" class="subscribe-btn" onclick="showSubscribeInfo()">Subscribe</a>
+    </div>
   </div>
-  <div class="notification-bell" id="bellBtn">
-    🔔
-    <span class="badge" id="notifBadge">0</span>
-  </div>
-</div>
+</header>
 
-<div class="notification-panel" id="notifPanel">
-  <div style="padding: 12px; background: #f5f5f5; font-weight: bold; border-bottom: 1px solid #ddd;">Notifications</div>
-  <div id="notifList">Loading...</div>
-</div>
-
-<div class="categories" id="categories">
-  <button class="cat-btn active" data-cat="">All</button>
-  <button class="cat-btn" data-cat="Varsity">🎓 Varsity</button>
-  <button class="cat-btn" data-cat="Engineering">⚙️ Engineering</button>
-  <button class="cat-btn" data-cat="Medical">🩺 Medical</button>
-</div>
+<section class="hero">
+  <h2>Improve Your English Daily</h2>
+  <p>2-3 new articles every day. Learn grammar, vocabulary, and communication skills</p>
+</section>
 
 <div class="container">
-  <div class="unis-grid" id="unisGrid">
-    <div class="loading">Loading universities...</div>
+  <div class="feed-header">
+    <h3>Latest Articles</h3>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="free">Free</button>
+      <button class="filter-btn" data-filter="premium">Premium</button>
+    </div>
+  </div>
+  
+  <div class="articles-grid" id="articlesGrid">
+    <div class="loading">Loading articles...</div>
   </div>
 </div>
 
 <footer class="footer">
-  <p>© 2024 Varsity Admission Portal | All rights reserved</p>
-  <p><a href="admin.html" style="color: #888;">Admin Login</a></p>
+  <p>© 2024 English Learning Platform | Improve Your English Daily</p>
+  <p style="margin-top: 8px;">Contact: <strong>@adamzampas</strong> on Telegram for subscription</p>
 </footer>
+
+<div id="toast" class="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
 
 let supabase;
-let allUniversities = [];
-let currentCategory = '';
+let currentUser = null;
+let currentFilter = 'all';
+let allArticles = [];
 
-// Initialize Supabase
+// Initialize
 async function init() {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  await loadUniversities();
-  await loadNotifications();
-}
-
-// Load universities
-async function loadUniversities() {
-  try {
-    let query = supabase.from('universities').select('*');
-    
-    if (currentCategory) {
-      query = query.eq('category', currentCategory);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) throw error;
-    
-    allUniversities = data || [];
-    renderUniversities();
-  } catch (err) {
-    console.error('Error:', err);
-    document.getElementById('unisGrid').innerHTML = `<div class="loading">Error loading: ${err.message}</div>`;
-  }
-}
-
-// Render universities
-function renderUniversities() {
-  const grid = document.getElementById('unisGrid');
   
-  if (allUniversities.length === 0) {
-    grid.innerHTML = '<div class="loading">No universities found.</div>';
+  // Check auth state
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    updateLoginLink();
+  }
+  
+  await loadArticles();
+}
+
+async function loadArticles() {
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error('Error:', error);
+    document.getElementById('articlesGrid').innerHTML = '<div class="loading">Error loading articles</div>';
     return;
   }
   
-  grid.innerHTML = allUniversities.map(uni => `
-    <div class="uni-card" onclick="viewUniversity(${uni.id})">
-      <div class="card-header ${uni.category}">
-        <div class="uni-name">${escapeHtml(uni.name)}</div>
-        <div style="font-size: 12px; margin-top: 5px;">${uni.category}</div>
-      </div>
-      <div class="card-body">
-        <p style="color: #666; font-size: 14px;">${escapeHtml(uni.description?.substring(0, 100) || 'No description')}</p>
-        <a href="#" class="btn-link" onclick="event.stopPropagation();viewUniversity(${uni.id})">View Details →</a>
+  allArticles = data || [];
+  filterArticles();
+}
+
+function filterArticles() {
+  let filtered = [...allArticles];
+  
+  if (currentFilter === 'free') {
+    filtered = filtered.filter(a => a.is_free === true);
+  } else if (currentFilter === 'premium') {
+    filtered = filtered.filter(a => a.is_free === false);
+  }
+  
+  renderArticles(filtered);
+}
+
+async function renderArticles(articles) {
+  const grid = document.getElementById('articlesGrid');
+  
+  if (articles.length === 0) {
+    grid.innerHTML = '<div class="loading">No articles found</div>';
+    return;
+  }
+  
+  // Check user subscription status
+  let hasActiveSubscription = false;
+  if (currentUser) {
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('status', 'active')
+      .single();
+    hasActiveSubscription = !!sub;
+  }
+  
+  grid.innerHTML = articles.map(article => `
+    <div class="article-card" onclick="viewArticle('${article.slug}', ${article.is_free}, ${hasActiveSubscription})">
+      ${article.image_url ? `<img src="${article.image_url}" class="article-image" alt="${escapeHtml(article.title)}">` : ''}
+      <span class="${article.is_free ? 'free-badge' : 'premium-badge'}">
+        ${article.is_free ? 'FREE' : 'PREMIUM'}
+      </span>
+      <div class="article-content">
+        <h3 class="article-title">${escapeHtml(article.title)}</h3>
+        <p class="article-excerpt">${escapeHtml(article.excerpt || article.content.substring(0, 100))}...</p>
+        <div class="article-meta">
+          <span>📅 ${new Date(article.created_at).toLocaleDateString()}</span>
+          <span>👁️ ${article.view_count || 0} views</span>
+        </div>
       </div>
     </div>
   `).join('');
 }
 
-// Load notifications
-async function loadNotifications() {
-  try {
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('is_published', true)
-      .eq('show_on_homepage', true)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    const notifs = data || [];
-    const unreadCount = notifs.filter(n => !localStorage.getItem(`read_${n.id}`)).length;
-    
-    const badge = document.getElementById('notifBadge');
-    if (unreadCount > 0) {
-      badge.textContent = unreadCount;
-      badge.style.display = 'inline-block';
-    } else {
-      badge.style.display = 'none';
-    }
-    
-    const container = document.getElementById('notifList');
-    if (notifs.length === 0) {
-      container.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No notifications</div>';
-    } else {
-      container.innerHTML = notifs.map(n => `
-        <div class="notification-item ${n.is_urgent ? 'urgent' : ''}" onclick="markRead(${n.id}, '${n.link || ''}')">
-          <div style="font-weight: 600;">${escapeHtml(n.title)}</div>
-          <div style="font-size: 13px; color: #666; margin-top: 5px;">${escapeHtml(n.message)}</div>
-          <div style="font-size: 11px; color: #999; margin-top: 8px;">${timeAgo(n.created_at)}</div>
-        </div>
-      `).join('');
-    }
-  } catch (err) {
-    console.error('Notif error:', err);
+function viewArticle(slug, isFree, hasSubscription) {
+  if (isFree) {
+    window.location.href = `article.html?slug=${slug}`;
+  } else if (hasSubscription) {
+    window.location.href = `article.html?slug=${slug}`;
+  } else {
+    showToast('This is premium content. Subscribe to access!');
+    showSubscribeInfo();
   }
 }
 
-function markRead(id, link) {
-  localStorage.setItem(`read_${id}`, 'true');
-  if (link) window.open(link, '_blank');
-  loadNotifications();
-  document.getElementById('notifPanel').classList.remove('show');
+function showSubscribeInfo() {
+  showToast('📞 Contact @adamzampas on Telegram to subscribe! Monthly: 100 BDT | Yearly: 1000 BDT');
 }
 
-function viewUniversity(id) {
-  window.location.href = `university.html?id=${id}`;
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    window.location.href = 'admin.html';
+  } else {
+    window.location.href = 'login.html';
+  }
 }
 
-function timeAgo(iso) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins} min ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} day${days > 1 ? 's' : ''} ago`;
+function updateLoginLink() {
+  const link = document.getElementById('loginLink');
+  if (currentUser) {
+    link.textContent = 'Dashboard';
+    link.href = 'admin.html';
+  } else {
+    link.textContent = 'Login';
+    link.href = '#';
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 function escapeHtml(str) {
@@ -349,27 +445,16 @@ function escapeHtml(str) {
   return str.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
 }
 
-// Category filter
-document.querySelectorAll('.cat-btn').forEach(btn => {
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    currentCategory = btn.dataset.cat;
-    loadUniversities();
+    currentFilter = btn.dataset.filter;
+    filterArticles();
   });
 });
 
-// Notification bell
-document.getElementById('bellBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  document.getElementById('notifPanel').classList.toggle('show');
-});
-
-document.addEventListener('click', () => {
-  document.getElementById('notifPanel').classList.remove('show');
-});
-
-// Start
 init();
 </script>
 </body>
