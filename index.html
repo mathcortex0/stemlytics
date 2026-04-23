@@ -1,364 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EnglishPro BD – Learn English the Smart Way</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  :root {
-    --ink: #0d0d0d;
-    --paper: #faf8f3;
-    --cream: #f0ece0;
-    --gold: #c9932a;
-    --gold-light: #e8b84b;
-    --accent: #1a4d6e;
-    --accent-light: #2a6d96;
-    --muted: #7a756a;
-    --rule: #e2ddd4;
-    --free-tag: #1a6e3c;
-    --premium-tag: #6e1a1a;
-    --radius: 4px;
-    --shadow: 0 2px 20px rgba(0,0,0,0.08);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Learning Lab | Master English Daily</title>
+  <meta name="description" content="Learn English with daily articles, grammar lessons, and premium content">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  /* HEADER */
-  header {
-    background:var(--ink);
-    color:var(--paper);
-    padding:0 24px;
-    position:sticky;
-    top:0;
-    z-index:100;
-    border-bottom:3px solid var(--gold);
-  }
-  .header-inner {
-    max-width:1200px;
-    margin:0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    height:64px;
-  }
-  .logo { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; letter-spacing:-0.02em; }
-  .logo span { color:var(--gold); }
-  .header-nav { display:flex; align-items:center; gap:8px; }
-  .nav-btn {
-    font-family:'DM Sans',sans-serif;
-    font-size:0.85rem;
-    font-weight:500;
-    padding:8px 18px;
-    border-radius:var(--radius);
-    border:none;
-    cursor:pointer;
-    text-decoration:none;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    transition:all .2s;
-  }
-  .btn-ghost { background:transparent; color:var(--paper); border:1px solid rgba(255,255,255,0.2); }
-  .btn-ghost:hover { background:rgba(255,255,255,0.1); }
-  .btn-gold { background:var(--gold); color:#fff; font-weight:600; }
-  .btn-gold:hover { background:var(--gold-light); }
-  .user-badge {
-    display:flex; align-items:center; gap:8px;
-    font-size:0.85rem; color:var(--paper);
-  }
-  .sub-badge {
-    background:var(--gold);
-    color:#fff;
-    font-size:0.7rem;
-    font-weight:700;
-    padding:2px 8px;
-    border-radius:20px;
-    letter-spacing:0.05em;
-    text-transform:uppercase;
-  }
-  .sub-badge.free { background:var(--muted); }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fafafa;
+      color: #1a1a2e;
+      line-height: 1.5;
+    }
 
-  /* HERO STRIP */
-  .date-strip {
-    background:var(--cream);
-    border-bottom:1px solid var(--rule);
-    padding:10px 24px;
-    text-align:center;
-    font-size:0.8rem;
-    color:var(--muted);
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    font-weight:500;
-  }
+    /* Header */
+    .header {
+      background: #1a1a2e;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid #e67e22;
+    }
 
-  /* HERO */
-  .hero {
-    background:var(--ink);
-    color:var(--paper);
-    padding:64px 24px;
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-  }
-  .hero::before {
-    content:'';
-    position:absolute;
-    inset:0;
-    background:repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 40px,
-      rgba(201,147,42,0.03) 40px,
-      rgba(201,147,42,0.03) 41px
-    );
-  }
-  .hero-inner { position:relative; max-width:680px; margin:0 auto; }
-  .hero h1 { font-family:'Playfair Display',serif; font-size:clamp(2rem,5vw,3.5rem); font-weight:900; line-height:1.1; margin-bottom:16px; }
-  .hero h1 em { font-style:normal; color:var(--gold); }
-  .hero p { color:rgba(250,248,243,0.7); font-size:1.05rem; line-height:1.6; margin-bottom:28px; }
-  .hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-  .btn-outline-gold { background:transparent; color:var(--gold); border:2px solid var(--gold); font-size:0.9rem; padding:10px 24px; }
-  .btn-outline-gold:hover { background:var(--gold); color:#fff; }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-  /* FILTER BAR */
-  .filter-bar {
-    max-width:1200px;
-    margin:32px auto 0;
-    padding:0 24px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-  .filter-label { font-size:0.8rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-right:4px; }
-  .filter-btn {
-    padding:6px 16px;
-    border:1px solid var(--rule);
-    background:white;
-    border-radius:20px;
-    font-family:'DM Sans',sans-serif;
-    font-size:0.82rem;
-    cursor:pointer;
-    transition:all .2s;
-    color:var(--ink);
-    font-weight:500;
-  }
-  .filter-btn.active { background:var(--ink); color:white; border-color:var(--ink); }
-  .filter-btn:hover:not(.active) { border-color:var(--gold); color:var(--gold); }
-  .search-wrap { margin-left:auto; position:relative; }
-  .search-input {
-    padding:8px 16px 8px 36px;
-    border:1px solid var(--rule);
-    border-radius:20px;
-    font-family:'DM Sans',sans-serif;
-    font-size:0.85rem;
-    outline:none;
-    background:white;
-    width:220px;
-    transition:border-color .2s;
-  }
-  .search-input:focus { border-color:var(--gold); }
-  .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px; }
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
 
-  /* ARTICLE GRID */
-  .articles-section { max-width:1200px; margin:32px auto; padding:0 24px 60px; }
-  .section-title {
-    font-family:'Playfair Display',serif;
-    font-size:1.5rem;
-    font-weight:700;
-    margin-bottom:24px;
-    padding-bottom:12px;
-    border-bottom:2px solid var(--rule);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .article-count { font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:400; color:var(--muted); }
+    .logo span {
+      color: #e67e22;
+    }
 
-  .articles-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-    gap:28px;
-  }
-  /* Featured first article */
-  .articles-grid .article-card:first-child {
-    grid-column: 1 / -1;
-  }
-  .articles-grid .article-card:first-child .card-img { height:420px; }
-  .articles-grid .article-card:first-child .card-title { font-size:1.8rem; }
+    .logo p {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
 
-  .article-card {
-    background:white;
-    border-radius:var(--radius);
-    overflow:hidden;
-    box-shadow:var(--shadow);
-    border:1px solid var(--rule);
-    transition:transform .25s, box-shadow .25s;
-    cursor:pointer;
-    text-decoration:none;
-    display:flex;
-    flex-direction:column;
-  }
-  .article-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.13); }
-  .card-img {
-    height:220px;
-    background:#e0dbd2;
-    overflow:hidden;
-    position:relative;
-  }
-  .card-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
-  .article-card:hover .card-img img { transform:scale(1.04); }
-  .card-tag {
-    position:absolute;
-    top:12px;
-    left:12px;
-    font-size:0.7rem;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    padding:4px 10px;
-    border-radius:2px;
-    color:white;
-  }
-  .tag-free { background:var(--free-tag); }
-  .tag-premium { background:var(--premium-tag); }
-  .card-body { padding:20px; flex:1; display:flex; flex-direction:column; }
-  .card-date { font-size:0.75rem; color:var(--muted); margin-bottom:8px; font-weight:500; text-transform:uppercase; letter-spacing:0.05em; }
-  .card-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; line-height:1.3; margin-bottom:10px; color:var(--ink); }
-  .card-excerpt { font-size:0.88rem; color:var(--muted); line-height:1.6; flex:1; }
-  .card-footer {
-    padding:14px 20px;
-    border-top:1px solid var(--rule);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .card-views { font-size:0.78rem; color:var(--muted); display:flex; align-items:center; gap:5px; }
-  .read-more { font-size:0.82rem; font-weight:600; color:var(--gold); text-decoration:none; display:flex; align-items:center; gap:4px; }
-  .read-more:hover { color:var(--ink); }
-  .lock-icon { font-size:0.75rem; color:var(--premium-tag); }
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
 
-  /* EMPTY STATE */
-  .empty-state { text-align:center; padding:80px 20px; color:var(--muted); }
-  .empty-state .icon { font-size:3rem; margin-bottom:16px; }
-  .empty-state p { font-size:1rem; }
+    .nav-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+    }
 
-  /* LOADING */
-  .loading { text-align:center; padding:60px; color:var(--muted); }
-  .spinner { width:36px; height:36px; border:3px solid var(--rule); border-top-color:var(--gold); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 16px; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+    .nav-btn-outline {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
 
-  /* SUBSCRIPTION BANNER */
-  .sub-banner {
-    background:linear-gradient(135deg, var(--ink) 0%, var(--accent) 100%);
-    color:white;
-    padding:48px 24px;
-    text-align:center;
-    margin:0 0 0;
-  }
-  .sub-banner h2 { font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:10px; }
-  .sub-banner p { opacity:.8; margin-bottom:24px; font-size:0.95rem; }
-  .plans { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
-  .plan-card {
-    background:rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:8px;
-    padding:20px 28px;
-    min-width:180px;
-    backdrop-filter:blur(10px);
-  }
-  .plan-card.popular { border-color:var(--gold); background:rgba(201,147,42,0.15); }
-  .plan-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; opacity:.7; margin-bottom:6px; }
-  .plan-price { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--gold-light); }
-  .plan-price span { font-size:0.85rem; font-weight:400; opacity:.7; }
-  .popular-badge { font-size:0.7rem; background:var(--gold); padding:2px 8px; border-radius:20px; margin-bottom:6px; display:inline-block; }
-  .sub-cta { font-size:0.85rem; opacity:.6; }
-  .sub-cta a { color:var(--gold-light); font-weight:600; }
+    .nav-btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+    }
 
-  /* FOOTER */
-  footer {
-    background:var(--ink);
-    color:rgba(250,248,243,0.5);
-    padding:28px 24px;
-    text-align:center;
-    font-size:0.82rem;
-    border-top:3px solid var(--gold);
-  }
-  footer strong { color:var(--paper); }
+    .nav-btn-primary {
+      background: #e67e22;
+      color: white;
+    }
 
-  /* TOAST */
-  .toast {
-    position:fixed;
-    bottom:24px;
-    right:24px;
-    background:var(--ink);
-    color:white;
-    padding:12px 20px;
-    border-radius:var(--radius);
-    font-size:0.85rem;
-    z-index:999;
-    display:none;
-    border-left:3px solid var(--gold);
-    animation:slideIn .3s ease;
-    max-width:300px;
-  }
-  @keyframes slideIn { from { transform:translateX(20px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    .nav-btn-primary:hover {
+      background: #d35400;
+    }
 
-  @media(max-width:768px) {
-    .hero { padding:40px 20px; }
-    .articles-grid .article-card:first-child { grid-column:auto; }
-    .articles-grid .article-card:first-child .card-img { height:220px; }
-    .articles-grid .article-card:first-child .card-title { font-size:1.15rem; }
-    .search-input { width:160px; }
-    .filter-bar { gap:8px; }
-  }
-</style>
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+    }
+
+    .sub-badge {
+      background: #e67e22;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .sub-badge-free {
+      background: #666;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .hero h2 span {
+      color: #e67e22;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      margin-bottom: 32px;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      max-width: 1280px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 20px;
+      border: 1px solid #e0e0e0;
+      background: white;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: #e67e22;
+      color: #e67e22;
+    }
+
+    .filter-btn.active {
+      background: #1a1a2e;
+      color: white;
+      border-color: #1a1a2e;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-input {
+      padding: 8px 16px 8px 40px;
+      border: 1px solid #e0e0e0;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      width: 250px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #e67e22;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Articles Grid */
+    .articles-section {
+      max-width: 1280px;
+      margin: 40px auto;
+      padding: 0 24px 60px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .section-header h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .article-count {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 28px;
+    }
+
+    .article-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      position: relative;
+    }
+
+    .card-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .tag-free {
+      background: #27ae60;
+      color: white;
+    }
+
+    .tag-premium {
+      background: #e67e22;
+      color: white;
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .card-excerpt {
+      font-size: 0.85rem;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #999;
+    }
+
+    /* Subscription Banner */
+    .sub-banner {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2c3e50 100%);
+      color: white;
+      padding: 60px 24px;
+      text-align: center;
+    }
+
+    .sub-banner h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .plans {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin: 32px 0;
+    }
+
+    .plan-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 24px 32px;
+      min-width: 200px;
+      backdrop-filter: blur(10px);
+    }
+
+    .plan-card.popular {
+      border-color: #e67e22;
+      background: rgba(230,126,34,0.15);
+    }
+
+    .plan-name {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      opacity: 0.7;
+    }
+
+    .plan-price {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #e67e22;
+    }
+
+    .plan-price span {
+      font-size: 0.85rem;
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
+    .popular-badge {
+      font-size: 0.7rem;
+      background: #e67e22;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .telegram-link {
+      color: #e67e22;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .telegram-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    .footer {
+      background: #1a1a2e;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 32px;
+      font-size: 0.8rem;
+    }
+
+    .footer a {
+      color: #e67e22;
+      text-decoration: none;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #e67e22;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1a1a2e;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 1000;
+      border-left: 3px solid #e67e22;
+    }
+
+    .toast.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h2 { font-size: 2rem; }
+      .articles-grid { grid-template-columns: 1fr; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .search-input { width: 100%; }
+      .header-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
 </head>
 <body>
 
-<header>
+<header class="header">
   <div class="header-inner">
-    <div class="logo">English<span>Pro</span> BD</div>
-    <div class="header-nav" id="headerNav">
-      <a href="login.html" class="nav-btn btn-ghost">Sign In</a>
-      <a href="login.html" class="nav-btn btn-gold">Get Premium</a>
+    <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
+      <h1>English <span>Learning Lab</span></h1>
+      <p>Master English Daily</p>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="login.html" class="nav-btn nav-btn-outline">Sign In</a>
+      <a href="login.html" class="nav-btn nav-btn-primary">Get Premium</a>
     </div>
   </div>
 </header>
 
-<div class="date-strip" id="dateStrip">Loading...</div>
-
 <section class="hero">
   <div class="hero-inner">
-    <h1>Master <em>English</em><br>One Article at a Time</h1>
-    <p>Fresh lessons, vocabulary tips, and exam guides — published daily. Join thousands of Bangladeshi learners improving their English every day.</p>
-    <div class="hero-actions">
-      <a href="#articles" class="nav-btn btn-gold">Browse Articles</a>
-      <button onclick="scrollToPlans()" class="nav-btn btn-outline-gold nav-btn">View Plans</button>
-    </div>
+    <h2>Master <span>English</span><br>One Article at a Time</h2>
+    <p>Daily lessons, vocabulary tips, and exam guides. Learn English the smart way.</p>
   </div>
 </section>
 
 <div class="filter-bar">
-  <span class="filter-label">Filter:</span>
-  <button class="filter-btn active" data-filter="all">All Articles</button>
-  <button class="filter-btn" data-filter="free">Free</button>
-  <button class="filter-btn" data-filter="premium">Premium</button>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input class="search-input" type="text" id="searchInput" placeholder="Search articles...">
+  <div class="filter-group">
+    <button class="filter-btn active" data-filter="all">All Articles</button>
+    <button class="filter-btn" data-filter="free">Free</button>
+    <button class="filter-btn" data-filter="premium">Premium</button>
+  </div>
+  <div class="search-box">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search articles...">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
   </div>
 </div>
 
-<section class="articles-section" id="articles">
-  <div class="section-title">
-    Latest Articles
+<section class="articles-section">
+  <div class="section-header">
+    <h3>Latest Articles</h3>
     <span class="article-count" id="articleCount"></span>
   </div>
-  <div id="articlesGrid" class="articles-grid">
+  <div class="articles-grid" id="articlesGrid">
     <div class="loading"><div class="spinner"></div>Loading articles...</div>
   </div>
 </section>
@@ -368,21 +516,21 @@
   <p>Get unlimited access to all articles, exam guides, and vocabulary lessons.</p>
   <div class="plans">
     <div class="plan-card">
-      <div class="plan-label">Monthly</div>
+      <div class="plan-name">Monthly</div>
       <div class="plan-price">৳100 <span>/month</span></div>
     </div>
     <div class="plan-card popular">
       <div class="popular-badge">Best Value</div>
-      <div class="plan-label">Yearly</div>
+      <div class="plan-name">Yearly</div>
       <div class="plan-price">৳1000 <span>/year</span></div>
     </div>
   </div>
-  <p class="sub-cta">Contact <a href="https://t.me/adamzampas" target="_blank">@adamzampas</a> on Telegram to subscribe · Manual activation within 24 hours</p>
+  <p>Contact <a href="https://t.me/adamzampas" target="_blank" class="telegram-link">@adamzampas</a> on Telegram to subscribe</p>
 </section>
 
-<footer>
-  <p><strong>EnglishPro BD</strong> · Learn English the Smart Way · &copy; <span id="year"></span></p>
-  <p style="margin-top:6px;">For subscriptions contact <a href="https://t.me/adamzampas" target="_blank" style="color:var(--gold-light)">@adamzampas</a> on Telegram</p>
+<footer class="footer">
+  <p>© 2024 English Learning Lab. All rights reserved.</p>
+  <p style="margin-top: 8px;">For subscriptions: <a href="https://t.me/adamzampas" target="_blank">@adamzampas on Telegram</a></p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -390,8 +538,7 @@
 <script>
 const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let allArticles = [];
 let currentFilter = 'all';
@@ -399,11 +546,8 @@ let searchQuery = '';
 let currentUser = null;
 let userSubscription = null;
 
-document.getElementById('dateStrip').textContent = new Date().toLocaleDateString('en-BD', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-document.getElementById('year').textContent = new Date().getFullYear();
-
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   currentUser = session?.user || null;
 
   if (currentUser) {
@@ -415,43 +559,46 @@ async function init() {
 }
 
 async function loadSubscription() {
-  const { data } = await sb.from('subscriptions')
+  const { data } = await supabase
+    .from('subscriptions')
     .select('*')
     .eq('user_id', currentUser.id)
     .eq('status', 'active')
     .gt('end_date', new Date().toISOString())
-    .order('end_date', { ascending: false })
-    .limit(1)
     .maybeSingle();
   userSubscription = data;
 }
 
 function updateHeader() {
-  const nav = document.getElementById('headerNav');
+  const nav = document.getElementById('navLinks');
   const hasSub = !!userSubscription;
-  nav.innerHTML = `
-    <div class="user-badge">
-      <span>${currentUser.email.split('@')[0]}</span>
-      <span class="sub-badge ${hasSub ? '' : 'free'}">${hasSub ? '⭐ Premium' : 'Free'}</span>
-    </div>
-    ${!hasSub ? `<button onclick="scrollToPlans()" class="nav-btn btn-gold">Get Premium</button>` : ''}
-    <button onclick="signOut()" class="nav-btn btn-ghost">Sign Out</button>
-  `;
+  
+  if (currentUser) {
+    nav.innerHTML = `
+      <div class="user-badge">
+        <span>${currentUser.email.split('@')[0]}</span>
+        <span class="sub-badge ${hasSub ? '' : 'sub-badge-free'}">${hasSub ? 'Premium' : 'Free'}</span>
+      </div>
+      ${!hasSub ? '<a href="#plans" class="nav-btn nav-btn-primary">Get Premium</a>' : ''}
+      <button onclick="signOut()" class="nav-btn nav-btn-outline">Sign Out</button>
+    `;
+  }
 }
 
 async function signOut() {
-  await sb.auth.signOut();
+  await supabase.auth.signOut();
   window.location.reload();
 }
 
 async function loadArticles() {
-  const { data, error } = await sb.from('articles')
+  const { data, error } = await supabase
+    .from('articles')
     .select('id,title,slug,excerpt,image_url,is_free,view_count,created_at')
     .eq('is_published', true)
     .order('created_at', { ascending: false });
 
   if (error) {
-    document.getElementById('articlesGrid').innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load articles.</p></div>`;
+    document.getElementById('articlesGrid').innerHTML = '<div class="loading">Failed to load articles</div>';
     return;
   }
 
@@ -460,11 +607,10 @@ async function loadArticles() {
 }
 
 function renderArticles() {
-  let filtered = allArticles;
+  let filtered = [...allArticles];
 
   if (currentFilter === 'free') filtered = filtered.filter(a => a.is_free);
   if (currentFilter === 'premium') filtered = filtered.filter(a => !a.is_free);
-
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || (a.excerpt || '').toLowerCase().includes(q));
@@ -474,43 +620,53 @@ function renderArticles() {
   const grid = document.getElementById('articlesGrid');
 
   if (!filtered.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">📭</div><p>No articles found.</p></div>`;
+    grid.innerHTML = '<div class="loading">No articles found</div>';
     return;
   }
 
-  grid.innerHTML = filtered.map((a, i) => {
-    const isLocked = !a.is_free && !userSubscription;
-    const date = new Date(a.created_at).toLocaleDateString('en-BD', { month:'short', day:'numeric', year:'numeric' });
-    const img = a.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800';
+  const hasSubscription = !!userSubscription;
+
+  grid.innerHTML = filtered.map(article => {
+    const isLocked = !article.is_free && !hasSubscription;
+    const date = new Date(article.created_at).toLocaleDateString();
+    const imgUrl = article.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800';
 
     return `
-      <a href="article.html?slug=${a.slug}" class="article-card">
-        <div class="card-img">
-          <img src="${img}" alt="${escHtml(a.title)}" loading="${i < 3 ? 'eager' : 'lazy'}">
-          <span class="card-tag ${a.is_free ? 'tag-free' : 'tag-premium'}">${a.is_free ? '✓ Free' : '⭐ Premium'}</span>
+      <div class="article-card" onclick="viewArticle('${article.slug}', ${article.is_free})">
+        <div style="position: relative;">
+          <img src="${imgUrl}" class="card-image" alt="${escapeHtml(article.title)}">
+          <span class="card-tag ${article.is_free ? 'tag-free' : 'tag-premium'}">${article.is_free ? 'FREE' : 'PREMIUM'}</span>
         </div>
-        <div class="card-body">
-          <div class="card-date">${date}</div>
-          <div class="card-title">${escHtml(a.title)} ${isLocked ? '<span class="lock-icon">🔒</span>' : ''}</div>
-          <div class="card-excerpt">${escHtml(a.excerpt || 'Click to read this article...')}</div>
+        <div class="card-content">
+          <h3 class="card-title">${escapeHtml(article.title)}</h3>
+          <p class="card-excerpt">${escapeHtml(article.excerpt || article.title)}</p>
+          <div class="card-footer">
+            <span>${date}</span>
+            <span>👁 ${article.view_count || 0} views</span>
+          </div>
         </div>
-        <div class="card-footer">
-          <span class="card-views">👁 ${a.view_count || 0} views</span>
-          <span class="read-more">${isLocked ? 'Preview →' : 'Read →'}</span>
-        </div>
-      </a>`;
+      </div>
+    `;
   }).join('');
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function viewArticle(slug, isFree) {
+  if (isFree || userSubscription) {
+    window.location.href = `article.html?slug=${slug}`;
+  } else {
+    showToast('This is premium content. Subscribe to access!');
+    document.getElementById('plans').scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
-function scrollToPlans() {
-  document.getElementById('plans').scrollIntoView({ behavior:'smooth' });
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Filters
+// Event Listeners
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -520,21 +676,23 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-// Search
 let searchTimeout;
-document.getElementById('searchInput').addEventListener('input', e => {
+document.getElementById('searchInput').addEventListener('input', (e) => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    searchQuery = e.target.value.trim();
+    searchQuery = e.target.value;
     renderArticles();
   }, 300);
 });
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, c => {
+    if (c === '&') return '&amp;';
+    if (c === '<') return '&lt;';
+    if (c === '>') return '&gt;';
+    return c;
+  });
 }
 
 init();
