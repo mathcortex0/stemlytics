@@ -1,701 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>English Learning Lab | Master English Daily</title>
-  <meta name="description" content="Learn English with daily articles, grammar lessons, and premium content">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #fafafa;
-      color: #1a1a2e;
-      line-height: 1.5;
-    }
-
-    /* Header */
-    .header {
-      background: #1a1a2e;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 2px solid #e67e22;
-    }
-
-    .header-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .logo h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .logo span {
-      color: #e67e22;
-    }
-
-    .logo p {
-      font-size: 0.7rem;
-      opacity: 0.7;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .nav-btn {
-      padding: 8px 20px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.2s;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      font-family: inherit;
-    }
-
-    .nav-btn-outline {
-      background: transparent;
-      color: white;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .nav-btn-outline:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    .nav-btn-primary {
-      background: #e67e22;
-      color: white;
-    }
-
-    .nav-btn-primary:hover {
-      background: #d35400;
-    }
-
-    .user-badge {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.85rem;
-    }
-
-    .sub-badge {
-      background: #e67e22;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-
-    .sub-badge-free {
-      background: #666;
-    }
-
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      color: white;
-      padding: 80px 24px;
-      text-align: center;
-    }
-
-    .hero-inner {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .hero h2 {
-      font-size: 3rem;
-      font-weight: 800;
-      margin-bottom: 16px;
-      letter-spacing: -1px;
-    }
-
-    .hero h2 span {
-      color: #e67e22;
-    }
-
-    .hero p {
-      font-size: 1.1rem;
-      opacity: 0.8;
-      margin-bottom: 32px;
-    }
-
-    /* Filter Bar */
-    .filter-bar {
-      max-width: 1280px;
-      margin: 32px auto 0;
-      padding: 0 24px;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .filter-group {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      padding: 8px 20px;
-      border: 1px solid #e0e0e0;
-      background: white;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-btn:hover {
-      border-color: #e67e22;
-      color: #e67e22;
-    }
-
-    .filter-btn.active {
-      background: #1a1a2e;
-      color: white;
-      border-color: #1a1a2e;
-    }
-
-    .search-box {
-      position: relative;
-    }
-
-    .search-input {
-      padding: 8px 16px 8px 40px;
-      border: 1px solid #e0e0e0;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      width: 250px;
-      outline: none;
-    }
-
-    .search-input:focus {
-      border-color: #e67e22;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 16px;
-      height: 16px;
-    }
-
-    /* Articles Grid */
-    .articles-section {
-      max-width: 1280px;
-      margin: 40px auto;
-      padding: 0 24px 60px;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #e0e0e0;
-    }
-
-    .section-header h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .article-count {
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    .articles-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 28px;
-    }
-
-    .article-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-
-    .article-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-    }
-
-    .card-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      position: relative;
-    }
-
-    .card-tag {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .tag-free {
-      background: #27ae60;
-      color: white;
-    }
-
-    .tag-premium {
-      background: #e67e22;
-      color: white;
-    }
-
-    .card-content {
-      padding: 20px;
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .card-excerpt {
-      font-size: 0.85rem;
-      color: #666;
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: #999;
-    }
-
-    /* Subscription Banner */
-    .sub-banner {
-      background: linear-gradient(135deg, #1a1a2e 0%, #2c3e50 100%);
-      color: white;
-      padding: 60px 24px;
-      text-align: center;
-    }
-
-    .sub-banner h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
-
-    .plans {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin: 32px 0;
-    }
-
-    .plan-card {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 24px 32px;
-      min-width: 200px;
-      backdrop-filter: blur(10px);
-    }
-
-    .plan-card.popular {
-      border-color: #e67e22;
-      background: rgba(230,126,34,0.15);
-    }
-
-    .plan-name {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      opacity: 0.7;
-    }
-
-    .plan-price {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #e67e22;
-    }
-
-    .plan-price span {
-      font-size: 0.85rem;
-      font-weight: 400;
-      opacity: 0.7;
-    }
-
-    .popular-badge {
-      font-size: 0.7rem;
-      background: #e67e22;
-      padding: 4px 12px;
-      border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 12px;
-    }
-
-    .telegram-link {
-      color: #e67e22;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .telegram-link:hover {
-      text-decoration: underline;
-    }
-
-    /* Footer */
-    .footer {
-      background: #1a1a2e;
-      color: rgba(255,255,255,0.6);
-      text-align: center;
-      padding: 32px;
-      font-size: 0.8rem;
-    }
-
-    .footer a {
-      color: #e67e22;
-      text-decoration: none;
-    }
-
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 60px;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #e0e0e0;
-      border-top-color: #e67e22;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #1a1a2e;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      display: none;
-      z-index: 1000;
-      border-left: 3px solid #e67e22;
-    }
-
-    .toast.show {
-      display: block;
-      animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .hero h2 { font-size: 2rem; }
-      .articles-grid { grid-template-columns: 1fr; }
-      .filter-bar { flex-direction: column; align-items: stretch; }
-      .search-input { width: 100%; }
-      .header-inner { flex-direction: column; text-align: center; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Text Poster</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        button {
+            background: #0055ff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0040cc;
+        }
+        .post {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #0055ff;
+        }
+        .post small {
+            color: #666;
+            font-size: 12px;
+        }
+        #postsList {
+            margin-top: 30px;
+        }
+        .loading {
+            color: #666;
+            text-align: center;
+            padding: 20px;
+        }
+        .error {
+            color: red;
+            padding: 10px;
+            margin-top: 10px;
+            background: #ffe0e0;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-
-<header class="header">
-  <div class="header-inner">
-    <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
-      <h1>English <span>Learning Lab</span></h1>
-      <p>Master English Daily</p>
-    </div>
-    <div class="nav-links" id="navLinks">
-      <a href="login.html" class="nav-btn nav-btn-outline">Sign In</a>
-      <a href="login.html" class="nav-btn nav-btn-primary">Get Premium</a>
-    </div>
-  </div>
-</header>
-
-<section class="hero">
-  <div class="hero-inner">
-    <h2>Master <span>English</span><br>One Article at a Time</h2>
-    <p>Daily lessons, vocabulary tips, and exam guides. Learn English the smart way.</p>
-  </div>
-</section>
-
-<div class="filter-bar">
-  <div class="filter-group">
-    <button class="filter-btn active" data-filter="all">All Articles</button>
-    <button class="filter-btn" data-filter="free">Free</button>
-    <button class="filter-btn" data-filter="premium">Premium</button>
-  </div>
-  <div class="search-box">
-    <input type="text" class="search-input" id="searchInput" placeholder="Search articles...">
-    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-  </div>
-</div>
-
-<section class="articles-section">
-  <div class="section-header">
-    <h3>Latest Articles</h3>
-    <span class="article-count" id="articleCount"></span>
-  </div>
-  <div class="articles-grid" id="articlesGrid">
-    <div class="loading"><div class="spinner"></div>Loading articles...</div>
-  </div>
-</section>
-
-<section class="sub-banner" id="plans">
-  <h2>Unlock All Premium Lessons</h2>
-  <p>Get unlimited access to all articles, exam guides, and vocabulary lessons.</p>
-  <div class="plans">
-    <div class="plan-card">
-      <div class="plan-name">Monthly</div>
-      <div class="plan-price">৳100 <span>/month</span></div>
-    </div>
-    <div class="plan-card popular">
-      <div class="popular-badge">Best Value</div>
-      <div class="plan-name">Yearly</div>
-      <div class="plan-price">৳1000 <span>/year</span></div>
-    </div>
-  </div>
-  <p>Contact <a href="https://t.me/adamzampas" target="_blank" class="telegram-link">@adamzampas</a> on Telegram to subscribe</p>
-</section>
-
-<footer class="footer">
-  <p>© 2024 English Learning Lab. All rights reserved.</p>
-  <p style="margin-top: 8px;">For subscriptions: <a href="https://t.me/adamzampas" target="_blank">@adamzampas on Telegram</a></p>
-</footer>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const SUPABASE_URL = 'https://noekogokjjptosipfile.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_TQRMwY2EqtZgAoyMqcSrlw_2TxPE7Lk';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-let allArticles = [];
-let currentFilter = 'all';
-let searchQuery = '';
-let currentUser = null;
-let userSubscription = null;
-
-async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
-  currentUser = session?.user || null;
-
-  if (currentUser) {
-    await loadSubscription();
-    updateHeader();
-  }
-
-  await loadArticles();
-}
-
-async function loadSubscription() {
-  const { data } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .eq('status', 'active')
-    .gt('end_date', new Date().toISOString())
-    .maybeSingle();
-  userSubscription = data;
-}
-
-function updateHeader() {
-  const nav = document.getElementById('navLinks');
-  const hasSub = !!userSubscription;
-  
-  if (currentUser) {
-    nav.innerHTML = `
-      <div class="user-badge">
-        <span>${currentUser.email.split('@')[0]}</span>
-        <span class="sub-badge ${hasSub ? '' : 'sub-badge-free'}">${hasSub ? 'Premium' : 'Free'}</span>
-      </div>
-      ${!hasSub ? '<a href="#plans" class="nav-btn nav-btn-primary">Get Premium</a>' : ''}
-      <button onclick="signOut()" class="nav-btn nav-btn-outline">Sign Out</button>
-    `;
-  }
-}
-
-async function signOut() {
-  await supabase.auth.signOut();
-  window.location.reload();
-}
-
-async function loadArticles() {
-  const { data, error } = await supabase
-    .from('articles')
-    .select('id,title,slug,excerpt,image_url,is_free,view_count,created_at')
-    .eq('is_published', true)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    document.getElementById('articlesGrid').innerHTML = '<div class="loading">Failed to load articles</div>';
-    return;
-  }
-
-  allArticles = data || [];
-  renderArticles();
-}
-
-function renderArticles() {
-  let filtered = [...allArticles];
-
-  if (currentFilter === 'free') filtered = filtered.filter(a => a.is_free);
-  if (currentFilter === 'premium') filtered = filtered.filter(a => !a.is_free);
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || (a.excerpt || '').toLowerCase().includes(q));
-  }
-
-  document.getElementById('articleCount').textContent = `${filtered.length} article${filtered.length !== 1 ? 's' : ''}`;
-  const grid = document.getElementById('articlesGrid');
-
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="loading">No articles found</div>';
-    return;
-  }
-
-  const hasSubscription = !!userSubscription;
-
-  grid.innerHTML = filtered.map(article => {
-    const isLocked = !article.is_free && !hasSubscription;
-    const date = new Date(article.created_at).toLocaleDateString();
-    const imgUrl = article.image_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800';
-
-    return `
-      <div class="article-card" onclick="viewArticle('${article.slug}', ${article.is_free})">
-        <div style="position: relative;">
-          <img src="${imgUrl}" class="card-image" alt="${escapeHtml(article.title)}">
-          <span class="card-tag ${article.is_free ? 'tag-free' : 'tag-premium'}">${article.is_free ? 'FREE' : 'PREMIUM'}</span>
+    <div class="container">
+        <h1>📝 Simple Text Poster</h1>
+        
+        <textarea id="postContent" rows="4" placeholder="Write something..."></textarea>
+        <button onclick="submitPost()">Post Text</button>
+        
+        <div id="message"></div>
+        
+        <h3>📄 All Posts</h3>
+        <div id="postsList">
+            <div class="loading">Loading posts...</div>
         </div>
-        <div class="card-content">
-          <h3 class="card-title">${escapeHtml(article.title)}</h3>
-          <p class="card-excerpt">${escapeHtml(article.excerpt || article.title)}</p>
-          <div class="card-footer">
-            <span>${date}</span>
-            <span>👁 ${article.view_count || 0} views</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
+    </div>
 
-function viewArticle(slug, isFree) {
-  if (isFree || userSubscription) {
-    window.location.href = `article.html?slug=${slug}`;
-  } else {
-    showToast('This is premium content. Subscribe to access!');
-    document.getElementById('plans').scrollIntoView({ behavior: 'smooth' });
-  }
-}
+    <script>
+        // Load posts when page opens
+        loadPosts();
 
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
+        async function submitPost() {
+            const content = document.getElementById('postContent').value.trim();
+            const messageDiv = document.getElementById('message');
+            
+            if (!content) {
+                messageDiv.innerHTML = '<div class="error">Please write something first!</div>';
+                setTimeout(() => messageDiv.innerHTML = '', 3000);
+                return;
+            }
 
-// Event Listeners
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    renderArticles();
-  });
-});
+            messageDiv.innerHTML = '<div class="loading">Posting...</div>';
 
-let searchTimeout;
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    searchQuery = e.target.value;
-    renderArticles();
-  }, 300);
-});
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: content })
+                });
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/[&<>]/g, c => {
-    if (c === '&') return '&amp;';
-    if (c === '<') return '&lt;';
-    if (c === '>') return '&gt;';
-    return c;
-  });
-}
+                const result = await response.json();
 
-init();
-</script>
+                if (response.ok) {
+                    messageDiv.innerHTML = '<div class="success" style="color:green; padding:10px; background:#e0ffe0; border-radius:8px;">✅ Posted successfully!</div>';
+                    document.getElementById('postContent').value = '';
+                    loadPosts(); // Refresh the list
+                    setTimeout(() => messageDiv.innerHTML = '', 3000);
+                } else {
+                    messageDiv.innerHTML = `<div class="error">Error: ${result.error || 'Something went wrong'}</div>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function loadPosts() {
+            const postsDiv = document.getElementById('postsList');
+            
+            try {
+                const response = await fetch('/api/posts');
+                const posts = await response.json();
+
+                if (posts.length === 0) {
+                    postsDiv.innerHTML = '<div class="loading">No posts yet. Write one above! ✍️</div>';
+                    return;
+                }
+
+                postsDiv.innerHTML = posts.map(post => `
+                    <div class="post">
+                        <div>${escapeHtml(post.content)}</div>
+                        <small>📅 ${new Date(post.created_at).toLocaleString()}</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                postsDiv.innerHTML = `<div class="error">Failed to load posts: ${error.message}</div>`;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
 </body>
 </html>
